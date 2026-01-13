@@ -1,0 +1,20 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/about/success-stories/page": "/about/success-stories",
+  "/about/story/page": "/about/story",
+  "/about/page": "/about",
+  "/account/page": "/account",
+  "/about/vision/page": "/about/vision",
+  "/admin/rules/page": "/admin/rules",
+  "/join/page": "/join",
+  "/admin/services/page": "/admin/services",
+  "/dashboard/page": "/dashboard",
+  "/business-opportunity/page": "/business-opportunity",
+  "/login/page": "/login",
+  "/page": "/",
+  "/referrals/page": "/referrals",
+  "/register/page": "/register",
+  "/services/page": "/services"
+}

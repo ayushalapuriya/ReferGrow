@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/about/layout,_N_T_/about/success-stories/layout,_N_T_/about/success-stories/page,_N_T_/about/success-stories"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/about/success-stories/__PAGE__",
+    "/about/success-stories",
+    "/about",
+    "/_index",
+    "/_head"
+  ]
+}
