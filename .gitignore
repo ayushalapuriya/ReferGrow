@@ -1,6 +1,8 @@
+# ===============================
 # Dependencies
+# ===============================
 node_modules/
-/.pnp
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -8,18 +10,23 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
+# ===============================
 # Environment variables (CONFIDENTIAL)
+# ===============================
 .env
 .env.local
 .env.*.local
-.env*
 
-# Development scripts (optional - can be personalized)
+# ===============================
+# Development scripts
+# ===============================
 start-dev.ps1
 start-dev.sh
 
+# ===============================
 # Logs
-logs
+# ===============================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -27,25 +34,30 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# ===============================
 # Testing
+# ===============================
 coverage/
 .nyc_output/
 *.lcov
 
+# ===============================
 # Next.js
-/.next/
-/out/
+# ===============================
+.next/
+out/
 next-env.d.ts
 
+# ===============================
 # Build outputs
+# ===============================
 dist/
 build/
 *.tsbuildinfo
 
-# Production
-/build
-
-# Database backups and dumps (CONFIDENTIAL)
+# ===============================
+# Database backups & dumps (CONFIDENTIAL)
+# ===============================
 *.sql
 *.sqlite
 *.sqlite3
@@ -54,12 +66,15 @@ dump/
 backup/
 *.dump
 
+# ===============================
 # OS files
+# ===============================
 .DS_Store
 Thumbs.db
-*.pem
 
-# IDE
+# ===============================
+# IDE / Editor
+# ===============================
 .vscode/
 .idea/
 *.swp
@@ -69,19 +84,22 @@ Thumbs.db
 .classpath
 .settings/
 
+# ===============================
 # Vercel
+# ===============================
 .vercel
 
-# Package manager
+# ===============================
+# Package manager lock files
+# (Ignore if team not strict on one PM)
+# ===============================
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Miscellaneous
-*.pem
-*.key
-*.cert
-*.crt
+# ===============================
+# Cache / Temp
+# ===============================
 .cache/
 temp/
 tmp/
@@ -89,9 +107,19 @@ tmp/
 *.bak
 *.backup
 
-# Secrets and credentials (CONFIDENTIAL)
+# ===============================
+# Secrets & Credentials (CONFIDENTIAL)
+# ===============================
 secrets/
 credentials/
 *.secrets
 .secrets
 config.local.*
+
+# ===============================
+# Certificates & Keys
+# ===============================
+*.pem
+*.key
+*.cert
+*.crt
