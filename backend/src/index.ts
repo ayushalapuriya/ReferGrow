@@ -17,9 +17,20 @@ const app = express();
 const port = Number(process.env.PORT ?? 4000);
 const corsOrigin = process.env.CORS_ORIGIN ?? "http://localhost:3000";
 
+// Support multiple CORS origins (comma-separated)
+const allowedOrigins = corsOrigin.split(",").map(o => o.trim());
+
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );

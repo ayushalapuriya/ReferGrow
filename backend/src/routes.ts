@@ -48,10 +48,11 @@ async function requireRole(req: Request, role: UserRole): Promise<AuthContext> {
 }
 
 function setAuthCookie(res: Response, token: string) {
+  const isProduction = env.NODE_ENV === "production";
   res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: env.NODE_ENV === "production",
+    sameSite: isProduction ? "none" : "lax", // 'none' required for cross-domain cookies
+    secure: isProduction, // Must be true when sameSite is 'none'
     path: "/",
     maxAge: 60 * 60 * 24 * 7 * 1000,
   });
