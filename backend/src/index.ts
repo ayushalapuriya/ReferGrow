@@ -51,7 +51,7 @@ async function main() {
 
   app.listen(port, () => {
     // eslint-disable-next-line no-console
-    console.log(`🚀 ReferGrow API listening on http://localhost:${port}`);
+    console.log(`[Server] ReferGrow API listening on http://localhost:${port}`);
   });
 }
 

@@ -20,19 +20,19 @@ export async function connectToDatabase() {
 
   if (!cached.promise) {
     // eslint-disable-next-line no-console
-    console.log("🔄 Connecting to MongoDB...");
+    console.log("[MongoDB] Connecting...");
     cached.promise = mongoose
       .connect(env.MONGODB_URI, {
         // Keep defaults; tune here if needed (pool sizes, timeouts, etc.).
       })
       .then((m) => {
         // eslint-disable-next-line no-console
-        console.log("✅ MongoDB connected successfully");
+        console.log("[MongoDB] Connected successfully");
         return m;
       })
       .catch((err) => {
         // eslint-disable-next-line no-console
-        console.error("❌ MongoDB connection error:", err.message);
+        console.error("[MongoDB] Connection error:", err.message);
         throw err;
       });
   }
