@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Rocket, DollarSign, TrendingUp, BarChart3, ShoppingBag, Info } from "lucide-react";
+import { Rocket, DollarSign, TrendingUp, BarChart3, ShoppingBag, Info, Network } from "lucide-react";
 
 export default function Home() {
   return (
@@ -55,7 +55,9 @@ export default function Home() {
           </div>
           
           <div className="card-hover glass rounded-2xl p-8 text-center">
-            <div className="text-5xl mb-4">🌳</div>
+            <div className="text-5xl mb-4 flex justify-center">
+              <Network className="w-16 h-16 text-purple-500" />
+            </div>
             <h3 className="text-xl font-bold mb-3">Binary Tree Structure</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
               Automatic placement in a balanced binary tree ensures fair distribution and growth potential.

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BookOpen, Target } from "lucide-react";
 
 export default function AboutPage() {
   return (

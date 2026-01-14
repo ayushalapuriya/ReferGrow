@@ -28,14 +28,18 @@ export default function OurStoryPage() {
 
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             <div className="p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-200 dark:border-purple-500/30">
-              <div className="text-4xl mb-4">🌱</div>
+              <div className="text-4xl mb-4 flex justify-center">
+                <Sprout className="w-16 h-16 text-green-500" />
+              </div>
               <h3 className="font-bold text-xl mb-2 text-purple-600 dark:text-purple-400">Community First</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 We believe in empowering every member of our community to achieve financial growth through collaboration.
               </p>
             </div>
             <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-200 dark:border-blue-500/30">
-              <div className="text-4xl mb-4">💎</div>
+              <div className="text-4xl mb-4 flex justify-center">
+                <Gem className="w-16 h-16 text-purple-500" />
+              </div>
               <h3 className="font-bold text-xl mb-2 text-blue-600 dark:text-blue-400">Transparency</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Every transaction, every BV distribution, every income calculation is clear and verifiable.

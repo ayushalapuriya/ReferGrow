@@ -1,4 +1,4 @@
-import { BarChart3, Lock } from "lucide-react";
+import { BarChart3, Lock, Target, Infinity } from "lucide-react";
 
 export default function VisionPage() {
   return (
@@ -29,7 +29,9 @@ export default function VisionPage() {
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-200 dark:border-purple-500/30">
-              <div className="text-5xl mb-4">♾️</div>
+              <div className="text-5xl mb-4 flex justify-center">
+                <Infinity className="w-20 h-20 text-indigo-500" />
+              </div>
               <h3 className="font-bold text-lg mb-2 text-purple-600 dark:text-purple-400">Unlimited Depth</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 No arbitrary limits on network growth

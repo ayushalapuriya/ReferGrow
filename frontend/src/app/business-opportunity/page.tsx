@@ -1,5 +1,5 @@
 import BusinessOpportunityForm from "./BusinessOpportunityForm";
-import { TrendingUp, DollarSign, Lock, Briefcase } from "lucide-react";
+import { TrendingUp, DollarSign, Lock, Briefcase, Infinity, Zap } from "lucide-react";
 
 export default function BusinessOpportunityPage() {
   return (
@@ -77,7 +77,9 @@ export default function BusinessOpportunityPage() {
 
         <div className="mt-8 grid gap-6 md:grid-cols-3 animate-fade-in" style={{animationDelay: '0.4s'}}>
           <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 text-center">
-            <div className="text-4xl mb-4">♾️</div>
+            <div className="text-4xl mb-4 flex justify-center">
+              <Infinity className="w-16 h-16 text-indigo-500" />
+            </div>
             <h3 className="font-bold text-lg mb-2 text-purple-600 dark:text-purple-400">Unlimited Depth</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               No limits on network growth potential
@@ -93,7 +95,9 @@ export default function BusinessOpportunityPage() {
             </p>
           </div>
           <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 text-center">
-            <div className="text-4xl mb-4">⚡</div>
+            <div className="text-4xl mb-4 flex justify-center">
+              <Zap className="w-16 h-16 text-yellow-500" />
+            </div>
             <h3 className="font-bold text-lg mb-2 text-green-600 dark:text-green-400">Instant Distribution</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Automated income calculation and distribution

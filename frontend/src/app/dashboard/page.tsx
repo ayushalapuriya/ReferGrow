@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
-import { DollarSign, BarChart3, TrendingUp } from "lucide-react";
+import { DollarSign, BarChart3, TrendingUp, Link as LinkIcon, ShoppingCart } from "lucide-react";
 
 type MeResponse = {
   user: {
@@ -165,8 +165,8 @@ export default function DashboardPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
             <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xl">
-                  🔗
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                  <LinkIcon className="w-6 h-6" />
                 </div>
                 <h2 className="font-semibold text-lg">Referral Code</h2>
               </div>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
         <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6 transition-all hover:shadow-2xl" style={{animationDelay: '0.3s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
-              🛒
+              <ShoppingCart className="w-5 h-5" />
             </div>
             <h2 className="font-semibold text-lg">Purchase Service</h2>
           </div>

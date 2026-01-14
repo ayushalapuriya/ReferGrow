@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Gift } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -103,8 +103,9 @@ export default function RegisterPage() {
                 onChange={(e) => setReferralCode(e.target.value)}
                 placeholder="Enter referral code"
               />
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 pl-1">
-                🎁 Join your referrer's network to start earning together
+              <p className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                <Gift className="w-4 h-4 text-purple-500" />
+                Join your referrer's network to start earning together
               </p>
             </div>
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Network, Lightbulb, Star } from "lucide-react";
 
 type TreeNode = {
   id: string;
