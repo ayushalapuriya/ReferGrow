@@ -1,4 +1,5 @@
 import BusinessOpportunityForm from "./BusinessOpportunityForm";
+import { TrendingUp, DollarSign, Lock, Briefcase } from "lucide-react";
 
 export default function BusinessOpportunityPage() {
   return (
@@ -6,7 +7,7 @@ export default function BusinessOpportunityPage() {
       <div className="mx-auto max-w-5xl">
         <div className="text-center mb-12 animate-fade-in">
           <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-4xl">
-            💼
+            <Briefcase className="w-10 h-10" />
           </div>
           <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Business Opportunity
