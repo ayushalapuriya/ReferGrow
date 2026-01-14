@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Sprout } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,8 +31,8 @@ export default function RootLayout({
       >
         <header className="glass border-b border-white/20 sticky top-0 z-50 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-            <Link className="text-xl font-bold gradient-text hover:scale-105 transition-transform" href="/">
-              🌱 ReferGrow
+            <Link className="text-xl font-bold gradient-text hover:scale-105 transition-transform flex items-center gap-2" href="/">
+              <Sprout className="w-6 h-6 text-green-500" /> ReferGrow
             </Link>
             <nav className="flex flex-wrap items-center gap-6 text-sm font-medium">
               <Link className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors" href="/services">
