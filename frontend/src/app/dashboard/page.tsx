@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/lib/useAuth";
 
 type MeResponse = {
   user: {
@@ -32,6 +34,8 @@ type Income = {
 };
 
 export default function DashboardPage() {
+  useAuth(); // Protect this page - require authentication
+  const router = useRouter();
   const [me, setMe] = useState<MeResponse["user"] | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);

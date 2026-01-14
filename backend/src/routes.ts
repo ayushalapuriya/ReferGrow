@@ -38,6 +38,18 @@ async function requireAuth(req: Request): Promise<AuthContext> {
   const email = payload.email as string;
 
   if (!payload.sub || !role || !email) throw new Error("Unauthorized");
+  
+  // Verify user still exists and is active
+  await connectToDatabase();
+  const user = await UserModel.findById(payload.sub).select("status sessionExpiresAt").lean();
+  
+  if (!user) throw new Error("Unauthorized");
+  if (user.status === "deleted") throw new Error("Account has been deleted");
+  if (user.status === "suspended") throw new Error("Account has been suspended by administrator");
+  if (user.sessionExpiresAt && new Date(user.sessionExpiresAt) < new Date()) {
+    throw new Error("Session has expired");
+  }
+  
   return { userId: payload.sub, role, email };
 }
 
@@ -150,6 +162,17 @@ export function registerRoutes(app: Express) {
       if (!user) {
         await verifyPassword(body.password, DUMMY_PASSWORD_HASH);
         return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Check account status before verifying password
+      if (user.status === "deleted") {
+        return res.status(403).json({ error: "Account has been deleted" });
+      }
+      if (user.status === "suspended") {
+        return res.status(403).json({ error: "Account has been suspended by administrator" });
+      }
+      if (user.sessionExpiresAt && new Date(user.sessionExpiresAt) < new Date()) {
+        return res.status(403).json({ error: "Account session has expired" });
       }
 
       const ok = await verifyPassword(body.password, user.passwordHash);

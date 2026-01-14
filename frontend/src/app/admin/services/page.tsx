@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/lib/useAuth";
 
 type Service = {
   _id: string;
@@ -14,6 +15,7 @@ type Service = {
 };
 
 export default function AdminServicesPage() {
+  useAuth({ requireAdmin: true }); // Protect admin page
   const [services, setServices] = useState<Service[]>([]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState<number>(0);

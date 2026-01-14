@@ -4,6 +4,8 @@ export type UserRole = "admin" | "user";
 
 export type BinaryPosition = "left" | "right";
 
+export type UserStatus = "active" | "suspended" | "deleted";
+
 const userSchema = new Schema(
   {
     // Display name for UI.
@@ -11,6 +13,12 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["admin", "user"], required: true, default: "user" },
+    
+    // Account status: active, suspended (blocked by admin), deleted (soft delete)
+    status: { type: String, enum: ["active", "suspended", "deleted"], default: "active", index: true },
+    
+    // Session expiry: when set, user cannot login after this date
+    sessionExpiresAt: { type: Date, default: null },
 
     // Unique code this user shares with new signups.
     referralCode: { type: String, required: true, unique: true, index: true },

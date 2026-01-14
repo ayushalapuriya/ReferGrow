@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/lib/useAuth";
 
 type Rule = {
   _id: string;
@@ -13,6 +14,7 @@ type Rule = {
 };
 
 export default function AdminRulesPage() {
+  useAuth({ requireAdmin: true }); // Protect admin page
   const [rules, setRules] = useState<Rule[]>([]);
   const [basePercentage, setBasePercentage] = useState<number>(10);
   const [decayEnabled, setDecayEnabled] = useState<boolean>(true);
