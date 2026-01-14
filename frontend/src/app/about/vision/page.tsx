@@ -34,14 +34,18 @@ export default function VisionPage() {
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-200 dark:border-blue-500/30">
-              <div className="text-5xl mb-4">📊</div>
+              <div className="text-5xl mb-4 flex justify-center">
+                <BarChart3 className="w-20 h-20 text-purple-500" />
+              </div>
               <h3 className="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">Real-Time Updates</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Instant reflection of all changes
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-200 dark:border-green-500/30">
-              <div className="text-5xl mb-4">🔒</div>
+              <div className="text-5xl mb-4 flex justify-center">
+                <Lock className="w-20 h-20 text-blue-500" />
+              </div>
               <h3 className="font-bold text-lg mb-2 text-green-600 dark:text-green-400">Secure & Fair</h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Built with security and fairness at core

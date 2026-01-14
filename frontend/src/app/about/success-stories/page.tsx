@@ -18,7 +18,7 @@ export default function SuccessStoriesPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.1s'}}>
             <div className="flex items-start gap-4 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl flex-shrink-0">
-                👤
+                <User className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="font-bold text-xl text-purple-600 dark:text-purple-400">Sarah Johnson</h3>

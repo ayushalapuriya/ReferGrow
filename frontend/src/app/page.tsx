@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Rocket, DollarSign, TrendingUp, BarChart3, ShoppingBag, Info } from "lucide-react";
 
 export default function Home() {
   return (
@@ -21,9 +22,10 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/register"
-              className="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg shadow-2xl hover:scale-105 transition-transform"
+              className="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 justify-center"
             >
-              🚀 Get Started
+              <Rocket className="w-5 h-5" />
+              Get Started
             </Link>
             <Link
               href="/login"
@@ -43,7 +45,9 @@ export default function Home() {
         
         <div className="grid md:grid-cols-3 gap-8">
           <div className="card-hover glass rounded-2xl p-8 text-center">
-            <div className="text-5xl mb-4">💰</div>
+            <div className="text-5xl mb-4 flex justify-center">
+              <DollarSign className="w-16 h-16 text-green-500" />
+            </div>
             <h3 className="text-xl font-bold mb-3">Earn Through Referrals</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
               Build your network and earn income through our sophisticated Business Volume distribution system.
@@ -59,7 +63,9 @@ export default function Home() {
           </div>
           
           <div className="card-hover glass rounded-2xl p-8 text-center">
-            <div className="text-5xl mb-4">📈</div>
+            <div className="text-5xl mb-4 flex justify-center">
+              <TrendingUp className="w-16 h-16 text-blue-500" />
+            </div>
             <h3 className="text-xl font-bold mb-3">Real-time Tracking</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
               Monitor your income, referrals, and network growth with our comprehensive dashboard.
@@ -95,14 +101,17 @@ export default function Home() {
       {/* Quick Links */}
       <div className="mx-auto max-w-4xl px-6 py-8 mb-16">
         <div className="flex flex-wrap gap-4 justify-center">
-          <Link href="/services" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all">
-            🛍️ View Services
+          <Link href="/services" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+            <ShoppingBag className="w-4 h-4" />
+            View Services
           </Link>
-          <Link href="/about" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all">
-            ℹ️ About Us
+          <Link href="/about" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+            <Info className="w-4 h-4" />
+            About Us
           </Link>
-          <Link href="/dashboard" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all">
-            📊 Dashboard
+          <Link href="/dashboard" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Dashboard
           </Link>
         </div>
       </div>

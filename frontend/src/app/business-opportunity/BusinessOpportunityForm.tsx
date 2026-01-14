@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 export default function BusinessOpportunityForm() {
   const [email, setEmail] = useState("");

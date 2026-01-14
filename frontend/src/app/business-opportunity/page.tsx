@@ -20,7 +20,7 @@ export default function BusinessOpportunityPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.1s'}}>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl">
-                📈
+                <TrendingUp className="w-8 h-8" />
               </div>
               <h2 className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">How It Works</h2>
             </div>
@@ -38,7 +38,7 @@ export default function BusinessOpportunityPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.2s'}}>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-2xl">
-                💰
+                <DollarSign className="w-8 h-8" />
               </div>
               <h2 className="font-bold text-2xl bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Commission Structure</h2>
             </div>
@@ -83,7 +83,9 @@ export default function BusinessOpportunityPage() {
             </p>
           </div>
           <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 text-center">
-            <div className="text-4xl mb-4">🔒</div>
+            <div className="text-4xl mb-4 flex justify-center">
+              <Lock className="w-16 h-16 text-purple-500" />
+            </div>
             <h3 className="font-bold text-lg mb-2 text-blue-600 dark:text-blue-400">100% Transparent</h3>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Every BV transaction is visible and verifiable

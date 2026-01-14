@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
+import { DollarSign, BarChart3, TrendingUp } from "lucide-react";
 
 type MeResponse = {
   user: {
@@ -180,7 +181,7 @@ export default function DashboardPage() {
             <div className="glass-panel animate-fade-in rounded-2xl border border-green-200 dark:border-green-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl" style={{animationDelay: '0.1s'}}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl">
-                  💰
+                  <DollarSign className="w-6 h-6" />
                 </div>
                 <h2 className="font-semibold text-lg">Total Income</h2>
               </div>
@@ -195,7 +196,7 @@ export default function DashboardPage() {
             <div className="glass-panel animate-fade-in rounded-2xl border border-blue-200 dark:border-blue-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl md:col-span-2 lg:col-span-1" style={{animationDelay: '0.2s'}}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl">
-                  📊
+                  <BarChart3 className="w-6 h-6" />
                 </div>
                 <h2 className="font-semibold text-lg">Quick Stats</h2>
               </div>
@@ -251,7 +252,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
-                📈
+                <TrendingUp className="w-5 h-5" />
               </div>
               <h2 className="font-semibold text-lg">Income History</h2>
             </div>

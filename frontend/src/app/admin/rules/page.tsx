@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
+import { AlertCircle, BarChart3 } from "lucide-react";
 
 type Rule = {
   _id: string;
