@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sprout, ShoppingCart, Menu, X } from "lucide-react";
-
+import { ShoppingCart, Menu, X, User } from "lucide-react";
 import { useAppSelector } from "@/store/hooks";
 
 export default function SiteHeader() {
@@ -11,113 +10,131 @@ export default function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
-    { href: "/services", label: "Services", prefetch: false },
-    { href: "/about", label: "About", prefetch: true },
-    { href: "/join", label: "Join", prefetch: false },
-    { href: "/business-opportunity", label: "Opportunity", prefetch: false },
+    { href: "/services", label: "Services" },
+    { href: "/about", label: "About" },
+    { href: "/business-opportunity", label: "Opportunity" },
+    { href: "/contact", label: "Contact" },
   ];
 
   return (
-    <header className="glass border-b border-white/20 sticky top-0 z-50 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
-        <Link
-          className="text-lg sm:text-xl font-bold gradient-text hover:scale-105 transition-transform flex items-center gap-2"
-          href="/"
-        >
-          <Sprout className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" /> 
-          <span className="hidden sm:inline">ReferGrow</span>
-          <span className="sm:hidden">RG</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
-          {navigationItems.map((item) => (
-            <Link
-              key={item.href}
-              prefetch={item.prefetch}
-              className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-              href={item.href}
-            >
-              {item.label}
-            </Link>
-          ))}
-          
-          <Link
-            prefetch={false}
-            className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors flex items-center gap-2"
-            href="/cart"
-          >
-            <span className="relative inline-flex">
-              <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 ? (
-                <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-1 rounded-full bg-green-500 text-white text-[11px] leading-4.5 text-center font-semibold">
-                  {cartCount}
-                </span>
-              ) : null}
-            </span>
-            <span className="hidden sm:inline">Cart</span>
-          </Link>
-
-          <Link
-            prefetch={false}
-            className="btn-primary px-4 py-2 rounded-lg text-white text-sm font-semibold"
-            href="/dashboard"
-          >
-            Dashboard
-          </Link>
-        </nav>
-
-        {/* Mobile Menu Button */}
-        <div className="flex items-center gap-3 lg:hidden">
-          <Link
-            prefetch={false}
-            className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors relative"
-            href="/cart"
-          >
-            <span className="relative inline-flex">
-              <ShoppingCart className="w-5 h-5" />
-              {cartCount > 0 ? (
-                <span className="absolute -top-2 -right-2 min-w-4.5 h-4.5 px-1 rounded-full bg-green-500 text-white text-[11px] leading-4.5 text-center font-semibold">
-                  {cartCount}
-                </span>
-              ) : null}
+    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex items-center justify-between px-4 lg:px-6 h-16">
+          {/* Logo */}
+          <Link className="flex items-center gap-2 group" href="/">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
+              <span className="text-2xl">🌱</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
+              ReferGrow
             </span>
           </Link>
 
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl mobile-menu-enter">
-          <nav className="flex flex-col px-4 py-4 space-y-3">
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1">
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
-                prefetch={item.prefetch}
-                className="block px-3 py-2 rounded-lg hover:bg-white/10 dark:hover:bg-zinc-800/50 transition-colors text-sm font-medium"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors"
+                href={item.href}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Link
+              prefetch={false}
+              className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              href="/cart"
+              title="Shopping Cart"
+            >
+              <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              prefetch={false}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              href="/login"
+            >
+              Sign In
+            </Link>
+
+            <Link
+              prefetch={false}
+              className="btn-primary px-4 py-2 rounded-md text-white text-sm font-medium"
+              href="/dashboard"
+            >
+              Dashboard
+            </Link>
+          </div>
+
+          {/* Mobile Actions */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link
+              prefetch={false}
+              className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              href="/cart"
+              title="Shopping Cart"
+            >
+              <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Toggle menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              ) : (
+                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 animate-fade-in">
+          <nav className="px-4 py-4 space-y-1 max-w-7xl mx-auto">
+            {navigationItems.map((item) => (
+              <Link
+                key={item.href}
+                className="block px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            
-            <div className="pt-2 border-t border-white/10">
+            <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-4 space-y-1">
               <Link
                 prefetch={false}
-                className="btn-primary w-full px-4 py-2 rounded-lg text-white text-sm font-semibold text-center block"
+                className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                Sign In
+              </Link>
+              <Link
+                prefetch={false}
+                className="flex items-center justify-center px-4 py-3 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                 href="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
               >

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
-import { IndianRupee, BarChart3, TrendingUp, Link as LinkIcon, ShoppingCart } from "lucide-react";
+import { IndianRupee, BarChart3, TrendingUp, Link as LinkIcon, ShoppingCart, Copy, Check } from "lucide-react";
 import { formatINR } from "@/lib/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addItem } from "@/store/slices/cartSlice";
@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const totalIncome = useMemo(
     () => incomes.reduce((sum, inc) => sum + (inc.amount ?? 0), 0),
@@ -138,14 +139,22 @@ export default function DashboardPage() {
     window.setTimeout(() => setAddedToCart(false), 1500);
   }
 
+  function copyReferralCode() {
+    if (me?.referralCode) {
+      navigator.clipboard.writeText(me.referralCode);
+      setCopiedCode(true);
+      window.setTimeout(() => setCopiedCode(false), 2000);
+    }
+  }
+
   if (error && !me) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-3xl font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Dashboard</h1>
-          <div className="mt-4 glass-panel animate-fade-in rounded-xl border border-red-500/20 bg-red-500/10 p-6 text-sm backdrop-blur-xl">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <div className="mt-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-sm text-red-700 dark:text-red-300">
             {error} —{" "}
-            <Link prefetch={false} className="font-semibold underline transition-colors hover:text-purple-600" href="/login">
+            <Link prefetch={false} className="font-semibold underline hover:text-red-800 dark:hover:text-red-200" href="/login">
               Login
             </Link>
           </div>
@@ -155,36 +164,36 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-8">
-          <div className="animate-fade-in">
-            <h1 className="text-4xl font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Dashboard</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
             {me ? (
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                Welcome back, <span className="font-semibold text-purple-600 dark:text-purple-400">{me.email}</span> ({me.role})
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Welcome back, <span className="font-semibold text-blue-600 dark:text-blue-400">{me.email}</span> ({me.role})
               </p>
             ) : null}
           </div>
-          <div className="flex gap-3 animate-slide-in">
+          <div className="flex gap-3">
             {me?.role === "admin" ? (
               <Link 
-                className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+                className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:shadow-md transition-shadow" 
                 prefetch={false}
                 href="/admin/services"
               >
-                <span className="bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Admin Panel</span>
+                <span className="text-blue-600 dark:text-blue-400">Admin Panel</span>
               </Link>
             ) : null}
             <button
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium disabled:opacity-60 transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30"
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium disabled:opacity-60 hover:shadow-md transition-shadow"
               onClick={logout}
               disabled={busy}
             >
               Logout
             </button>
             <Link
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30"
+              className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:shadow-md transition-shadow"
               prefetch={false}
               href="/cart"
             >
@@ -194,58 +203,69 @@ export default function DashboardPage() {
         </div>
 
         {error ? (
-          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300 backdrop-blur-xl">
+          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-sm text-red-700 dark:text-red-300">
             {error}
           </div>
         ) : null}
 
         {me ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                  <LinkIcon className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                  <LinkIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="font-semibold text-lg">Referral Code</h2>
+                <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Referral Code</h2>
               </div>
-              <div className="mt-2 flex items-center justify-between gap-2 rounded-xl bg-linear-to-r from-purple-500/10 to-blue-500/10 px-4 py-3 border border-purple-200 dark:border-purple-500/30">
-                <code className="text-lg font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{me.referralCode}</code>
+              <div className="mt-2 flex items-center justify-between gap-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 px-4 py-3 border border-blue-200 dark:border-blue-800">
+                <code className="text-lg font-bold text-blue-600 dark:text-blue-400">{me.referralCode}</code>
+                <button
+                  onClick={copyReferralCode}
+                  className="p-2 rounded-md hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
+                  title={copiedCode ? "Copied!" : "Copy code"}
+                >
+                  {copiedCode ? (
+                    <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <Copy className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  )}
+                </button>
               </div>
-              <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="mt-3 text-xs text-gray-600 dark:text-gray-400">
                 Share this code to invite new users to your network
               </p>
             </div>
 
-            <div className="glass-panel animate-fade-in rounded-2xl border border-green-200 dark:border-green-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl" style={{animationDelay: '0.1s'}}>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl">
-                  <IndianRupee className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                  <IndianRupee className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="font-semibold text-lg">Total Income</h2>
+                <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Total Income</h2>
               </div>
-              <p className="mt-2 text-4xl font-bold bg-linear-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent animate-pulse-slow">
+              <p className="mt-2 text-4xl font-bold text-blue-600 dark:text-blue-400">
                 {formatINR(totalIncome)}
               </p>
-              <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="mt-3 text-xs text-gray-600 dark:text-gray-400">
                 Cumulative BV income from your network
               </p>
             </div>
 
-            <div className="glass-panel animate-fade-in rounded-2xl border border-blue-200 dark:border-blue-500/30 p-6 transition-all hover:scale-105 hover:shadow-2xl md:col-span-2 lg:col-span-1" style={{animationDelay: '0.2s'}}>
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow md:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl">
-                  <BarChart3 className="w-6 h-6" />
+                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="font-semibold text-lg">Quick Stats</h2>
+                <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Quick Stats</h2>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400">Income Entries</span>
-                  <span className="font-semibold">{incomes.length}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Income Entries</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{incomes.length}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-600 dark:text-zinc-400">Available Services</span>
-                  <span className="font-semibold">{services.length}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Available Services</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{services.length}</span>
                 </div>
               </div>
             </div>

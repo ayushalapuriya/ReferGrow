@@ -24,22 +24,22 @@ function NodeView({ node, depth }: { node: TreeNode; depth: number }) {
 
   return (
     <div className="mt-3">
-      <div className="flex flex-wrap items-center gap-3 glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 p-4 transition-all hover:scale-105 hover:shadow-lg">
-        <span className={`rounded-lg bg-gradient-to-br ${colorClass} px-3 py-1 text-xs font-bold text-white shadow-md`}>
+      <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow">
+        <span className="rounded-md bg-blue-600 text-white px-3 py-1 text-xs font-bold">
           Level {depth}
         </span>
-        <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{node.email}</span>
-        <span className="text-xs px-2 py-1 rounded-md bg-purple-500/10 text-purple-700 dark:text-purple-300 font-mono">
+        <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{node.email}</span>
+        <span className="text-xs px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-mono">
           {node.referralCode}
         </span>
         {node.children.length > 0 && (
-          <span className="ml-auto text-xs px-2 py-1 rounded-md bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold">
+          <span className="ml-auto text-xs px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-semibold">
             {node.children.length} {node.children.length === 1 ? 'referral' : 'referrals'}
           </span>
         )}
       </div>
       {node.children.length > 0 ? (
-        <div className="ml-6 mt-2 border-l-2 border-purple-300 dark:border-purple-500/30 pl-6">
+        <div className="ml-6 mt-2 border-l-2 border-gray-300 dark:border-gray-700 pl-6">
           {node.children.map((c) => (
             <NodeView key={c.id} node={c} depth={depth + 1} />
           ))}
@@ -64,19 +64,19 @@ export default function ReferralsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div className="animate-fade-in">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
               Referral Network
             </h1>
-            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Visualize your binary tree structure and network growth
             </p>
           </div>
           <Link 
-            className="glass-panel animate-slide-in rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:shadow-md transition-shadow" 
             prefetch={false}
             href="/dashboard"
           >
@@ -85,18 +85,18 @@ export default function ReferralsPage() {
         </div>
 
         {error ? (
-          <div className="glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300 mb-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-sm text-red-700 dark:text-red-300 mb-6">
             ⚠️ {error}
           </div>
         ) : null}
 
         {tree ? (
-          <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 shadow-2xl" style={{animationDelay: '0.1s'}}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-xl">
-                🌳
+              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                <Network className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <h2 className="text-xl font-bold text-zinc-800 dark:text-zinc-100">Your Network Tree</h2>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Your Network Tree</h2>
             </div>
             
             <NodeView node={tree} depth={0} />

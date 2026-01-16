@@ -63,19 +63,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl animate-float"></div>
-        <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-pink-500/20 blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
-      </div>
-
-      <div className="w-full max-w-md">
-        <div className="glass rounded-3xl p-8 shadow-2xl animate-fade-in-up backdrop-blur-xl">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-md animate-slide-up">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold gradient-text mb-2">Welcome Back</h1>
-            <p className="text-zinc-600 dark:text-zinc-400">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 mb-4 shadow-sm">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Sign in to access your dashboard
             </p>
           </div>
@@ -83,11 +82,12 @@ export default function LoginPage() {
           {/* Form */}
           <form className="space-y-5" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email Address
               </label>
               <input
-                className="w-full rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-white/50 dark:bg-black/50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                id="email"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
@@ -98,11 +98,12 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <input
-                className="w-full rounded-xl border-2 border-zinc-200 dark:border-zinc-700 bg-white/50 dark:bg-black/50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                id="password"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
@@ -113,13 +114,13 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="rounded-xl border-2 border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800 p-4 text-sm text-red-700 dark:text-red-300 animate-fade-in-up">
-                ⚠️ {error}
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
+                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
               </div>
             )}
 
             <button
-              className="btn-primary w-full rounded-xl px-4 py-3 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full rounded-md px-4 py-2.5 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
               type="submit"
             >
@@ -139,9 +140,9 @@ export default function LoginPage() {
 
           {/* Footer Links */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Don&apos;t have an account?{" "}
-              <Link prefetch={false} className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" href="/register">
+              <Link prefetch={false} className="font-medium text-blue-600 dark:text-blue-400 hover:underline" href="/register">
                 Create one now
               </Link>
             </p>
@@ -150,8 +151,11 @@ export default function LoginPage() {
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-            ← Back to Home
+          <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
           </Link>
         </div>
       </div>

@@ -2,16 +2,16 @@ import { User } from "lucide-react";
 
 export default function SuccessStoriesPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
-        <div className="text-center mb-12 animate-fade-in">
+        <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-4xl">
-              ⭐
+            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
+              <span className="text-3xl">⭐</span>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Success Stories</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Success Stories</h1>
           </div>
-          <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Inspiring journeys from our thriving community members
           </p>
         </div>

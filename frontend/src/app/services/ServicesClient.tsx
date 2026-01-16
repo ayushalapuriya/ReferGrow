@@ -39,26 +39,26 @@ export default function ServicesClient({ services }: { services: Service[] }) {
     <div className="space-y-8">
       {/* Header Section */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800">
-          <Package className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-          <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">Premium Services</span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">Premium Services</span>
         </div>
         
-        <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-zinc-900 via-purple-800 to-zinc-900 dark:from-zinc-100 dark:via-purple-200 dark:to-zinc-100 bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
           Our Services
         </h1>
         
-        <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
           Choose from our premium services to generate Business Volume (BV) and accelerate your income growth
         </p>
 
         <div className="flex flex-wrap justify-center gap-6 text-sm">
-          <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-            <Star className="w-4 h-4 text-yellow-500" />
+          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <Star className="w-4 h-4 text-blue-500" />
             <span>Quality Assured</span>
           </div>
-          <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
-            <TrendingUp className="w-4 h-4 text-green-500" />
+          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <TrendingUp className="w-4 h-4 text-blue-500" />
             <span>Instant BV</span>
           </div>
         </div>
@@ -74,8 +74,7 @@ export default function ServicesClient({ services }: { services: Service[] }) {
           return (
             <div
               key={s._id}
-              className="group relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-              style={{ animationDelay: `${idx * 0.05}s` }}
+              className="group relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               {/* Wishlist Heart Icon */}
               <button
@@ -93,8 +92,8 @@ export default function ServicesClient({ services }: { services: Service[] }) {
               </button>
 
               {/* Service Image */}
-              <div className="aspect-square bg-linear-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 p-8 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-lg">
+              <div className="aspect-square bg-gray-100 dark:bg-gray-700 p-8 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-lg bg-blue-600 text-white flex items-center justify-center">
                   <Package className="w-10 h-10" />
                 </div>
               </div>

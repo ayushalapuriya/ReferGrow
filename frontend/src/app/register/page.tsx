@@ -63,16 +63,21 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="glass-panel animate-fade-in rounded-3xl border border-purple-200 dark:border-purple-500/30 p-8 shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-md animate-slide-up">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 mb-4 shadow-sm">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Join ReferGrow
             </h1>
-            <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{" "}
-              <Link prefetch={false} className="font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent hover:underline" href="/login">
+              <Link prefetch={false} className="font-medium text-blue-600 dark:text-blue-400 hover:underline" href="/login">
                 Sign in
               </Link>
             </p>
@@ -80,10 +85,10 @@ export default function RegisterPage() {
 
           <form className="space-y-5" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Full Name</label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
               <input
                 id="name"
-                className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -93,10 +98,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
               <input
                 id="email"
-                className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
@@ -107,10 +112,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
               <input
                 id="password"
-                className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
@@ -122,47 +127,67 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="referralCode" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Referral Code (Optional)</label>
+              <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Referral Code (Optional)</label>
               <input
                 id="referralCode"
-                className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value)}
                 placeholder="Enter referral code"
               />
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
-                <Gift className="w-4 h-4 text-purple-500" />
+              <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                <Gift className="w-4 h-4 text-blue-500" />
                 Join your referrer’s network to start earning together
               </p>
             </div>
 
             <label className="flex items-start gap-3 text-sm cursor-pointer">
               <input
-                className="mt-1 w-4 h-4 accent-purple-600"
+                className="mt-1 w-4 h-4 accent-blue-600"
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={(e) => setAcceptedTerms(e.target.checked)}
                 required
               />
-              <span className="text-zinc-700 dark:text-zinc-300">
-                I accept the <span className="font-semibold text-purple-600 dark:text-purple-400">Terms &amp; Conditions</span>
+              <span className="text-gray-700 dark:text-gray-300">
+                I accept the <span className="font-medium text-blue-600 dark:text-blue-400">Terms &amp; Conditions</span>
               </span>
             </label>
 
-            {error ? (
-              <div className="glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-                ⚠️ {error}
+            {error && (
+              <div className="rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
+                <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
               </div>
-            ) : null}
+            )}
 
             <button
-              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3.5 font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+              className="btn-primary w-full rounded-md px-4 py-2.5 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
               type="submit"
             >
-              {loading ? "Creating your account..." : "Create Account"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating your account...
+                </span>
+              ) : (
+                "Create Account"
+              )}
             </button>
           </form>
+        </div>
+
+        {/* Back to Home */}
+        <div className="mt-6 text-center">
+          <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+          </Link>
         </div>
       </div>
     </div>

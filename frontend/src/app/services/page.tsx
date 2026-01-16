@@ -42,7 +42,7 @@ export default async function ServicesPage() {
   const services = await getServices();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 px-6 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <ServicesClient services={services} />
       </div>

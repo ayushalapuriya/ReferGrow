@@ -32,45 +32,54 @@ export default function RootLayout({
       >
         <Providers>
           <SiteHeader />
-          <main>{children}</main>
+          <main className="min-h-[calc(100vh-16rem)]">{children}</main>
         </Providers>
-        <footer className="mt-12 sm:mt-16 md:mt-20 border-t border-white/10 bg-zinc-50 dark:bg-zinc-900/50 py-8 sm:py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+        <footer className="mt-20 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
               <div>
-                <h3 className="font-bold text-lg gradient-text mb-3 sm:mb-4">ReferGrow</h3>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
+                    <span className="text-2xl">🌱</span>
+                  </div>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">ReferGrow</h3>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Building financial freedom through smart referral networks.
                 </p>
               </div>
+              
               <div>
-                <h4 className="font-semibold mb-2 sm:mb-3">Platform</h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  <li><Link prefetch={false} href="/services" className="hover:text-purple-600">Services</Link></li>
-                  <li><Link prefetch={false} href="/dashboard" className="hover:text-purple-600">Dashboard</Link></li>
-                  <li><Link prefetch={false} href="/referrals" className="hover:text-purple-600">Referrals</Link></li>
-                  <li><Link prefetch={false} href="/cart" className="hover:text-purple-600">Cart</Link></li>
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Platform</h4>
+                <ul className="space-y-2 text-sm">
+                  <li><Link prefetch={false} href="/services" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Services</Link></li>
+                  <li><Link prefetch={false} href="/dashboard" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link></li>
+                  <li><Link prefetch={false} href="/referrals" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Referrals</Link></li>
                 </ul>
               </div>
+              
               <div>
-                <h4 className="font-semibold mb-2 sm:mb-3">Company</h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  <li><Link href="/about" className="hover:text-purple-600">About Us</Link></li>
-                  <li><Link prefetch={false} href="/about/vision" className="hover:text-purple-600">Vision</Link></li>
-                  <li><Link prefetch={false} href="/about/success-stories" className="hover:text-purple-600">Success Stories</Link></li>
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Company</h4>
+                <ul className="space-y-2 text-sm">
+                  <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</Link></li>
+                  <li><Link prefetch={false} href="/about/vision" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Vision</Link></li>
+                  <li><Link prefetch={false} href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</Link></li>
                 </ul>
               </div>
+              
               <div>
-                <h4 className="font-semibold mb-2 sm:mb-3">Account</h4>
-                <ul className="space-y-1.5 sm:space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  <li><Link prefetch={false} href="/login" className="hover:text-purple-600">Login</Link></li>
-                  <li><Link prefetch={false} href="/register" className="hover:text-purple-600">Register</Link></li>
-                  <li><Link prefetch={false} href="/account" className="hover:text-purple-600">My Account</Link></li>
+                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Account</h4>
+                <ul className="space-y-2 text-sm">
+                  <li><Link prefetch={false} href="/login" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Sign In</Link></li>
+                  <li><Link prefetch={false} href="/register" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Sign Up</Link></li>
                 </ul>
               </div>
             </div>
-            <div className="border-t border-white/10 pt-6 sm:pt-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
-              <p>© 2026 ReferGrow. All rights reserved.</p>
+            
+            <div className="border-t border-gray-200 dark:border-gray-800 pt-6 text-center">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                © 2026 ReferGrow. All rights reserved.
+              </p>
             </div>
           </div>
         </footer>

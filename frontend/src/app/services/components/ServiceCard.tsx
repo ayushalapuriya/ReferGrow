@@ -59,7 +59,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
   };
 
   return (
-    <div className="group relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       {/* Wishlist Heart Icon */}
       <button
         onClick={toggleWishlist}
@@ -76,8 +76,8 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       </button>
 
       {/* Service Image */}
-      <div className="aspect-square bg-linear-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 p-8 flex items-center justify-center">
-        <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-lg">
+      <div className="aspect-square bg-gray-100 dark:bg-gray-700 p-8 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-lg bg-blue-600 text-white flex items-center justify-center">
           <Package className="w-10 h-10" />
         </div>
       </div>
