@@ -1,13 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
-import { AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +25,11 @@ export default function LoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Login failed");
 
-      router.push("/dashboard");
+      // Give browser time to save the cookie before redirecting
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      
+      // Force a hard refresh to ensure cookie is recognized
+      globalThis.location.href = "/dashboard";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -114,7 +115,7 @@ export default function LoginPage() {
           {/* Footer Links */}
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" href="/register">
                 Create one now
               </Link>

@@ -67,6 +67,7 @@ function setAuthCookie(res: Response, token: string) {
     secure: isProduction, // Must be true when sameSite is 'none'
     path: "/",
     maxAge: 60 * 60 * 24 * 7 * 1000,
+    // No domain specified - allows cookie to work on any domain
   });
 }
 
