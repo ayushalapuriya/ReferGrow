@@ -344,7 +344,17 @@ export function registerRoutes(app: Express) {
     try {
       const body = schema.parse(req.body);
       const content = getBusinessOpportunityEmailContent();
-      const result = await sendEmail({ to: body.email, subject: content.subject, text: content.text });
+      const result = await sendEmail({ 
+        to: body.email, 
+        subject: content.subject, 
+        text: content.text,
+        html: content.html 
+      });
+      
+      if (!result.sent) {
+        return res.status(500).json({ error: result.error || "Failed to send email" });
+      }
+      
       return res.json({ ok: true, emailed: result.sent });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
