@@ -124,13 +124,15 @@ export function registerRoutes(app: Express) {
         position,
       });
 
-      // Best-effort email.
-      try {
-        const content = getBusinessOpportunityEmailContent();
-        await sendEmail({ to: user.email, subject: content.subject, text: content.text });
-      } catch {
-        // ignore
-      }
+      // Non-blocking email - don't wait for it to complete
+      setTimeout(async () => {
+        try {
+          const content = getBusinessOpportunityEmailContent();
+          await sendEmail({ to: user.email, subject: content.subject, text: content.text });
+        } catch {
+          // ignore email errors
+        }
+      }, 0);
 
       const token = await signAuthToken({ sub: user._id.toString(), role: user.role, email: user.email });
       setAuthCookie(res, token);

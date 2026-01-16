@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { apiFetch } from "@/lib/apiClient";
+import { useRouter } from "next/navigation";
+import { apiFetch, readApiBody } from "@/lib/apiClient";
+import { useAppDispatch } from "@/store/hooks";
+import { setUserProfile } from "@/store/slices/userSlice";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,14 +27,25 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Login failed");
+      const body = await readApiBody(res);
+      const data = body.json as any;
+      if (!res.ok) throw new Error(data?.error ?? body.text ?? "Login failed");
 
-      // Give browser time to save the cookie before redirecting
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      
-      // Force a hard refresh to ensure cookie is recognized
-      globalThis.location.href = "/dashboard";
+      // Give browser a beat to persist the cookie
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      // Store profile data after login
+      try {
+        const meRes = await apiFetch("/api/me");
+        const meBody = await readApiBody(meRes);
+        const meJson = meBody.json as any;
+        if (meRes.ok) dispatch(setUserProfile(meJson.user ?? null));
+      } catch {
+        // ignore
+      }
+
+      router.push("/dashboard");
+      router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -116,7 +132,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
               Don&apos;t have an account?{" "}
-              <Link className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" href="/register">
+              <Link prefetch={false} className="font-semibold text-purple-600 dark:text-purple-400 hover:underline" href="/register">
                 Create one now
               </Link>
             </p>

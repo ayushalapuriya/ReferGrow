@@ -17,6 +17,7 @@ export default function AboutPage() {
         <div className="grid gap-6 md:grid-cols-3">
           <Link 
             className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8 transition-all hover:scale-105 hover:shadow-2xl group" 
+            prefetch={false}
             href="/about/story"
             style={{animationDelay: '0.1s'}}
           >
@@ -33,6 +34,7 @@ export default function AboutPage() {
 
           <Link 
             className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8 transition-all hover:scale-105 hover:shadow-2xl group" 
+            prefetch={false}
             href="/about/vision"
             style={{animationDelay: '0.2s'}}
           >
@@ -49,6 +51,7 @@ export default function AboutPage() {
 
           <Link
             className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8 transition-all hover:scale-105 hover:shadow-2xl group"
+            prefetch={false}
             href="/about/success-stories"
             style={{animationDelay: '0.3s'}}
           >

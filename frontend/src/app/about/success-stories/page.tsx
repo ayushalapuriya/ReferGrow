@@ -28,11 +28,11 @@ export default function SuccessStoriesPage() {
               </div>
             </div>
             <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-              "ReferGrow transformed my approach to network marketing. The transparent BV system and automated income distribution make it incredibly easy to track growth and earnings. In just 6 months, I've built a network of 50+ active members!"
+              “ReferGrow transformed my approach to network marketing. The transparent BV system and automated income distribution make it incredibly easy to track growth and earnings. In just 6 months, I’ve built a network of 50+ active members!”
             </p>
             <div className="mt-6 flex gap-4 text-sm">
               <div className="px-3 py-1 rounded-lg bg-green-500/10 text-green-700 dark:text-green-300 font-semibold">
-                $5,240 earned
+                ₹5,240 earned
               </div>
               <div className="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold">
                 50+ referrals
@@ -51,11 +51,11 @@ export default function SuccessStoriesPage() {
               </div>
             </div>
             <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-              "The binary tree structure and level-wise income calculation is brilliant! It ensures everyone in the network benefits fairly. I've been able to create a sustainable passive income stream while helping others succeed."
+              “The binary tree structure and level-wise income calculation is brilliant! It ensures everyone in the network benefits fairly. I’ve been able to create a sustainable passive income stream while helping others succeed.”
             </p>
             <div className="mt-6 flex gap-4 text-sm">
               <div className="px-3 py-1 rounded-lg bg-green-500/10 text-green-700 dark:text-green-300 font-semibold">
-                $12,580 earned
+                ₹12,580 earned
               </div>
               <div className="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold">
                 120+ referrals
@@ -74,11 +74,11 @@ export default function SuccessStoriesPage() {
               </div>
             </div>
             <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-              "What I love most is the transparency. Every BV calculation, every income entry is visible and verifiable. This builds trust with my network members and makes recruitment so much easier!"
+              “What I love most is the transparency. Every BV calculation, every income entry is visible and verifiable. This builds trust with my network members and makes recruitment so much easier!”
             </p>
             <div className="mt-6 flex gap-4 text-sm">
               <div className="px-3 py-1 rounded-lg bg-green-500/10 text-green-700 dark:text-green-300 font-semibold">
-                $8,920 earned
+                ₹8,920 earned
               </div>
               <div className="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold">
                 75+ referrals
@@ -97,11 +97,11 @@ export default function SuccessStoriesPage() {
               </div>
             </div>
             <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
-              "As a newcomer to network marketing, ReferGrow's user-friendly dashboard and clear documentation made it easy to get started. The automated income distribution means I can focus on growing my network instead of manual calculations."
+              “As a newcomer to network marketing, ReferGrow’s user-friendly dashboard and clear documentation made it easy to get started. The automated income distribution means I can focus on growing my network instead of manual calculations.”
             </p>
             <div className="mt-6 flex gap-4 text-sm">
               <div className="px-3 py-1 rounded-lg bg-green-500/10 text-green-700 dark:text-green-300 font-semibold">
-                $3,450 earned
+                ₹3,450 earned
               </div>
               <div className="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 font-semibold">
                 35+ referrals

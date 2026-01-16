@@ -17,6 +17,7 @@ export default function AccountPage() {
         <div className="grid gap-6 md:grid-cols-2">
           <Link 
             className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8 transition-all hover:scale-105 hover:shadow-2xl group" 
+            prefetch={false}
             href="/login"
             style={{animationDelay: '0.1s'}}
           >
@@ -39,6 +40,7 @@ export default function AccountPage() {
 
           <Link 
             className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8 transition-all hover:scale-105 hover:shadow-2xl group" 
+            prefetch={false}
             href="/register"
             style={{animationDelay: '0.2s'}}
           >

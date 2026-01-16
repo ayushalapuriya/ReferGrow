@@ -10,12 +10,11 @@ export function getBusinessOpportunityEmailContent() {
     "- Income is calculated from BV (repurchases add BV again).",
     "",
     "Level-wise commission (based on BV)",
-    "- Level 1: 10% of BV",
-    "- Level 2: 5% of BV",
-    "- Level 3: 2.5% of BV",
-    "- Level 4: 1.25% of BV",
-    "- Level 5: 50% of Level 4",
-    "- Level 6+: Half of the previous level (keeps decreasing)",
+    "- Level 1: 5% of BV",
+    "- Level 2: 2.5% of BV",
+    "- Level 3: 1.25% of BV",
+    "- Level 4: 50% of Level 3 (0.625% of BV)",
+    "- Level 5+: Half of the previous level (keeps decreasing)",
     "",
     "Notes",
     "- Depth is unlimited; the percentage keeps halving.",
@@ -52,12 +51,11 @@ export function getBusinessOpportunityEmailContent() {
 
         <h2>Level-wise Commission (based on BV)</h2>
         <ul>
-          <li><strong>Level 1:</strong> 10% of BV</li>
-          <li><strong>Level 2:</strong> 5% of BV</li>
-          <li><strong>Level 3:</strong> 2.5% of BV</li>
-          <li><strong>Level 4:</strong> 1.25% of BV</li>
-          <li><strong>Level 5:</strong> 50% of Level 4</li>
-          <li><strong>Level 6+:</strong> Half of the previous level (keeps decreasing)</li>
+          <li><strong>Level 1:</strong> 5% of BV</li>
+          <li><strong>Level 2:</strong> 2.5% of BV</li>
+          <li><strong>Level 3:</strong> 1.25% of BV</li>
+          <li><strong>Level 4:</strong> 50% of Level 3 (0.625% of BV)</li>
+          <li><strong>Level 5+:</strong> Half of the previous level (keeps decreasing)</li>
         </ul>
 
         <div class="highlight">

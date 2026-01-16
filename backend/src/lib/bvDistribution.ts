@@ -30,8 +30,9 @@ async function getActiveDistributionRule(session: mongoose.ClientSession): Promi
     .select("basePercentage decayEnabled")
     .session(session);
 
-  // Backwards-compatible default behavior (10% then halve each level)
-  if (!rule) return { basePercentage: 0.1, decayEnabled: true };
+  // Default behavior when no rule is configured:
+  // Level 1 = 5% of BV, each next level = 50% of previous.
+  if (!rule) return { basePercentage: 0.05, decayEnabled: true };
 
   const basePercentage = Number(rule.basePercentage);
   if (!Number.isFinite(basePercentage) || basePercentage < 0 || basePercentage > 1) {
@@ -155,7 +156,7 @@ async function distributeBusinessVolumeInSession(options: {
  * - Input: userId, serviceId
  * - Fetch service BV
  * - Traverse referral parents upward
- * - Level 1 gets 10% of BV
+ * - Level 1 gets 5% of BV
  * - Each next level gets half of previous
  * - Stop when parent is null
  * - Store income logs in MongoDB

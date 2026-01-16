@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
 import { AlertCircle, RefreshCw, Settings, Plus, List, Check, X, Edit } from "lucide-react";
+import { formatINR } from "@/lib/format";
 
 type Service = {
   _id: string;
@@ -132,12 +133,14 @@ export default function AdminServicesPage() {
           <div className="flex gap-3 animate-slide-in">
             <Link 
               className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              prefetch={false}
               href="/admin/rules"
             >
               Rules
             </Link>
             <Link 
               className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              prefetch={false}
               href="/dashboard"
             >
               Dashboard
@@ -173,7 +176,7 @@ export default function AdminServicesPage() {
               onChange={(e) => setPrice(Number(e.target.value))}
               min={0}
               step="0.01"
-              placeholder="Price ($)"
+              placeholder="Price (₹)"
               required
             />
             <input
@@ -238,7 +241,7 @@ export default function AdminServicesPage() {
                           onChange={(e) => setEditPrice(Number(e.target.value))}
                         />
                       ) : (
-                        <span className="font-bold text-green-600 dark:text-green-400">${s.price}</span>
+                        <span className="font-bold text-green-600 dark:text-green-400">{formatINR(s.price)}</span>
                       )}
                     </td>
                     <td className="py-3 px-4">

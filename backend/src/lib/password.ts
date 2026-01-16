@@ -1,8 +1,9 @@
 import bcrypt from "bcryptjs";
 
 export async function hashPassword(plainText: string) {
-  // bcrypt cost factor 12 is a common baseline.
-  const salt = await bcrypt.genSalt(12);
+  // Reduced cost factor for better performance while maintaining security
+  // 10 is a good balance between security and speed for most applications
+  const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(plainText, salt);
 }
 

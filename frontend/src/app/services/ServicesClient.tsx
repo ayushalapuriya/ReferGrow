@@ -1,0 +1,212 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Package, ShoppingCart, Star, Heart, Plus, Minus, TrendingUp } from "lucide-react";
+
+import { formatINR } from "@/lib/format";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addItem, removeItem, updateQty } from "@/store/slices/cartSlice";
+import { setServices, type Service } from "@/store/slices/serviceSlice";
+
+export default function ServicesClient({ services }: { services: Service[] }) {
+  const dispatch = useAppDispatch();
+  const cart = useAppSelector((s) => s.cart);
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    dispatch(setServices(services));
+  }, [dispatch, services]);
+
+  const isInCart = (serviceId: string) => {
+    return serviceId in cart.items;
+  };
+
+  const getQuantity = (serviceId: string) => {
+    return cart.items[serviceId]?.quantity || 0;
+  };
+
+  const toggleWishlist = (serviceId: string) => {
+    const newWishlist = new Set(wishlist);
+    if (newWishlist.has(serviceId)) {
+      newWishlist.delete(serviceId);
+    } else {
+      newWishlist.add(serviceId);
+    }
+    setWishlist(newWishlist);
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800">
+          <Package className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">Premium Services</span>
+        </div>
+        
+        <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-zinc-900 via-purple-800 to-zinc-900 dark:from-zinc-100 dark:via-purple-200 dark:to-zinc-100 bg-clip-text text-transparent">
+          Our Services
+        </h1>
+        
+        <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+          Choose from our premium services to generate Business Volume (BV) and accelerate your income growth
+        </p>
+
+        <div className="flex flex-wrap justify-center gap-6 text-sm">
+          <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <Star className="w-4 h-4 text-yellow-500" />
+            <span>Quality Assured</span>
+          </div>
+          <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+            <TrendingUp className="w-4 h-4 text-green-500" />
+            <span>Instant BV</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Services Grid - Ecommerce Style */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {services.map((s, idx) => {
+          const inCart = isInCart(s._id);
+          const quantity = getQuantity(s._id);
+          const isWishlisted = wishlist.has(s._id);
+
+          return (
+            <div
+              key={s._id}
+              className="group relative bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              style={{ animationDelay: `${idx * 0.05}s` }}
+            >
+              {/* Wishlist Heart Icon */}
+              <button
+                onClick={() => toggleWishlist(s._id)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm shadow-md hover:scale-110 transition-transform duration-200"
+                aria-label="Toggle wishlist"
+              >
+                <Heart 
+                  className={`w-5 h-5 transition-colors duration-200 ${
+                    isWishlisted 
+                      ? 'fill-red-500 text-red-500' 
+                      : 'text-zinc-400 hover:text-red-500'
+                  }`}
+                />
+              </button>
+
+              {/* Service Image */}
+              <div className="aspect-square bg-linear-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 p-8 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-lg">
+                  <Package className="w-10 h-10" />
+                </div>
+              </div>
+
+              {/* Service Content */}
+              <div className="p-6 space-y-4">
+                {/* Service Title */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wide">
+                    {s.name}
+                  </h3>
+                  
+                  {/* BV Badge */}
+                  <div className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold">
+                    {s.businessVolume} BV
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                  {formatINR(s.price)}
+                </div>
+
+                {/* Add to Cart / Quantity Controls */}
+                <div className="flex items-center justify-between gap-3">
+                  {!inCart ? (
+                    <button
+                      onClick={() =>
+                        dispatch(
+                          addItem({
+                            id: s._id,
+                            name: s.name,
+                            price: s.price,
+                            businessVolume: s.businessVolume,
+                            quantity: 1,
+                          })
+                        )
+                      }
+                      className="flex-1 bg-linear-to-r from-green-600 to-emerald-600 text-white px-4 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      Add
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2 flex-1">
+                      <button
+                        onClick={() =>
+                          dispatch(
+                            updateQty({
+                              id: s._id,
+                              quantity: Math.max(0, quantity - 1),
+                            })
+                          )
+                        }
+                        className="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      
+                      <div className="flex-1 text-center font-bold text-zinc-900 dark:text-zinc-100">
+                        {quantity}
+                      </div>
+                      
+                      <button
+                        onClick={() =>
+                          dispatch(
+                            updateQty({
+                              id: s._id,
+                              quantity: quantity + 1,
+                            })
+                          )
+                        }
+                        className="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors flex items-center justify-center"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div className="text-xs text-zinc-500 dark:text-zinc-500 text-center">
+                  {s.status === 'active' ? (
+                    <span className="text-green-600 dark:text-green-400">✓ Available</span>
+                  ) : s.status ? (
+                    <span>{s.status}</span>
+                  ) : (
+                    <span>Available</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Empty State */}
+        {services.length === 0 && (
+          <div className="col-span-full text-center py-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 mb-6">
+              <Package className="w-10 h-10 text-zinc-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+              No Services Available
+            </h3>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+              We're currently updating our service catalog. Please check back soon for exciting new offerings!
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

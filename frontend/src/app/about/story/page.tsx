@@ -1,3 +1,5 @@
+import { Gem, Sprout } from "lucide-react";
+
 export default function OurStoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
@@ -22,7 +24,7 @@ export default function OurStoryPage() {
             <p>
               Our journey began with a vision to create a transparent, fair, and sustainable referral system
               that benefits all participants. By leveraging blockchain-inspired transparency and modern technology,
-              we've built a platform where trust and growth go hand in hand.
+              we’ve built a platform where trust and growth go hand in hand.
             </p>
           </div>
 

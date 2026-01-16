@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Rocket, DollarSign, TrendingUp, BarChart3, ShoppingBag, Info, Network } from "lucide-react";
+import {
+  Rocket,
+  IndianRupee,
+  TrendingUp,
+  BarChart3,
+  ShoppingBag,
+  Info,
+  Network,
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -21,6 +29,7 @@ export default function Home() {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
+              prefetch={false}
               href="/register"
               className="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 justify-center"
             >
@@ -28,6 +37,7 @@ export default function Home() {
               Get Started
             </Link>
             <Link
+              prefetch={false}
               href="/login"
               className="glass px-8 py-4 rounded-xl text-white font-semibold text-lg hover:bg-white/20 transition-all"
             >
@@ -46,7 +56,7 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="card-hover glass rounded-2xl p-8 text-center">
             <div className="text-5xl mb-4 flex justify-center">
-              <DollarSign className="w-16 h-16 text-green-500" />
+              <IndianRupee className="w-16 h-16 text-green-500" />
             </div>
             <h3 className="text-xl font-bold mb-3">Earn Through Referrals</h3>
             <p className="text-zinc-600 dark:text-zinc-400">
@@ -85,12 +95,14 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
+              prefetch={false}
               href="/register"
               className="bg-white text-purple-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-purple-50 transition-all hover:scale-105"
             >
               Create Free Account
             </Link>
             <Link
+              prefetch={false}
               href="/business-opportunity"
               className="glass px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all"
             >
@@ -103,7 +115,7 @@ export default function Home() {
       {/* Quick Links */}
       <div className="mx-auto max-w-4xl px-6 py-8 mb-16">
         <div className="flex flex-wrap gap-4 justify-center">
-          <Link href="/services" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+          <Link prefetch={false} href="/services" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
             <ShoppingBag className="w-4 h-4" />
             View Services
           </Link>
@@ -111,7 +123,7 @@ export default function Home() {
             <Info className="w-4 h-4" />
             About Us
           </Link>
-          <Link href="/dashboard" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
+          <Link prefetch={false} href="/dashboard" className="glass px-6 py-3 rounded-lg hover:bg-white/10 dark:hover:bg-white/5 transition-all flex items-center gap-2">
             <BarChart3 className="w-4 h-4" />
             Dashboard
           </Link>

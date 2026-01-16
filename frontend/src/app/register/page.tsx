@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { apiFetch } from "@/lib/apiClient";
+import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { AlertCircle, Gift } from "lucide-react";
+import { useAppDispatch } from "@/store/hooks";
+import { setUserProfile } from "@/store/slices/userSlice";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,10 +31,21 @@ export default function RegisterPage() {
         body: JSON.stringify({ name, email, password, referralCode, acceptedTerms }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Registration failed");
+      const body = await readApiBody(res);
+      const data = body.json as any;
+      if (!res.ok) throw new Error(data?.error ?? body.text ?? "Registration failed");
+
+      try {
+        const meRes = await apiFetch("/api/me");
+        const meBody = await readApiBody(meRes);
+        const meJson = meBody.json as any;
+        if (meRes.ok) dispatch(setUserProfile(meJson.user ?? null));
+      } catch {
+        // ignore
+      }
 
       router.push("/dashboard");
+      router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -49,7 +63,7 @@ export default function RegisterPage() {
             </h1>
             <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
               Already have an account?{" "}
-              <Link className="font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent hover:underline" href="/login">
+              <Link prefetch={false} className="font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent hover:underline" href="/login">
                 Sign in
               </Link>
             </p>
@@ -105,7 +119,7 @@ export default function RegisterPage() {
               />
               <p className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
                 <Gift className="w-4 h-4 text-purple-500" />
-                Join your referrer's network to start earning together
+                Join your referrer’s network to start earning together
               </p>
             </div>
 

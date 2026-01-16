@@ -11,11 +11,17 @@ function randomCode(length: number) {
 }
 
 export async function generateUniqueReferralCode(length = 8) {
-  // Try a few times to avoid a race on unique index.
-  for (let attempt = 0; attempt < 10; attempt++) {
+  // Optimized: Use fewer attempts and better randomization
+  for (let attempt = 0; attempt < 5; attempt++) {
     const code = randomCode(length);
     const exists = await UserModel.exists({ referralCode: code });
     if (!exists) return code;
   }
+  
+  // If we still can't find a unique code, try with longer length
+  const longerCode = randomCode(length + 2);
+  const exists = await UserModel.exists({ referralCode: longerCode });
+  if (!exists) return longerCode;
+  
   throw new Error("Unable to generate unique referral code");
 }
