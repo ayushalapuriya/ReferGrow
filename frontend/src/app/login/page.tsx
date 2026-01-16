@@ -35,16 +35,25 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Store profile data after login
+      let userRole = "user";
       try {
         const meRes = await apiFetch("/api/me");
         const meBody = await readApiBody(meRes);
         const meJson = meBody.json as any;
-        if (meRes.ok) dispatch(setUserProfile(meJson.user ?? null));
+        if (meRes.ok) {
+          dispatch(setUserProfile(meJson.user ?? null));
+          userRole = meJson.user?.role ?? "user";
+        }
       } catch {
         // ignore
       }
 
-      router.push("/dashboard");
+      // Redirect based on user role
+      if (userRole === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));

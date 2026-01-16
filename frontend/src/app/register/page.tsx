@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiFetch, readApiBody } from "@/lib/apiClient";
-import { AlertCircle, Gift } from "lucide-react";
+import { Gift } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setUserProfile } from "@/store/slices/userSlice";
 
@@ -32,19 +32,28 @@ export default function RegisterPage() {
       });
 
       const body = await readApiBody(res);
-      const data = body.json as any;
+      const data = body.json as { error?: string } | null;
       if (!res.ok) throw new Error(data?.error ?? body.text ?? "Registration failed");
 
+      let userRole = "user";
       try {
         const meRes = await apiFetch("/api/me");
         const meBody = await readApiBody(meRes);
-        const meJson = meBody.json as any;
-        if (meRes.ok) dispatch(setUserProfile(meJson.user ?? null));
+        const meJson = meBody.json as { user?: { role?: string } } | null;
+        if (meRes.ok) {
+          dispatch(setUserProfile(meJson?.user ?? null));
+          userRole = meJson?.user?.role ?? "user";
+        }
       } catch {
         // ignore
       }
 
-      router.push("/dashboard");
+      // Redirect based on user role
+      if (userRole === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
@@ -71,8 +80,9 @@ export default function RegisterPage() {
 
           <form className="space-y-5" onSubmit={onSubmit}>
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Full Name</label>
+              <label htmlFor="name" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Full Name</label>
               <input
+                id="name"
                 className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -83,8 +93,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Email Address</label>
+              <label htmlFor="email" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Email Address</label>
               <input
+                id="email"
                 className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -96,8 +107,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Password</label>
+              <label htmlFor="password" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Password</label>
               <input
+                id="password"
                 className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -110,8 +122,9 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Referral Code (Optional)</label>
+              <label htmlFor="referralCode" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Referral Code (Optional)</label>
               <input
+                id="referralCode"
                 className="w-full glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 transition-all focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value)}
