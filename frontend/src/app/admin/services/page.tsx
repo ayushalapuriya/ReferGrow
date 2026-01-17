@@ -20,12 +20,12 @@ export default function AdminServicesPage() {
   useAuth({ requireAdmin: true }); // Protect admin page
   const [services, setServices] = useState<Service[]>([]);
   const [name, setName] = useState("");
-  const [price, setPrice] = useState<number>(0);
-  const [businessVolume, setBusinessVolume] = useState<number>(100);
+  const [price, setPrice] = useState<number | "">("");
+  const [businessVolume, setBusinessVolume] = useState<number | "">("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
-  const [editPrice, setEditPrice] = useState<number>(0);
-  const [editBusinessVolume, setEditBusinessVolume] = useState<number>(0);
+  const [editPrice, setEditPrice] = useState<number | "">("");
+  const [editBusinessVolume, setEditBusinessVolume] = useState<number | "">("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -173,7 +173,7 @@ export default function AdminServicesPage() {
               className="glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
               type="number"
               value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
               min={0}
               step="0.01"
               placeholder="Price (₹)"
@@ -183,9 +183,9 @@ export default function AdminServicesPage() {
               className="glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
               type="number"
               value={businessVolume}
-              onChange={(e) => setBusinessVolume(Number(e.target.value))}
+              onChange={(e) => setBusinessVolume(e.target.value === "" ? "" : Number(e.target.value))}
               min={0}
-              placeholder="BV"
+              placeholder="Business Volume"
               required
             />
           </div>
@@ -238,7 +238,8 @@ export default function AdminServicesPage() {
                           step="0.01"
                           min={0}
                           value={editPrice}
-                          onChange={(e) => setEditPrice(Number(e.target.value))}
+                          onChange={(e) => setEditPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                          placeholder="Price"
                         />
                       ) : (
                         <span className="font-bold text-green-600 dark:text-green-400">{formatINR(s.price)}</span>
@@ -251,7 +252,8 @@ export default function AdminServicesPage() {
                           type="number"
                           min={0}
                           value={editBusinessVolume}
-                          onChange={(e) => setEditBusinessVolume(Number(e.target.value))}
+                          onChange={(e) => setEditBusinessVolume(e.target.value === "" ? "" : Number(e.target.value))}
+                          placeholder="Business Volume"
                         />
                       ) : (
                         <span className="font-bold text-blue-600 dark:text-blue-400">{s.businessVolume}</span>

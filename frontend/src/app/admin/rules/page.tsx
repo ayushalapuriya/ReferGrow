@@ -18,7 +18,7 @@ type Rule = {
 export default function AdminRulesPage() {
   useAuth({ requireAdmin: true }); // Protect admin page
   const [rules, setRules] = useState<Rule[]>([]);
-  const [basePercentage, setBasePercentage] = useState<number>(5);
+  const [basePercentage, setBasePercentage] = useState<number | "">("");
   const [decayEnabled, setDecayEnabled] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -130,9 +130,10 @@ export default function AdminRulesPage() {
                 type="number"
                 step="0.01"
                 value={basePercentage}
-                onChange={(e) => setBasePercentage(Number(e.target.value))}
+                onChange={(e) => setBasePercentage(e.target.value === "" ? "" : Number(e.target.value))}
                 min={0}
                 max={100}
+                placeholder="e.g., 5 for 5% at Level 1"
                 required
               />
               <p className="text-xs text-zinc-600 dark:text-zinc-400 pl-1">
