@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, readApiBody } from "@/lib/apiClient";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setUserProfile } from "@/store/slices/userSlice";
 
 export function useAuth(options?: { requireAdmin?: boolean }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const currentUser = useAppSelector((s) => s.user.profile);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -16,28 +17,35 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         const res = await apiFetch("/api/me");
         
         if (!res.ok) {
-          // Unauthorized - redirect to login
-          router.push("/login?redirect=" + window.location.pathname);
+          // Only redirect if we don't already have a user (from localStorage)
+          if (!currentUser) {
+            router.push("/login?redirect=" + window.location.pathname);
+          }
           return;
         }
 
         const body = await readApiBody(res);
         
         // Handle both JSON and text responses
-        let data: any;
+        let data: { user?: any; error?: string } | undefined;
         if (body.json) {
-          data = body.json as any;
+          data = body.json as { user?: any; error?: string };
           if (!data || !data.user) {
             // Check if this is an error response
             if (data.error) {
-              // This is expected for unauthenticated users
-              dispatch(setUserProfile(null));
-              router.push("/login?redirect=" + window.location.pathname);
+              // Only clear user if we don't already have one
+              if (!currentUser) {
+                dispatch(setUserProfile(null));
+                router.push("/login?redirect=" + window.location.pathname);
+              }
               return;
             }
             throw new Error("Invalid response: missing user data");
           }
-          dispatch(setUserProfile(data.user));
+          // Only update user if we don't already have one or if it's different
+          if (!currentUser || JSON.stringify(currentUser) !== JSON.stringify(data.user)) {
+            dispatch(setUserProfile(data.user));
+          }
         } else {
           throw new Error(body.text ?? "Invalid response: not JSON");
         }
@@ -48,11 +56,14 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        dispatch(setUserProfile(null));
-        router.push("/login?redirect=" + window.location.pathname);
+        // Only clear user if we don't already have one
+        if (!currentUser) {
+          dispatch(setUserProfile(null));
+          router.push("/login?redirect=" + window.location.pathname);
+        }
       }
     };
 
     checkAuth();
-  }, [router, options?.requireAdmin, dispatch]);
+  }, [router, options?.requireAdmin, dispatch, currentUser]);
 }
