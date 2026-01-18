@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
-import { Settings, List, Users, BarChart3 } from "lucide-react";
+import { Settings, List, Users, BarChart3, Mail } from "lucide-react";
 
 export default function AdminPage() {
   useAuth({ requireAdmin: true }); // Protect admin page
@@ -19,6 +19,24 @@ export default function AdminPage() {
 
       {/* Admin Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Contact Management */}
+        <Link
+          href="/admin/contacts"
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900">
+              <Mail className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+            Contact Submissions
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            View and manage contact form submissions from users
+          </p>
+        </Link>
+
         {/* Services Management */}
         <Link
           href="/admin/services"

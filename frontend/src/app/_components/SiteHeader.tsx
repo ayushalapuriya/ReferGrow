@@ -52,7 +52,7 @@ export default function SiteHeader() {
         <div className="flex items-center justify-between px-4 lg:px-6 h-16">
           {/* Logo */}
           <Link className="flex items-center gap-2 group" href="/">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
               <span className="text-2xl">🌱</span>
             </div>
             <span className="text-xl font-bold text-gray-900 dark:text-white">

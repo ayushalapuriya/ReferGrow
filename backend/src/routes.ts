@@ -19,6 +19,7 @@ import { PurchaseModel } from "@/models/Purchase";
 import { IncomeModel } from "@/models/Income";
 import { DistributionRuleModel } from "@/models/DistributionRule";
 import { IncomeLogModel } from "@/models/IncomeLog";
+import { ContactModel } from "@/models/Contact";
 
 type AuthContext = { userId: string; role: UserRole; email: string };
 
@@ -590,6 +591,126 @@ export function registerRoutes(app: Express) {
       return res.json({ totalUsers, totalBVGenerated, totalIncomeDistributed, activeServices });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Forbidden";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Contact form
+  app.post("/api/contact", async (req, res) => {
+    const schema = z.object({
+      name: z.string().min(1),
+      email: z.string().email(),
+      subject: z.string().min(1),
+      message: z.string().min(10),
+    });
+
+    try {
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      // Save to database
+      const contact = await ContactModel.create({
+        name: body.name,
+        email: body.email,
+        subject: body.subject,
+        message: body.message,
+      });
+
+      // Send email notification to admin
+      const adminEmailContent = {
+        subject: `New Contact Form Submission: ${body.subject}`,
+        text: `You have received a new contact form submission:
+
+Name: ${body.name}
+Email: ${body.email}
+Subject: ${body.subject}
+Message: ${body.message}
+
+Submitted at: ${new Date().toLocaleString()}
+
+This message has been saved to the database with ID: ${contact._id}`,
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${body.name}</p>
+          <p><strong>Email:</strong> ${body.email}</p>
+          <p><strong>Subject:</strong> ${body.subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${body.message.replace(/\n/g, '<br>')}</p>
+          <p><strong>Submitted at:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>Database ID:</strong> ${contact._id}</p>
+        `
+      };
+
+      // Send email asynchronously - don't wait for it
+      setTimeout(async () => {
+        try {
+          await sendEmail({
+            to: "refergrow.official@gmail.com",
+            subject: adminEmailContent.subject,
+            text: adminEmailContent.text,
+            html: adminEmailContent.html
+          });
+        } catch (emailError) {
+          console.error("Failed to send contact notification email:", emailError);
+        }
+      }, 0);
+
+      return res.status(200).json({ 
+        message: "Thank you for your message! We'll get back to you soon.",
+        received: {
+          name: body.name,
+          email: body.email,
+          subject: body.subject,
+          message: body.message,
+          timestamp: new Date().toISOString(),
+          id: contact._id
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      return res.status(400).json({ error: msg });
+    }
+  });
+
+  // Admin contact submissions
+  app.get("/api/admin/contacts", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const contacts = await ContactModel.find({})
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      return res.json({ contacts });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Forbidden";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/contacts/:id", async (req, res) => {
+    const schema = z.object({
+      status: z.enum(["pending", "read", "replied"]),
+    });
+
+    try {
+      await requireRole(req, "admin");
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      const contact = await ContactModel.findByIdAndUpdate(
+        req.params.id, 
+        { status: body.status }, 
+        { new: true }
+      );
+      
+      if (!contact) return res.status(404).json({ error: "Not found" });
+      return res.json({ contact });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;
       return res.status(status).json({ error: msg });
     }

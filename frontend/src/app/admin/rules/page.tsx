@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
-import { AlertCircle, BarChart3, Plus, List, Check, Lightbulb } from "lucide-react";
+import { BarChart3, Plus, AlertCircle } from "lucide-react";
 import { formatNumber } from "@/lib/format";
 
 type Rule = {
@@ -85,7 +85,7 @@ export default function AdminRulesPage() {
           <div className="animate-fade-in">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl">
-                📊
+                <BarChart3 className="w-8 h-8" />
               </div>
               <h1 className="text-4xl font-bold bg-linear-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Income Rules</h1>
             </div>
@@ -111,14 +111,15 @@ export default function AdminRulesPage() {
 
         {error ? (
           <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-            ⚠️ {error}
+            <AlertCircle className="w-4 h-4 mr-2" />
+            {error}
           </div>
         ) : null}
 
         <form className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6" onSubmit={createRule} style={{animationDelay: '0.1s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl">
-              ➕
+              <Plus className="w-6 h-6" />
             </div>
             <h2 className="font-bold text-xl">Create New Rule</h2>
           </div>

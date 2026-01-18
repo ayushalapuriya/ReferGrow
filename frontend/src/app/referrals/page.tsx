@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext, useMemo } from "react";
 import { apiFetch } from "@/lib/apiClient";
-import { AlertCircle, Network, Lightbulb, Star } from "lucide-react";
+import { ChevronDown, ChevronRight, Network } from "lucide-react";
 
 type TreeNode = {
   id: string;
@@ -12,15 +12,22 @@ type TreeNode = {
   children: TreeNode[];
 };
 
+// Context to manage collapsed state across the entire tree
+const CollapsedContext = createContext<{
+  collapsedNodes: Set<string>;
+  toggleNode: (nodeId: string) => void;
+}>({
+  collapsedNodes: new Set(),
+  toggleNode: () => {},
+});
+
+function useCollapsedState() {
+  return useContext(CollapsedContext);
+}
+
 function NodeView({ node, depth }: { node: TreeNode; depth: number }) {
-  const colors = [
-    "from-purple-500 to-blue-500",
-    "from-blue-500 to-cyan-500",
-    "from-green-500 to-emerald-500",
-    "from-orange-500 to-red-500",
-    "from-pink-500 to-purple-500",
-  ];
-  const colorClass = colors[depth % colors.length];
+  const { collapsedNodes, toggleNode } = useCollapsedState();
+  const isCollapsed = collapsedNodes.has(node.id);
 
   return (
     <div className="mt-3">
@@ -33,12 +40,25 @@ function NodeView({ node, depth }: { node: TreeNode; depth: number }) {
           {node.referralCode}
         </span>
         {node.children.length > 0 && (
-          <span className="ml-auto text-xs px-2 py-1 rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-semibold">
-            {node.children.length} {node.children.length === 1 ? 'referral' : 'referrals'}
-          </span>
+          <button
+            onClick={() => toggleNode(node.id)}
+            className="ml-auto flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          >
+            {isCollapsed ? (
+              <>
+                <ChevronRight className="w-3 h-3" />
+                Expand {node.children.length}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3" />
+                Collapse {node.children.length}
+              </>
+            )}
+          </button>
         )}
       </div>
-      {node.children.length > 0 ? (
+      {node.children.length > 0 && !isCollapsed ? (
         <div className="ml-6 mt-2 border-l-2 border-gray-300 dark:border-gray-700 pl-6">
           {node.children.map((c) => (
             <NodeView key={c.id} node={c} depth={depth + 1} />
@@ -52,6 +72,19 @@ function NodeView({ node, depth }: { node: TreeNode; depth: number }) {
 export default function ReferralsPage() {
   const [tree, setTree] = useState<TreeNode | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [collapsedNodes, setCollapsedNodes] = useState<Set<string>>(new Set());
+
+  const toggleNode = (nodeId: string) => {
+    setCollapsedNodes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(nodeId)) {
+        newSet.delete(nodeId);
+      } else {
+        newSet.add(nodeId);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     apiFetch("/api/referrals?depth=5")
@@ -63,61 +96,68 @@ export default function ReferralsPage() {
       .catch((e) => setError(String(e?.message ?? e)));
   }, []);
 
+  const contextValue = useMemo(() => ({
+    collapsedNodes,
+    toggleNode,
+  }), [collapsedNodes]);
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-              Referral Network
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Visualize your binary tree structure and network growth
-            </p>
-          </div>
-          <Link 
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:shadow-md transition-shadow" 
-            prefetch={false}
-            href="/dashboard"
-          >
-            ← Back to Dashboard
-          </Link>
-        </div>
-
-        {error ? (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-sm text-red-700 dark:text-red-300 mb-6">
-            ⚠️ {error}
-          </div>
-        ) : null}
-
-        {tree ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                <Network className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Your Network Tree</h2>
-            </div>
-            
-            <NodeView node={tree} depth={0} />
-            
-            <div className="mt-8 pt-6 border-t border-purple-200 dark:border-purple-500/30 flex items-start gap-3">
-              <span className="text-2xl">💡</span>
-              <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                <strong>Note:</strong> This view shows up to 5 levels of your referral network for optimal performance. 
-                Each level represents a generation in your binary tree structure.
+    <CollapsedContext.Provider value={contextValue}>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                Referral Network
+              </h1>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Visualize your binary tree structure and network growth
               </p>
             </div>
+            <Link 
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium hover:shadow-md transition-shadow" 
+              prefetch={false}
+              href="/dashboard"
+            >
+              ← Back to Dashboard
+            </Link>
           </div>
-        ) : (
-          <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-12 text-center">
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
-              🌟
+
+          {error ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-sm text-red-700 dark:text-red-300 mb-6">
+              ⚠️ {error}
             </div>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">Loading your network...</p>
-          </div>
-        )}
+          ) : null}
+
+          {tree ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                  <Network className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Your Network Tree</h2>
+              </div>
+              
+              <NodeView node={tree} depth={0} />
+              
+              <div className="mt-8 pt-6 border-t border-purple-200 dark:border-purple-500/30 flex items-start gap-3">
+                <span className="text-2xl">💡</span>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                  <strong>Note:</strong> This view shows up to 5 levels of your referral network for optimal performance. 
+                  Each level represents a generation in your binary tree structure. Click &ldquo;Collapse&rdquo; or &ldquo;Expand&rdquo; to manage tree visibility.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-12 text-center">
+              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
+                🌟
+              </div>
+              <p className="text-lg text-zinc-600 dark:text-zinc-400">Loading your network...</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </CollapsedContext.Provider>
   );
 }
