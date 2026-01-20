@@ -40,7 +40,7 @@ export default function BusinessOpportunityForm() {
     <div>
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl">
-          📧
+          <Mail className="w-8 h-8 text-white" />
         </div>
         <div>
           <h2 className="font-bold text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Get More Information</h2>

@@ -1,0 +1,456 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/apiClient";
+import { useAuth } from "@/lib/useAuth";
+import { 
+  Image as ImageIcon, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  GripVertical,
+  Save,
+  X,
+  AlertCircle,
+  CheckCircle
+} from "lucide-react";
+import ImageUpload from "@/app/_components/ImageUpload";
+import SliderInlineEdit from "@/app/_components/SliderInlineEdit";
+
+type Slider = {
+  _id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  order: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export default function AdminSliderPage() {
+  useAuth({ requireAdmin: true });
+  const [sliders, setSliders] = useState<Slider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [imageUploadKey, setImageUploadKey] = useState(0);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    imageUrl: "",
+    order: 0,
+    isActive: true
+  });
+
+  async function loadSliders() {
+    try {
+      setError(null);
+      const res = await apiFetch("/api/admin/sliders");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to load sliders");
+      setSliders(data.sliders || []);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load sliders");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadSliders();
+  }, []);
+
+  async function createSlider(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await apiFetch("/api/admin/sliders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          order: sliders.length
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to create slider");
+      
+      setSuccess("Slider created successfully!");
+      setFormData({ title: "", description: "", imageUrl: "", order: 0, isActive: true });
+      // Force ImageUpload component to reset by changing its key
+      setImageUploadKey(prev => prev + 1);
+      await loadSliders();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create slider");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function updateSlider(id: string, updates: Partial<Slider>) {
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await apiFetch(`/api/admin/sliders/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to update slider");
+      
+      setSuccess("Slider updated successfully!");
+      setEditingId(null);
+      await loadSliders();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to update slider");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteSlider(id: string) {
+    if (!confirm("Are you sure you want to delete this slider?")) return;
+    
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await apiFetch(`/api/admin/sliders/${id}`, {
+        method: "DELETE"
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to delete slider");
+      
+      setSuccess("Slider deleted successfully!");
+      await loadSliders();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete slider");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleActive(slider: Slider) {
+    await updateSlider(slider._id, { isActive: !slider.isActive });
+  }
+
+  async function reorderSliders(reorderedSliders: { id: string; order: number }[]) {
+    setBusy(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await apiFetch("/api/admin/sliders/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sliders: reorderedSliders })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to reorder sliders");
+      
+      setSuccess("Sliders reordered successfully!");
+      await loadSliders();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to reorder sliders");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function moveSliderUp(index: number) {
+    if (index === 0) return;
+    const newSliders = [...sliders];
+    [newSliders[index], newSliders[index - 1]] = [newSliders[index - 1], newSliders[index]];
+    const reordered = newSliders.map((slider, idx) => ({ id: slider._id, order: idx }));
+    reorderSliders(reordered);
+  }
+
+  function moveSliderDown(index: number) {
+    if (index === sliders.length - 1) return;
+    const newSliders = [...sliders];
+    [newSliders[index], newSliders[index + 1]] = [newSliders[index + 1], newSliders[index]];
+    const reordered = newSliders.map((slider, idx) => ({ id: slider._id, order: idx }));
+    reorderSliders(reordered);
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading sliders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                <ImageIcon className="w-6 h-6" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Slider Management
+              </h1>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 ml-15">
+              Manage home page slider images and content
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Link 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              prefetch={false}
+              href="/admin/services"
+            >
+              Services
+            </Link>
+            <Link 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              prefetch={false}
+              href="/dashboard"
+            >
+              Dashboard
+            </Link>
+          </div>
+        </div>
+
+        {/* Alerts */}
+        {error && (
+          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 glass-panel rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+            <CheckCircle className="w-4 h-4" />
+            {success}
+          </div>
+        )}
+
+        {/* Create New Slider */}
+        <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
+              <Plus className="w-5 h-5" />
+            </div>
+            <h2 className="font-bold text-xl">Create New Slider</h2>
+          </div>
+          
+          <form onSubmit={createSlider} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Title *
+              </label>
+              <input
+                type="text"
+                required
+                maxLength={100}
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter slider title"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Image *
+              </label>
+              <ImageUpload
+                key={imageUploadKey}
+                onImageSelect={(imageUrl) => setFormData({ ...formData, imageUrl })}
+                currentImage={formData.imageUrl}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Description
+              </label>
+              <textarea
+                maxLength={500}
+                rows={3}
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter slider description (optional)"
+              />
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={busy}
+                className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+              >
+                {busy ? "Creating..." : "Create Slider"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Sliders List */}
+        <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <h2 className="font-bold text-xl">All Sliders</h2>
+          </div>
+          
+          {sliders.length === 0 ? (
+            <div className="text-center py-12">
+              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">No sliders created yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sliders.map((slider, index) => (
+                <div key={slider._id} className="border border-purple-200 dark:border-purple-500/30 rounded-lg p-4 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors">
+                  <div className="flex gap-4">
+                    {/* Image Preview */}
+                    <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                      <img
+                        src={slider.imageUrl}
+                        alt={slider.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='64' viewBox='0 0 96 64'%3E%3Crect width='96' height='64' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%236b7280' font-family='sans-serif' font-size='12'%3ENo image%3C/text%3E%3C/svg%3E";
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1">
+                      {editingId === slider._id ? (
+                        <SliderInlineEdit
+                          slider={slider}
+                          onSave={(updatedSlider) => updateSlider(slider._id, updatedSlider)}
+                          onCancel={() => {
+                            setEditingId(null);
+                            loadSliders();
+                          }}
+                          busy={busy}
+                        />
+                      ) : (
+                        <div>
+                          <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+                            {slider.title}
+                          </h3>
+                          {slider.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                              {slider.description}
+                            </p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                            <span>Order: {slider.order}</span>
+                            <span>Status: {slider.isActive ? "Active" : "Inactive"}</span>
+                            <span>Created: {new Date(slider.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Actions */}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => moveSliderUp(index)}
+                          disabled={index === 0}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                          title="Move up"
+                        >
+                          ↑
+                        </button>
+                        <button
+                          onClick={() => moveSliderDown(index)}
+                          disabled={index === sliders.length - 1}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                          title="Move down"
+                        >
+                          ↓
+                        </button>
+                      </div>
+                      
+                      {editingId === slider._id ? (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => updateSlider(slider._id, slider)}
+                            disabled={busy}
+                            className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900 text-green-600"
+                            title="Save"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingId(null);
+                              loadSliders();
+                            }}
+                            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => setEditingId(slider._id)}
+                            disabled={busy}
+                            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => toggleActive(slider)}
+                            disabled={busy}
+                            className="p-1 rounded hover:bg-yellow-100 dark:hover:bg-yellow-900 text-yellow-600"
+                            title={slider.isActive ? "Deactivate" : "Activate"}
+                          >
+                            {slider.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                          <button
+                            onClick={() => deleteSlider(slider._id)}
+                            disabled={busy}
+                            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -20,6 +20,7 @@ import { IncomeModel } from "@/models/Income";
 import { DistributionRuleModel } from "@/models/DistributionRule";
 import { IncomeLogModel } from "@/models/IncomeLog";
 import { ContactModel } from "@/models/Contact";
+import { Slider } from "@/models/Slider";
 
 type AuthContext = { userId: string; role: UserRole; email: string };
 
@@ -709,6 +710,137 @@ This message has been saved to the database with ID: ${contact._id}`,
       
       if (!contact) return res.status(404).json({ error: "Not found" });
       return res.json({ contact });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // === SLIDER MANAGEMENT ROUTES ===
+
+  // Public route to get active slider images
+  app.get("/api/sliders", async (req: Request, res: Response) => {
+    try {
+      await connectToDatabase();
+      const sliders = await Slider.find({ isActive: true })
+        .sort({ order: 1 })
+        .select('title description imageUrl order')
+        .lean();
+      return res.json({ sliders });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      return res.status(500).json({ error: msg });
+    }
+  });
+
+  // Admin routes for slider management
+  app.get("/api/admin/sliders", async (req: Request, res: Response) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+      const sliders = await Slider.find()
+        .sort({ order: 1 })
+        .lean();
+      return res.json({ sliders });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  const sliderCreateSchema = z.object({
+    title: z.string().min(1).max(100),
+    description: z.string().max(500).optional(),
+    imageUrl: z.string().url(),
+    order: z.number().int().min(0),
+    isActive: z.boolean().default(true)
+  });
+
+  app.post("/api/admin/sliders", async (req: Request, res: Response) => {
+    try {
+      await requireRole(req, "admin");
+      const body = sliderCreateSchema.parse(req.body);
+      await connectToDatabase();
+
+      const slider = new Slider(body);
+      await slider.save();
+      return res.json({ slider });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  const sliderUpdateSchema = z.object({
+    title: z.string().min(1).max(100).optional(),
+    description: z.string().max(500).optional(),
+    imageUrl: z.string().url().optional(),
+    order: z.number().int().min(0).optional(),
+    isActive: z.boolean().optional()
+  });
+
+  app.put("/api/admin/sliders/:id", async (req: Request, res: Response) => {
+    try {
+      await requireRole(req, "admin");
+      const body = sliderUpdateSchema.parse(req.body);
+      await connectToDatabase();
+
+      const slider = await Slider.findByIdAndUpdate(
+        req.params.id,
+        { $set: body },
+        { new: true, runValidators: true }
+      );
+
+      if (!slider) return res.status(404).json({ error: "Slider not found" });
+      return res.json({ slider });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.delete("/api/admin/sliders/:id", async (req: Request, res: Response) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const slider = await Slider.findByIdAndDelete(req.params.id);
+      if (!slider) return res.status(404).json({ error: "Slider not found" });
+      
+      return res.json({ message: "Slider deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Batch update slider orders
+  app.put("/api/admin/sliders/reorder", async (req: Request, res: Response) => {
+    try {
+      await requireRole(req, "admin");
+      const reorderSchema = z.object({
+        sliders: z.array(z.object({
+          id: z.string(),
+          order: z.number().int().min(0)
+        }))
+      });
+      const body = reorderSchema.parse(req.body);
+      await connectToDatabase();
+
+      const bulkOps = body.sliders.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { $set: { order } }
+        }
+      }));
+
+      await Slider.bulkWrite(bulkOps);
+      return res.json({ message: "Sliders reordered successfully" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;

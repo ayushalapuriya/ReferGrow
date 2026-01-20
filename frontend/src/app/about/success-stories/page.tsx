@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { User, Star } from "lucide-react";
 
 export default function SuccessStoriesPage() {
   return (
@@ -7,7 +7,7 @@ export default function SuccessStoriesPage() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
             <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
-              <span className="text-3xl">⭐</span>
+              <Star className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Success Stories</h1>
           </div>
@@ -43,7 +43,7 @@ export default function SuccessStoriesPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.2s'}}>
             <div className="flex items-start gap-4 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl flex-shrink-0">
-                👤
+                <User className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="font-bold text-xl text-blue-600 dark:text-blue-400">Michael Chen</h3>
@@ -66,7 +66,7 @@ export default function SuccessStoriesPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.3s'}}>
             <div className="flex items-start gap-4 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-2xl flex-shrink-0">
-                👤
+                <User className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="font-bold text-xl text-green-600 dark:text-green-400">Emma Rodriguez</h3>
@@ -89,7 +89,7 @@ export default function SuccessStoriesPage() {
           <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-8" style={{animationDelay: '0.4s'}}>
             <div className="flex items-start gap-4 mb-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white text-2xl flex-shrink-0">
-                👤
+                <User className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="font-bold text-xl text-orange-600 dark:text-orange-400">David Kumar</h3>

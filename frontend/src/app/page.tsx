@@ -7,19 +7,31 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import ImageSlider from "@/app/_components/ImageSlider";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero Section */}
-      <section className="relative bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+      {/* Hero Section with Slider */}
+      <section className="relative h-[92vh] max-h-[800px]">
+        <ImageSlider 
+          className="w-full h-full"
+          autoPlay={true}
+          interval={5000}
+          showControls={true}
+          showIndicators={true}
+        />
+      </section>
+
+      {/* Hero Content Section */}
+      <section className="py-16 md:py-20 lg:py-24 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
               Grow Your Income Through
-              <span className="text-blue-600"> Smart Referrals</span>
+              <span className="text-blue-600 dark:text-blue-400"> Smart Referrals</span>
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed">
               Join ReferGrow and build your financial freedom with our innovative referral platform featuring binary tree structure and Business Volume distribution.
             </p>
             
@@ -27,7 +39,7 @@ export default function Home() {
               <Link
                 prefetch={false}
                 href="/register"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
               >
                 <Rocket className="w-5 h-5" />
                 Get Started Free
@@ -35,7 +47,7 @@ export default function Home() {
               <Link
                 prefetch={false}
                 href="/business-opportunity"
-                className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-medium rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
               >
                 Learn More
               </Link>

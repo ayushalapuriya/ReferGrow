@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
-import { BarChart3, Plus, AlertCircle } from "lucide-react";
+import { BarChart3, Plus, AlertCircle, ClipboardList } from "lucide-react";
 import { formatNumber } from "@/lib/format";
 
 type Rule = {
@@ -169,7 +169,7 @@ export default function AdminRulesPage() {
         <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6" style={{animationDelay: '0.2s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xl">
-              📋
+              <ClipboardList className="w-6 h-6 text-white" />
             </div>
             <h2 className="font-bold text-xl">All Rules</h2>
           </div>

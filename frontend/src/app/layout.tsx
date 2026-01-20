@@ -53,7 +53,7 @@ export default function RootLayout({
                 <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Platform</h4>
                 <ul className="space-y-2 text-sm">
                   <li><Link prefetch={false} href="/services" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Services</Link></li>
-                  <li><Link prefetch={false} href="/dashboard" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Dashboard</Link></li>
+                  <li><Link prefetch={false} href="/buisness-opportunity" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Opportunity</Link></li>
                   <li><Link prefetch={false} href="/referrals" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Referrals</Link></li>
                 </ul>
               </div>

@@ -182,7 +182,7 @@ export default function DashboardPage() {
                 prefetch={false}
                 href="/admin/services"
               >
-                <span className="text-blue-600 dark:text-blue-400">Admin Panel</span>
+                <span className="text-blue-600 dark:text-blue-400">Manage Services</span>
               </Link>
             ) : null}
             <button

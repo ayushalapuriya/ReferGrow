@@ -1,4 +1,4 @@
-import { Gem, Sprout } from "lucide-react";
+import { Gem, Sprout, BookOpen } from "lucide-react";
 
 export default function OurStoryPage() {
   return (
@@ -7,7 +7,7 @@ export default function OurStoryPage() {
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 md:p-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
-              <span className="text-3xl">📖</span>
+              <BookOpen className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Our Story</h1>
           </div>

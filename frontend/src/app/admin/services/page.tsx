@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
-import { AlertCircle, RefreshCw, Settings, Plus, List, Check, X, Edit } from "lucide-react";
+import { AlertCircle, RefreshCw, Settings, Plus, List, Check, X, Edit, ClipboardList } from "lucide-react";
 import { formatINR } from "@/lib/format";
 
 type Service = {
@@ -126,7 +126,7 @@ export default function AdminServicesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
                 <Settings className="w-6 h-6" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Admin Panel</h1>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Manage Services</h1>
             </div>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 ml-15">Manage services and their Business Volume</p>
           </div>
@@ -157,7 +157,7 @@ export default function AdminServicesPage() {
         <form className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6" onSubmit={createService} style={{animationDelay: '0.1s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl">
-              ➕
+              <Plus className="w-6 h-6 text-white" />
             </div>
             <h2 className="font-bold text-xl">Create New Service</h2>
           </div>
@@ -201,7 +201,7 @@ export default function AdminServicesPage() {
         <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6" style={{animationDelay: '0.2s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xl">
-              📋
+              <ClipboardList className="w-6 h-6 text-white" />
             </div>
             <h2 className="font-bold text-xl">All Services</h2>
           </div>

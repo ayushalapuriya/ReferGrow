@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Menu, X, User, ChevronDown, LogOut, Link as LinkIcon, Package } from "lucide-react";
+import { ShoppingCart, Menu, X, User, ChevronDown, LogOut, Link as LinkIcon, Package, Image as ImageIcon, Settings } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearUserProfile } from "@/store/slices/userSlice";
 import { apiFetch } from "@/lib/apiClient";
@@ -133,6 +133,28 @@ export default function SiteHeader() {
                         <Package className="w-4 h-4" />
                         Services
                       </Link>
+                      {user.role === "admin" && (
+                        <>
+                          <Link
+                            prefetch={false}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            href="/admin"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <Settings className="w-4 h-4" />
+                            Admin Panel
+                          </Link>
+                          <Link
+                            prefetch={false}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            href="/admin/slider"
+                            onClick={() => setIsProfileDropdownOpen(false)}
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                            Manage Sliders
+                          </Link>
+                        </>
+                      )}
                       <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
@@ -228,6 +250,28 @@ export default function SiteHeader() {
                     <Package className="w-4 h-4" />
                     Services
                   </Link>
+                  {user.role === "admin" && (
+                    <>
+                      <Link
+                        prefetch={false}
+                        className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        href="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Settings className="w-4 h-4" />
+                        Admin Panel
+                      </Link>
+                      <Link
+                        prefetch={false}
+                        className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        href="/admin/slider"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                        Manage Sliders
+                      </Link>
+                    </>
+                  )}
                   <button
                     onClick={() => {
                       setIsMobileMenuOpen(false);
