@@ -151,7 +151,7 @@ export default function ImageSlider({
             src={currentSlide.imageUrl}
             alt={currentSlide.title}
             fill
-            className="object-contain"
+            className="object-cover"
             sizes="100vw"
             priority={currentIndex === 0}
             onError={(e) => {
