@@ -1,20 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { ShoppingCart, Menu, X, User, ChevronDown, LogOut, Link as LinkIcon, Package, Image as ImageIcon, Settings } from "lucide-react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { clearUserProfile } from "@/store/slices/userSlice";
-import { apiFetch } from "@/lib/apiClient";
+import { useState } from "react";
+import { ShoppingCart, Menu, X } from "lucide-react";
+import { useAppSelector } from "@/store/hooks";
+import ProfileSection from "./ProfileSection";
 
 export default function SiteHeader() {
   const cartCount = useAppSelector((s) => s.cart.totalQuantity);
-  const user = useAppSelector((s) => s.user.profile);
-  const dispatch = useAppDispatch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   const navigationItems = [
     { href: "/services", label: "Services" },
@@ -22,29 +16,6 @@ export default function SiteHeader() {
     { href: "/business-opportunity", label: "Opportunity" },
     { href: "/contact", label: "Contact" },
   ];
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
-        setIsProfileDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await apiFetch("/api/auth/logout", { method: "POST" });
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
-      dispatch(clearUserProfile());
-      window.location.href = "/login";
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
@@ -97,87 +68,8 @@ export default function SiteHeader() {
               Dashboard
             </Link>
 
-            {/* Auth Section */}
-            {user ? (
-              <div className="relative" ref={profileDropdownRef}>
-                <button
-                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors"
-                >
-                  <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="hidden md:block">{user.name || user.email}</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-
-                {/* Profile Dropdown */}
-                {isProfileDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                    <div className="py-1">
-                      <Link
-                        prefetch={false}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        href="/referrals"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        <LinkIcon className="w-4 h-4" />
-                        Referral
-                      </Link>
-                      <Link
-                        prefetch={false}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                        href="/services"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                      >
-                        <Package className="w-4 h-4" />
-                        Services
-                      </Link>
-                      {user.role === "admin" && (
-                        <>
-                          <Link
-                            prefetch={false}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            href="/admin"
-                            onClick={() => setIsProfileDropdownOpen(false)}
-                          >
-                            <Settings className="w-4 h-4" />
-                            Admin Panel
-                          </Link>
-                          <Link
-                            prefetch={false}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            href="/admin/slider"
-                            onClick={() => setIsProfileDropdownOpen(false)}
-                          >
-                            <ImageIcon className="w-4 h-4" />
-                            Manage Sliders
-                          </Link>
-                        </>
-                      )}
-                      <button
-                        onClick={() => {
-                          setIsProfileDropdownOpen(false);
-                          handleLogout();
-                        }}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <Link
-                prefetch={false}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                href="/login"
-              >
-                Sign In
-              </Link>
-            )}
+            {/* Profile Section */}
+            <ProfileSection />
           </div>
 
           {/* Mobile Actions */}
@@ -227,73 +119,10 @@ export default function SiteHeader() {
               </Link>
             ))}
             <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-4 space-y-1">
-              {user ? (
-                <>
-                  <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-                    Signed in as {user.name || user.email}
-                  </div>
-                  <Link
-                    prefetch={false}
-                    className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    href="/referrals"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <LinkIcon className="w-4 h-4" />
-                    Referral
-                  </Link>
-                  <Link
-                    prefetch={false}
-                    className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    href="/services"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Package className="w-4 h-4" />
-                    Services
-                  </Link>
-                  {user.role === "admin" && (
-                    <>
-                      <Link
-                        prefetch={false}
-                        className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        href="/admin"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <Settings className="w-4 h-4" />
-                        Admin Panel
-                      </Link>
-                      <Link
-                        prefetch={false}
-                        className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                        href="/admin/slider"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <ImageIcon className="w-4 h-4" />
-                        Manage Sliders
-                      </Link>
-                    </>
-                  )}
-                  <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="flex items-center gap-2 w-full px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <Link
-                  prefetch={false}
-                  className="flex items-center gap-2 px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  href="/login"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <User className="w-4 h-4" />
-                  Sign In
-                </Link>
-              )}
+              {/* Mobile Profile Section */}
+              <div className="px-4 py-2">
+                <ProfileSection />
+              </div>
               <Link
                 prefetch={false}
                 className="flex items-center justify-center px-4 py-3 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   Rocket,
@@ -8,18 +10,37 @@ import {
   Users,
 } from "lucide-react";
 import ImageSlider from "@/app/_components/ImageSlider";
+import { useState, useEffect } from "react";
 
 export default function Home() {
+  const [sliderUpdate, setSliderUpdate] = useState(0);
+
+  // Listen for slider updates from admin panel
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setSliderUpdate(prev => prev + 1);
+    };
+
+    // Listen for storage changes (when admin updates sliders)
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section with Slider */}
       <section className="relative h-[92vh] max-h-[800px]">
         <ImageSlider 
+          key={sliderUpdate}
           className="w-full h-full"
           autoPlay={true}
           interval={5000}
           showControls={true}
           showIndicators={true}
+          externalUpdate={sliderUpdate}
         />
       </section>
 

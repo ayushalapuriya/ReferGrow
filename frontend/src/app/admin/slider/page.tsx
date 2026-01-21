@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/apiClient";
+import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { useAuth } from "@/lib/useAuth";
 import { 
   Image as ImageIcon, 
@@ -10,12 +10,12 @@ import {
   Edit, 
   Trash2, 
   Eye, 
-  EyeOff, 
-  GripVertical,
+  EyeOff,
   Save,
   X,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  RefreshCw
 } from "lucide-react";
 import ImageUpload from "@/app/_components/ImageUpload";
 import SliderInlineEdit from "@/app/_components/SliderInlineEdit";
@@ -38,7 +38,9 @@ export default function AdminSliderPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [activeImageId, setActiveImageId] = useState<string | null>(null);
   const [imageUploadKey, setImageUploadKey] = useState(0);
   const [formData, setFormData] = useState({
     title: "",
@@ -52,14 +54,24 @@ export default function AdminSliderPage() {
     try {
       setError(null);
       const res = await apiFetch("/api/admin/sliders");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to load sliders");
-      setSliders(data.sliders || []);
+      const body = await readApiBody(res);
+      if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to load sliders");
+      setSliders((body.json as any)?.sliders || []);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load sliders");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function refreshSliders() {
+    setIsRefreshing(true);
+    setSuccess(null);
+    setError(null);
+    await loadSliders();
+    setSuccess("Sliders refreshed successfully!");
+    setTimeout(() => setSuccess(null), 3000);
+    setIsRefreshing(false);
   }
 
   useEffect(() => {
@@ -81,8 +93,8 @@ export default function AdminSliderPage() {
           order: sliders.length
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to create slider");
+      const body = await readApiBody(res);
+      if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to create slider");
       
       setSuccess("Slider created successfully!");
       setFormData({ title: "", description: "", imageUrl: "", order: 0, isActive: true });
@@ -107,8 +119,8 @@ export default function AdminSliderPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates)
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to update slider");
+      const body = await readApiBody(res);
+      if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to update slider");
       
       setSuccess("Slider updated successfully!");
       setEditingId(null);
@@ -131,8 +143,8 @@ export default function AdminSliderPage() {
       const res = await apiFetch(`/api/admin/sliders/${id}`, {
         method: "DELETE"
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to delete slider");
+      const body = await readApiBody(res);
+      if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to delete slider");
       
       setSuccess("Slider deleted successfully!");
       await loadSliders();
@@ -158,8 +170,8 @@ export default function AdminSliderPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sliders: reorderedSliders })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? "Failed to reorder sliders");
+      const body = await readApiBody(res);
+      if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to reorder sliders");
       
       setSuccess("Sliders reordered successfully!");
       await loadSliders();
@@ -242,12 +254,6 @@ export default function AdminSliderPage() {
             {error}
           </div>
         )}
-        {success && (
-          <div className="mb-6 glass-panel rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" />
-            {success}
-          </div>
-        )}
 
         {/* Create New Slider */}
         <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6">
@@ -313,12 +319,74 @@ export default function AdminSliderPage() {
 
         {/* Sliders List */}
         <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
-              <ImageIcon className="w-5 h-5" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
+                <ImageIcon className="w-5 h-5" />
+              </div>
+              <h2 className="font-bold text-xl">All Sliders</h2>
             </div>
-            <h2 className="font-bold text-xl">All Sliders</h2>
+            
+            <div className="flex items-center gap-3">
+              {/* Success Message */}
+              {success && (
+                <div className="flex items-center gap-2 glass-panel rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm text-green-700 dark:text-green-300">
+                  <CheckCircle className="w-4 h-4" />
+                  {success}
+                </div>
+              )}
+              
+              {/* Refresh Button */}
+              <button
+                onClick={refreshSliders}
+                disabled={isRefreshing}
+                className="flex items-center gap-2 glass-panel rounded-xl px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Refresh all sliders"
+              >
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
           </div>
+
+          {/* Image Tabs */}
+          {sliders.length > 0 && (
+            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+              {sliders.map((slider, index) => (
+                <button
+                  key={slider._id}
+                  onClick={() => setActiveImageId(slider._id)}
+                  className={`flex-shrink-0 relative px-4 py-2 rounded-lg border transition-all ${
+                    activeImageId === slider._id
+                      ? 'bg-purple-500 text-white border-purple-500 shadow-lg'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-purple-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-6 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
+                      <img
+                        src={slider.imageUrl}
+                        alt={slider.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='24' viewBox='0 0 32 24'%3E%3Crect width='32' height='24' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%236b7280' font-family='sans-serif' font-size='8'%3ENo img%3C/text%3E%3C/svg%3E";
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium truncate max-w-20">
+                      {slider.title || `Slider ${index + 1}`}
+                    </span>
+                    {slider.isActive && (
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    )}
+                  </div>
+                  {activeImageId === slider._id && (
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-purple-600 rounded-full"></div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
           
           {sliders.length === 0 ? (
             <div className="text-center py-12">
@@ -328,10 +396,17 @@ export default function AdminSliderPage() {
           ) : (
             <div className="space-y-4">
               {sliders.map((slider, index) => (
-                <div key={slider._id} className="border border-purple-200 dark:border-purple-500/30 rounded-lg p-4 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors">
+                <div 
+                  key={slider._id} 
+                  className={`border rounded-lg p-4 transition-all ${
+                    activeImageId === slider._id
+                      ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20 shadow-lg'
+                      : 'border-purple-200 dark:border-purple-500/30 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
+                  }`}
+                >
                   <div className="flex gap-4">
                     {/* Image Preview */}
-                    <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800">
+                    <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800 relative">
                       <img
                         src={slider.imageUrl}
                         alt={slider.title}
@@ -340,6 +415,10 @@ export default function AdminSliderPage() {
                           e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='64' viewBox='0 0 96 64'%3E%3Crect width='96' height='64' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%236b7280' font-family='sans-serif' font-size='12'%3ENo image%3C/text%3E%3C/svg%3E";
                         }}
                       />
+                      {/* Active Indicator */}
+                      {activeImageId === slider._id && (
+                        <div className="absolute top-2 right-2 w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                      )}
                     </div>
                     
                     {/* Content */}

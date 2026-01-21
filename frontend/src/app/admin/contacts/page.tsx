@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { apiFetch } from "@/lib/apiClient";
+import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { Mail, Clock, CheckCircle, Reply, User } from "lucide-react";
 
 interface Contact {
@@ -27,8 +27,8 @@ export default function AdminContactsPage() {
   const fetchContacts = async () => {
     try {
       const response = await apiFetch("/api/admin/contacts");
-      const data = await response.json();
-      setContacts(data.contacts || []);
+      const body = await readApiBody(response);
+      setContacts((body.json as any)?.contacts || []);
     } catch (error) {
       console.error("Failed to fetch contacts:", error);
     } finally {

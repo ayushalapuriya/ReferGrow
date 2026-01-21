@@ -11,43 +11,76 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.user.profile);
 
+  // Initial load from localStorage if no user in Redux state
+  useEffect(() => {
+    if (!currentUser) {
+      const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          dispatch(setUserProfile(user));
+        } catch {
+          console.warn("Failed to parse stored user");
+          localStorage.removeItem('user');
+        }
+      }
+    }
+  }, [dispatch, currentUser]);
+
+  // Sync with localStorage on user changes
+  useEffect(() => {
+    if (currentUser && typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(currentUser));
+    }
+  }, [currentUser]);
+
+  // Main authentication effect
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await apiFetch("/api/me");
-        
-        if (!res.ok) {
-          // Only redirect if we don't already have a user (from localStorage)
-          if (!currentUser) {
-            router.push("/login?redirect=" + window.location.pathname);
-          }
-          return;
-        }
-
         const body = await readApiBody(res);
         
-        // Handle both JSON and text responses
+        if (!res.ok) {
+          // Only redirect if we don't have a user in both localStorage and Redux state
+          const storedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+          if (!storedUser && !currentUser) {
+            router.push("/login?redirect=" + window.location.pathname);
+            return;
+          }
+        }
+        
         let data: { user?: any; error?: string } | undefined;
+        
+        // Handle JSON response
         if (body.json) {
           data = body.json as { user?: any; error?: string };
-          if (!data || !data.user) {
-            // Check if this is an error response
-            if (data.error) {
-              // Only clear user if we don't already have one
-              if (!currentUser) {
-                dispatch(setUserProfile(null));
-                router.push("/login?redirect=" + window.location.pathname);
+        } else if (body.text) {
+          // Handle non-JSON responses (like HTML error pages)
+          try {
+            const startIndex = body.text.indexOf('user:');
+            if (startIndex !== -1) {
+              const endIndex = body.text.indexOf('}', startIndex);
+              if (endIndex !== -1) {
+                const userInfo = JSON.parse(body.text.substring(startIndex + 5, endIndex + 1));
+                data = { user: userInfo };
               }
-              return;
             }
-            throw new Error("Invalid response: missing user data");
+          } catch {
+            console.warn("Could not parse user info from error response");
           }
-          // Only update user if we don't already have one or if it's different
+        }
+        
+        // Update Redux state if we have valid user data
+        if (data.user) {
+          // Only update if user is different from current Redux state
           if (!currentUser || JSON.stringify(currentUser) !== JSON.stringify(data.user)) {
             dispatch(setUserProfile(data.user));
+            // Also update localStorage for persistence
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('user', JSON.stringify(data.user));
+            }
           }
-        } else {
-          throw new Error(body.text ?? "Invalid response: not JSON");
         }
         
         // Check if admin is required
@@ -56,11 +89,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        // Only clear user if we don't already have one
-        if (!currentUser) {
-          dispatch(setUserProfile(null));
-          router.push("/login?redirect=" + window.location.pathname);
-        }
+        // Don't automatically redirect on auth errors, let components handle it
       }
     };
 

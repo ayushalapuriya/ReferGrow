@@ -737,15 +737,20 @@ This message has been saved to the database with ID: ${contact._id}`,
   // Admin routes for slider management
   app.get("/api/admin/sliders", async (req: Request, res: Response) => {
     try {
+      console.log("GET /api/admin/sliders - Starting request");
       await requireRole(req, "admin");
+      console.log("GET /api/admin/sliders - Auth passed");
       await connectToDatabase();
+      console.log("GET /api/admin/sliders - DB connected");
       const sliders = await Slider.find()
         .sort({ order: 1 })
         .lean();
+      console.log("GET /api/admin/sliders - Found sliders:", sliders.length);
       return res.json({ sliders });
     } catch (err: unknown) {
+      console.error("GET /api/admin/sliders - Error:", err);
       const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Forbidden" ? 403 : 400;
+      const status = msg === "Forbidden" ? 403 : 500;
       return res.status(status).json({ error: msg });
     }
   });
