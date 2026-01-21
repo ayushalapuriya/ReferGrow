@@ -15,13 +15,13 @@ export default function ServicesGrid({ services }: ServicesGridProps) {
       {/* Empty State */}
       {services.length === 0 && (
         <div className="col-span-full text-center py-20">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-zinc-100 dark:bg-zinc-800 mb-6">
-            <div className="w-10 h-10 text-zinc-400">📦</div>
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-zinc-100 mb-6">
+            <div className="w-10 h-10 text-zinc-600">📦</div>
           </div>
-          <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+          <h3 className="text-2xl font-bold text-zinc-900 mb-3">
             No Services Available
           </h3>
-          <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">
+          <p className="text-lg text-zinc-600 max-w-md mx-auto">
             We're currently updating our service catalog. Please check back soon for exciting new offerings!
           </p>
         </div>

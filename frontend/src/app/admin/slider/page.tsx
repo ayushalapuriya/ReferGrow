@@ -200,11 +200,11 @@ export default function AdminSliderPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading sliders...</p>
+            <p className="mt-4 text-gray-600">Loading sliders...</p>
           </div>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function AdminSliderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -225,20 +225,20 @@ export default function AdminSliderPage() {
                 Slider Management
               </h1>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 ml-15">
+            <p className="text-sm text-gray-600 ml-15">
               Manage home page slider images and content
             </p>
           </div>
           <div className="flex gap-3">
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
               prefetch={false}
               href="/admin/services"
             >
               Services
             </Link>
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
               prefetch={false}
               href="/dashboard"
             >
@@ -249,14 +249,14 @@ export default function AdminSliderPage() {
 
         {/* Alerts */}
         {error && (
-          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300 flex items-center gap-2">
+          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 flex items-center gap-2">
             <AlertCircle className="w-4 h-4" />
             {error}
           </div>
         )}
 
         {/* Create New Slider */}
-        <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6">
+        <div className="glass-panel rounded-2xl border border-purple-200 p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
               <Plus className="w-5 h-5" />
@@ -266,7 +266,7 @@ export default function AdminSliderPage() {
           
           <form onSubmit={createSlider} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Title *
               </label>
               <input
@@ -275,13 +275,13 @@ export default function AdminSliderPage() {
                 maxLength={100}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                className="w-full glass-panel rounded-lg border border-purple-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter slider title"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Image *
               </label>
               <ImageUpload
@@ -292,7 +292,7 @@ export default function AdminSliderPage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <textarea
@@ -300,7 +300,7 @@ export default function AdminSliderPage() {
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                className="w-full glass-panel rounded-lg border border-purple-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter slider description (optional)"
               />
             </div>
@@ -318,7 +318,7 @@ export default function AdminSliderPage() {
         </div>
 
         {/* Sliders List */}
-        <div className="glass-panel rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6">
+        <div className="glass-panel rounded-2xl border border-purple-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
@@ -330,7 +330,7 @@ export default function AdminSliderPage() {
             <div className="flex items-center gap-3">
               {/* Success Message */}
               {success && (
-                <div className="flex items-center gap-2 glass-panel rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm text-green-700 dark:text-green-300">
+                <div className="flex items-center gap-2 glass-panel rounded-xl border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm text-green-700">
                   <CheckCircle className="w-4 h-4" />
                   {success}
                 </div>
@@ -340,7 +340,7 @@ export default function AdminSliderPage() {
               <button
                 onClick={refreshSliders}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 glass-panel rounded-xl px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 glass-panel rounded-xl px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Refresh all sliders"
               >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -359,11 +359,11 @@ export default function AdminSliderPage() {
                   className={`flex-shrink-0 relative px-4 py-2 rounded-lg border transition-all ${
                     activeImageId === slider._id
                       ? 'bg-purple-500 text-white border-purple-500 shadow-lg'
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-purple-300 hover:shadow-md'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-6 rounded overflow-hidden bg-gray-100 dark:bg-gray-700">
+                    <div className="w-8 h-6 rounded overflow-hidden bg-gray-100">
                       <img
                         src={slider.imageUrl}
                         alt={slider.title}
@@ -390,8 +390,8 @@ export default function AdminSliderPage() {
           
           {sliders.length === 0 ? (
             <div className="text-center py-12">
-              <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 dark:text-gray-400">No sliders created yet</p>
+              <ImageIcon className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <p className="text-gray-600">No sliders created yet</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -400,13 +400,13 @@ export default function AdminSliderPage() {
                   key={slider._id} 
                   className={`border rounded-lg p-4 transition-all ${
                     activeImageId === slider._id
-                      ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20 shadow-lg'
-                      : 'border-purple-200 dark:border-purple-500/30 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
+                      ? 'border-purple-500 bg-purple-50/50 shadow-lg'
+                      : 'border-purple-200 hover:bg-purple-50/50'
                   }`}
                 >
                   <div className="flex gap-4">
                     {/* Image Preview */}
-                    <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-800 relative">
+                    <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 relative">
                       <img
                         src={slider.imageUrl}
                         alt={slider.title}
@@ -435,15 +435,15 @@ export default function AdminSliderPage() {
                         />
                       ) : (
                         <div>
-                          <h3 className="font-semibold text-lg text-gray-900 dark:text-white mb-1">
+                          <h3 className="font-semibold text-lg text-gray-900 mb-1">
                             {slider.title}
                           </h3>
                           {slider.description && (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p className="text-sm text-gray-600 mb-2">
                               {slider.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-500">
+                          <div className="flex items-center gap-4 text-xs text-gray-700">
                             <span>Order: {slider.order}</span>
                             <span>Status: {slider.isActive ? "Active" : "Inactive"}</span>
                             <span>Created: {new Date(slider.createdAt).toLocaleDateString()}</span>
@@ -458,7 +458,7 @@ export default function AdminSliderPage() {
                         <button
                           onClick={() => moveSliderUp(index)}
                           disabled={index === 0}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
                           title="Move up"
                         >
                           ↑
@@ -466,7 +466,7 @@ export default function AdminSliderPage() {
                         <button
                           onClick={() => moveSliderDown(index)}
                           disabled={index === sliders.length - 1}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+                          className="p-1 rounded hover:bg-gray-200 disabled:opacity-50"
                           title="Move down"
                         >
                           ↓
@@ -478,7 +478,7 @@ export default function AdminSliderPage() {
                           <button
                             onClick={() => updateSlider(slider._id, slider)}
                             disabled={busy}
-                            className="p-1 rounded hover:bg-green-100 dark:hover:bg-green-900 text-green-600"
+                            className="p-1 rounded hover:bg-green-100 text-green-600"
                             title="Save"
                           >
                             <Save className="w-4 h-4" />
@@ -488,7 +488,7 @@ export default function AdminSliderPage() {
                               setEditingId(null);
                               loadSliders();
                             }}
-                            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                            className="p-1 rounded hover:bg-red-100 text-red-600"
                             title="Cancel"
                           >
                             <X className="w-4 h-4" />
@@ -499,7 +499,7 @@ export default function AdminSliderPage() {
                           <button
                             onClick={() => setEditingId(slider._id)}
                             disabled={busy}
-                            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600"
+                            className="p-1 rounded hover:bg-blue-100 text-blue-600"
                             title="Edit"
                           >
                             <Edit className="w-4 h-4" />
@@ -507,7 +507,7 @@ export default function AdminSliderPage() {
                           <button
                             onClick={() => toggleActive(slider)}
                             disabled={busy}
-                            className="p-1 rounded hover:bg-yellow-100 dark:hover:bg-yellow-900 text-yellow-600"
+                            className="p-1 rounded hover:bg-yellow-100 text-yellow-600"
                             title={slider.isActive ? "Deactivate" : "Activate"}
                           >
                             {slider.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -515,7 +515,7 @@ export default function AdminSliderPage() {
                           <button
                             onClick={() => deleteSlider(slider._id)}
                             disabled={busy}
-                            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
+                            className="p-1 rounded hover:bg-red-100 text-red-600"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />

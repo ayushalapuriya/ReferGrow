@@ -34,7 +34,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="min-h-[calc(100vh-16rem)]">{children}</main>
         </Providers>
-        <footer className="mt-20 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+        <footer className="mt-20 border-t border-gray-200 bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
               <div>
@@ -42,42 +42,42 @@ export default function RootLayout({
                   <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
                     <span className="text-2xl">🌱</span>
                   </div>
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">ReferGrow</h3>
+                  <h3 className="font-bold text-lg text-gray-900">ReferGrow</h3>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-700">
                   Building financial freedom through smart referral networks.
                 </p>
               </div>
               
               <div>
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Platform</h4>
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">Platform</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link prefetch={false} href="/services" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Services</Link></li>
-                  <li><Link prefetch={false} href="/buisness-opportunity" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Opportunity</Link></li>
-                  <li><Link prefetch={false} href="/referrals" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Referrals</Link></li>
+                  <li><Link prefetch={false} href="/services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</Link></li>
+                  <li><Link prefetch={false} href="/buisness-opportunity" className="text-gray-700 hover:text-blue-600 transition-colors">Opportunity</Link></li>
+                  <li><Link prefetch={false} href="/referrals" className="text-gray-700 hover:text-blue-600 transition-colors">Referrals</Link></li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Company</h4>
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">Company</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link href="/about" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About</Link></li>
-                  <li><Link prefetch={false} href="/about/vision" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Vision</Link></li>
-                  <li><Link prefetch={false} href="/contact" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact</Link></li>
+                  <li><Link href="/about" className="text-gray-700 hover:text-blue-600 transition-colors">About</Link></li>
+                  <li><Link prefetch={false} href="/about/vision" className="text-gray-700 hover:text-blue-600 transition-colors">Vision</Link></li>
+                  <li><Link prefetch={false} href="/contact" className="text-gray-700 hover:text-blue-600 transition-colors">Contact</Link></li>
                 </ul>
               </div>
               
               <div>
-                <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Account</h4>
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">Account</h4>
                 <ul className="space-y-2 text-sm">
-                  <li><Link prefetch={false} href="/login" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Sign In</Link></li>
-                  <li><Link prefetch={false} href="/register" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Sign Up</Link></li>
+                  <li><Link prefetch={false} href="/login" className="text-gray-700 hover:text-blue-600 transition-colors">Sign In</Link></li>
+                  <li><Link prefetch={false} href="/register" className="text-gray-700 hover:text-blue-600 transition-colors">Sign Up</Link></li>
                 </ul>
               </div>
             </div>
             
-            <div className="border-t border-gray-200 dark:border-gray-800 pt-6 text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="border-t border-gray-200 pt-6 text-center">
+              <p className="text-sm text-gray-700">
                 © 2026 ReferGrow. All rights reserved.
               </p>
             </div>

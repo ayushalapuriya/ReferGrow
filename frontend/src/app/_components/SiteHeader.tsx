@@ -18,7 +18,7 @@ export default function SiteHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between px-4 lg:px-6 h-16">
           {/* Logo */}
@@ -26,7 +26,7 @@ export default function SiteHeader() {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
               <span className="text-2xl">🌱</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
+            <span className="text-xl font-bold text-gray-900">
               ReferGrow
             </span>
           </Link>
@@ -36,7 +36,7 @@ export default function SiteHeader() {
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
                 href={item.href}
               >
                 {item.label}
@@ -48,11 +48,11 @@ export default function SiteHeader() {
           <div className="hidden lg:flex items-center gap-3">
             <Link
               prefetch={false}
-              className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="relative p-2 rounded-md hover:bg-gray-100 transition-colors"
               href="/cart"
               title="Shopping Cart"
             >
-              <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <ShoppingCart className="w-5 h-5 text-gray-700" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
                   {cartCount}
@@ -76,11 +76,11 @@ export default function SiteHeader() {
           <div className="flex items-center gap-2 lg:hidden">
             <Link
               prefetch={false}
-              className="relative p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="relative p-2 rounded-md hover:bg-gray-100 transition-colors"
               href="/cart"
               title="Shopping Cart"
             >
-              <ShoppingCart className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+              <ShoppingCart className="w-5 h-5 text-gray-700" />
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-blue-600 text-white text-xs font-bold">
                   {cartCount}
@@ -90,14 +90,14 @@ export default function SiteHeader() {
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
               aria-label="Toggle menu"
               aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <X className="w-6 h-6 text-gray-700" />
               ) : (
-                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                <Menu className="w-6 h-6 text-gray-700" />
               )}
             </button>
           </div>
@@ -106,19 +106,19 @@ export default function SiteHeader() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 animate-fade-in">
+        <div className="lg:hidden border-t border-gray-200 bg-white animate-fade-in">
           <nav className="px-4 py-4 space-y-1 max-w-7xl mx-auto">
             {navigationItems.map((item) => (
               <Link
                 key={item.href}
-                className="block px-4 py-3 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="block px-4 py-3 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-4 space-y-1">
+            <div className="border-t border-gray-200 pt-4 mt-4 space-y-1">
               {/* Mobile Profile Section */}
               <div className="px-4 py-2">
                 <ProfileSection />

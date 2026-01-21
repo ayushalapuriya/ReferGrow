@@ -44,14 +44,14 @@ export default function BusinessOpportunityForm() {
         </div>
         <div>
           <h2 className="font-bold text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Get More Information</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Receive detailed information about our business opportunity</p>
+          <p className="text-sm text-zinc-600">Receive detailed information about our business opportunity</p>
         </div>
       </div>
       
       <form onSubmit={submit}>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
-            className="flex-1 glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+            className="flex-1 glass-panel rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
             placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -70,8 +70,8 @@ export default function BusinessOpportunityForm() {
         {result ? (
           <div className={`mt-4 p-4 rounded-xl border ${
             result.includes("check your inbox") || result.includes("Saved")
-              ? "bg-green-500/10 border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-300"
-              : "bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300"
+              ? "bg-green-500/10 border-green-200 text-green-700"
+              : "bg-red-500/10 border-red-200 text-red-700"
           }`}>
             {result.includes("check your inbox") || result.includes("Saved") ? "✓ " : "⚠️ "}
             {result}

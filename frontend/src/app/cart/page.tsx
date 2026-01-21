@@ -13,19 +13,19 @@ export default function CartPage() {
   const items = Object.values(cart.items);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 px-6 py-12">
+    <div className="min-h-screen bg-linear-to-br from-zinc-50 via-white to-zinc-100 px-6 py-12">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 mb-4">
-              <ShoppingCart className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">Shopping Cart</span>
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-linear-to-r from-purple-50 to-pink-50 border border-purple-200 mb-4">
+              <ShoppingCart className="w-5 h-5 text-purple-600" />
+              <span className="text-sm font-semibold text-purple-700">Shopping Cart</span>
             </div>
-            <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-100">
+            <h1 className="text-4xl font-bold text-zinc-900">
               Your Cart ({cart.totalQuantity} {cart.totalQuantity === 1 ? 'item' : 'items'})
             </h1>
-            <p className="mt-2 text-lg text-zinc-600 dark:text-zinc-400">
+            <p className="mt-2 text-lg text-zinc-600">
               Review your selected services before checkout
             </p>
           </div>
@@ -40,13 +40,13 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 mb-8">
-              <ShoppingCart className="w-12 h-12 text-zinc-400" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-zinc-100 mb-8">
+              <ShoppingCart className="w-12 h-12 text-zinc-600" />
             </div>
-            <h3 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">
+            <h3 className="text-3xl font-bold text-zinc-900 mb-4">
               Your Cart is Empty
             </h3>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-md mx-auto mb-8">
+            <p className="text-lg text-zinc-600 max-w-md mx-auto mb-8">
               Looks like you haven't added any services yet. Browse our premium services to get started!
             </p>
             <Link
@@ -65,7 +65,7 @@ export default function CartPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="group rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 p-6 shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="group rounded-3xl bg-white border border-zinc-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   <div className="flex items-start justify-between gap-6">
                     <div className="flex-1">
@@ -74,15 +74,15 @@ export default function CartPage() {
                           <Package className="w-6 h-6" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                          <h3 className="text-xl font-bold text-zinc-900">
                             {item.name}
                           </h3>
                           <div className="mt-1 flex items-center gap-3">
-                            <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                            <span className="text-lg font-semibold text-zinc-900">
                               {formatINR(item.price)}
                             </span>
                             {typeof item.businessVolume === "number" && (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
                                 {item.businessVolume} BV
                               </span>
                             )}
@@ -92,7 +92,7 @@ export default function CartPage() {
                     </div>
 
                     <button
-                      className="text-zinc-400 hover:text-red-600 transition-colors p-2"
+                      className="text-zinc-600 transition-colors p-2"
                       onClick={() => dispatch(removeItem({ id: item.id }))}
                       type="button"
                       aria-label="Remove item"
@@ -104,9 +104,9 @@ export default function CartPage() {
                   </div>
 
                   <div className="mt-6 flex items-center justify-between">
-                    <div className="inline-flex items-center rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                    <div className="inline-flex items-center rounded-xl border border-zinc-200 overflow-hidden">
                       <button
-                        className="px-4 py-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                        className="px-4 py-3 text-zinc-700 hover:bg-zinc-50 transition-colors"
                         type="button"
                         onClick={() =>
                           dispatch(
@@ -120,11 +120,11 @@ export default function CartPage() {
                       >
                         −
                       </button>
-                      <div className="px-6 py-3 bg-zinc-50 dark:bg-zinc-800 min-w-15 text-center">
-                        <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{item.quantity}</span>
+                      <div className="px-6 py-3 bg-zinc-50 min-w-15 text-center">
+                        <span className="text-lg font-bold text-zinc-900">{item.quantity}</span>
                       </div>
                       <button
-                        className="px-4 py-3 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                        className="px-4 py-3 text-zinc-700 hover:bg-zinc-50 transition-colors"
                         type="button"
                         onClick={() =>
                           dispatch(
@@ -141,8 +141,8 @@ export default function CartPage() {
                     </div>
 
                     <div className="text-right">
-                      <div className="text-sm text-zinc-600 dark:text-zinc-400 mb-1">Subtotal</div>
-                      <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+                      <div className="text-sm text-zinc-600 mb-1">Subtotal</div>
+                      <div className="text-2xl font-bold text-zinc-900">
                         {formatINR(item.price * item.quantity)}
                       </div>
                     </div>
@@ -152,17 +152,17 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="rounded-3xl bg-linear-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-800 border border-zinc-200 dark:border-zinc-700 p-8 shadow-lg h-fit lg:sticky lg:top-8">
-              <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-6">Order Summary</div>
+            <div className="rounded-3xl bg-linear-to-br from-white to-zinc-50 border border-zinc-200 p-8 shadow-lg h-fit lg:sticky lg:top-8">
+              <div className="text-xl font-bold text-zinc-900 mb-6">Order Summary</div>
               
               <div className="space-y-4 mb-8">
-                <div className="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-700">
-                  <span className="text-zinc-600 dark:text-zinc-400">Items</span>
-                  <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{cart.totalQuantity}</span>
+                <div className="flex items-center justify-between py-3 border-b border-zinc-200">
+                  <span className="text-zinc-600">Items</span>
+                  <span className="font-semibold text-lg text-zinc-900">{cart.totalQuantity}</span>
                 </div>
-                <div className="flex items-center justify-between py-3 border-b border-zinc-200 dark:border-zinc-700">
-                  <span className="text-zinc-600 dark:text-zinc-400">Subtotal</span>
-                  <span className="font-semibold text-lg text-zinc-900 dark:text-zinc-100">{formatINR(cart.totalAmount)}</span>
+                <div className="flex items-center justify-between py-3 border-b border-zinc-200">
+                  <span className="text-zinc-600">Subtotal</span>
+                  <span className="font-semibold text-lg text-zinc-900">{formatINR(cart.totalAmount)}</span>
                 </div>
               </div>
 
@@ -179,7 +179,7 @@ export default function CartPage() {
                 </button>
 
                 <button
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 px-6 py-3 font-semibold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all duration-300"
+                  className="w-full rounded-xl border border-zinc-200 px-6 py-3 font-semibold hover:bg-zinc-50 transition-all duration-300"
                   type="button"
                   onClick={() => dispatch(clearCart())}
                 >

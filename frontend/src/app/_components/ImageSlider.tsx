@@ -85,9 +85,9 @@ export default function ImageSlider({
 
   if (isLoading) {
     return (
-      <div className={`relative w-full h-full bg-gray-200 dark:bg-gray-800 animate-pulse ${className}`}>
+      <div className={`relative w-full h-full bg-gray-200 animate-pulse ${className}`}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-gray-500 dark:text-gray-400">Loading slides...</div>
+          <div className="text-gray-700">Loading slides... ({slides.length} found)</div>
         </div>
       </div>
     );
@@ -95,9 +95,9 @@ export default function ImageSlider({
 
   if (error) {
     return (
-      <div className={`relative w-full h-full bg-gray-200 dark:bg-gray-800 ${className}`}>
+      <div className={`relative w-full h-full bg-gray-200 ${className}`}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-red-500 dark:text-red-400 text-center px-4">
+          <div className="text-red-500 text-center px-4">
             <div className="font-semibold">Error loading slides</div>
             <div className="text-sm mt-1">{error}</div>
           </div>
@@ -108,9 +108,9 @@ export default function ImageSlider({
 
   if (slides.length === 0) {
     return (
-      <div className={`relative w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-purple-900/20 ${className}`}>
+      <div className={`relative w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 ${className}`}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-gray-500 dark:text-gray-400 text-center px-4">
+          <div className="text-gray-700 text-center px-4">
             <div className="text-6xl mb-4">🖼️</div>
             <div className="font-semibold">No slides available</div>
             <div className="text-sm mt-1">Admin can add slides to display here</div>
@@ -165,10 +165,10 @@ export default function ImageSlider({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-purple-900/20 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-4">🖼️</div>
-              <div className="text-gray-600 dark:text-gray-400">
+              <div className="text-gray-600">
                 <div className="font-semibold">Invalid Image URL</div>
                 <div className="text-sm mt-1">Please update the slider with a valid image</div>
               </div>

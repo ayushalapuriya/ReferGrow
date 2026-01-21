@@ -83,9 +83,9 @@ export default function ProfileSection() {
   if (isAuthLoading) {
     return (
       <div className="relative">
-        <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-md">
-          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-          <div className="w-16 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+        <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 rounded-md">
+          <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse"></div>
+          <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
           <ChevronDown className="w-4 h-4" />
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function ProfileSection() {
     <div className="relative" ref={profileDropdownRef}>
       <button
         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
       >
         <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
           {user ? (
@@ -113,19 +113,19 @@ export default function ProfileSection() {
 
       {/* Profile Dropdown */}
       {isProfileDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
           <div className="py-1">
             {user ? (
               // Logged-in user menu
               <>
-                <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                <div className="px-4 py-2 text-xs text-gray-700 border-b border-gray-200">
                   Signed in as {user.name || user.email}
                 </div>
                 
                 {/* User-specific options */}
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <Home className="w-4 h-4" />
@@ -134,7 +134,7 @@ export default function ProfileSection() {
                 
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <UserCircle className="w-4 h-4" />
@@ -143,7 +143,7 @@ export default function ProfileSection() {
                 
                 <Link
                   href="/orders"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <ShoppingBag className="w-4 h-4" />
@@ -152,7 +152,7 @@ export default function ProfileSection() {
 
                 <Link
                   href="/referrals"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <LinkIcon className="w-4 h-4" />
@@ -162,10 +162,10 @@ export default function ProfileSection() {
                 {/* Admin-specific options */}
                 {user.role === "admin" && (
                   <>
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                    <div className="border-t border-gray-200 my-1"></div>
                     <Link
                       href="/admin"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Settings className="w-4 h-4" />
@@ -174,7 +174,7 @@ export default function ProfileSection() {
                     
                     <Link
                       href="/admin/users"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <Users className="w-4 h-4" />
@@ -183,7 +183,7 @@ export default function ProfileSection() {
                     
                     <Link
                       href="/admin/slider"
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       <ImageIcon className="w-4 h-4" />
@@ -192,10 +192,10 @@ export default function ProfileSection() {
                   </>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                <div className="border-t border-gray-200 my-1"></div>
                 <Link
                   href="/settings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <Settings className="w-4 h-4" />
@@ -207,7 +207,7 @@ export default function ProfileSection() {
                     setIsProfileDropdownOpen(false);
                     handleLogout();
                   }}
-                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -216,13 +216,13 @@ export default function ProfileSection() {
             ) : (
               // Logged-out user menu
               <>
-                <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                <div className="px-4 py-2 text-xs text-gray-700 border-b border-gray-200">
                   Welcome, Guest
                 </div>
                 
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <User className="w-4 h-4" />
@@ -231,7 +231,7 @@ export default function ProfileSection() {
                 
                 <Link
                   href="/register"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                   onClick={() => setIsProfileDropdownOpen(false)}
                 >
                   <UserCircle className="w-4 h-4" />

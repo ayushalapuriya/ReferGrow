@@ -125,7 +125,7 @@ export default function ImageUpload({ onImageSelect, currentImage, className = "
     <div className={`space-y-4 ${className}`}>
       {previewUrl ? (
         <div className="relative group">
-          <div className="w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+          <div className="w-full h-48 rounded-lg overflow-hidden border border-gray-200">
             <img
               src={previewUrl}
               alt="Preview"
@@ -143,8 +143,8 @@ export default function ImageUpload({ onImageSelect, currentImage, className = "
         <div
           className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
             isDragging
-              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-              : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+              ? "border-blue-500 bg-blue-50"
+              : "border-gray-300 hover:border-gray-400"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -153,20 +153,20 @@ export default function ImageUpload({ onImageSelect, currentImage, className = "
           {isUploading ? (
             <div className="flex flex-col items-center space-y-2">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Uploading image...</p>
+              <p className="text-sm text-gray-600">Uploading image...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-2">
-              <ImageIcon className="w-12 h-12 text-gray-400" />
+              <ImageIcon className="w-12 h-12 text-gray-600" />
               <div>
-                <p className="text-lg font-medium text-gray-900 dark:text-white">
+                <p className="text-lg font-medium text-gray-900">
                   Drag & drop image here
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   or click to browse
                 </p>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-500">
+              <p className="text-xs text-gray-700">
                 PNG, JPG, GIF up to 5MB
               </p>
             </div>

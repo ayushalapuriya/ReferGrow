@@ -42,20 +42,20 @@ export default function SliderInlineEdit({ slider, onSave, onCancel, busy }: Sli
   return (
     <div className="space-y-3">
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Title
         </label>
         <input
           type="text"
           value={editData.title}
           onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-          className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-3 py-2 font-medium"
+          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
           maxLength={100}
         />
       </div>
       
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Image
         </label>
         <ImageUpload
@@ -66,13 +66,13 @@ export default function SliderInlineEdit({ slider, onSave, onCancel, busy }: Sli
       </div>
       
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           Description
         </label>
         <textarea
           value={editData.description}
           onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-          className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-3 py-2 font-medium"
+          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
           rows={2}
           maxLength={500}
         />

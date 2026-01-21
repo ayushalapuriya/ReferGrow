@@ -70,11 +70,11 @@ export default function AdminContactsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800";
       case "read":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800";
       case "replied":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300";
+        return "bg-green-100 text-green-800";
       default:
         return "";
     }
@@ -91,17 +91,17 @@ export default function AdminContactsPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Contact Submissions</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Submissions</h1>
+        <p className="text-gray-600">
           Manage and respond to contact form submissions
         </p>
       </div>
 
       {contacts.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
-          <Mail className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No contact submissions yet</h3>
-          <p className="text-gray-600 dark:text-gray-400">
+        <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+          <Mail className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No contact submissions yet</h3>
+          <p className="text-gray-600">
             When users submit the contact form, their messages will appear here.
           </p>
         </div>
@@ -110,13 +110,13 @@ export default function AdminContactsPage() {
           {contacts.map((contact) => (
             <div
               key={contact._id}
-              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+              className="bg-white rounded-lg border border-gray-200 p-6"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <User className="w-5 h-5 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <User className="w-5 h-5 text-gray-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">
                       {contact.name}
                     </h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${getStatusColor(contact.status)}`}>
@@ -124,7 +124,7 @@ export default function AdminContactsPage() {
                       {contact.status}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                     <span className="flex items-center gap-1">
                       <Mail className="w-4 h-4" />
                       {contact.email}
@@ -134,10 +134,10 @@ export default function AdminContactsPage() {
                       {new Date(contact.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                  <h4 className="font-medium text-gray-900 mb-2">
                     {contact.subject}
                   </h4>
-                  <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+                  <p className="text-gray-600 whitespace-pre-wrap">
                     {contact.message}
                   </p>
                 </div>

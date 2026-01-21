@@ -118,7 +118,7 @@ export default function AdminServicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-indigo-900/20 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-6">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div className="animate-fade-in">
@@ -128,18 +128,18 @@ export default function AdminServicesPage() {
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Manage Services</h1>
             </div>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 ml-15">Manage services and their Business Volume</p>
+            <p className="text-sm text-zinc-600 ml-15">Manage services and their Business Volume</p>
           </div>
           <div className="flex gap-3 animate-slide-in">
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
               prefetch={false}
               href="/admin/rules"
             >
               Rules
             </Link>
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 dark:border-purple-500/30" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
               prefetch={false}
               href="/dashboard"
             >
@@ -149,12 +149,12 @@ export default function AdminServicesPage() {
         </div>
 
         {error ? (
-          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
+          <div className="mb-6 glass-panel animate-shake rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700">
             ⚠️ {error}
           </div>
         ) : null}
 
-        <form className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6 mb-6" onSubmit={createService} style={{animationDelay: '0.1s'}}>
+        <form className="glass-panel animate-fade-in rounded-2xl border border-purple-200 p-6 mb-6" onSubmit={createService} style={{animationDelay: '0.1s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xl">
               <Plus className="w-6 h-6 text-white" />
@@ -163,14 +163,14 @@ export default function AdminServicesPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-4">
             <input
-              className="glass-panel md:col-span-2 rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+              className="glass-panel md:col-span-2 rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
               placeholder="Service name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
             <input
-              className="glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+              className="glass-panel rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
@@ -180,7 +180,7 @@ export default function AdminServicesPage() {
               required
             />
             <input
-              className="glass-panel rounded-xl border border-purple-200 dark:border-purple-500/30 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+              className="glass-panel rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
               type="number"
               value={businessVolume}
               onChange={(e) => setBusinessVolume(e.target.value === "" ? "" : Number(e.target.value))}
@@ -198,16 +198,16 @@ export default function AdminServicesPage() {
           </button>
         </form>
 
-        <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 dark:border-purple-500/30 p-6" style={{animationDelay: '0.2s'}}>
+        <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 p-6" style={{animationDelay: '0.2s'}}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white text-xl">
               <ClipboardList className="w-6 h-6 text-white" />
             </div>
             <h2 className="font-bold text-xl">All Services</h2>
           </div>
-          <div className="overflow-auto rounded-xl border border-purple-200 dark:border-purple-500/30">
+          <div className="overflow-auto rounded-xl border border-purple-200">
             <table className="w-full text-sm">
-              <thead className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 text-left text-zinc-700 dark:text-zinc-300">
+              <thead className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 text-left text-zinc-700">
                 <tr>
                   <th className="py-3 px-4 font-semibold">Name</th>
                   <th className="py-3 px-4 font-semibold">Price</th>
@@ -218,11 +218,11 @@ export default function AdminServicesPage() {
               </thead>
               <tbody>
                 {services.map((s) => (
-                  <tr className="border-t border-purple-200 dark:border-purple-500/30 hover:bg-purple-500/5 transition-colors" key={s._id}>
+                  <tr className="border-t border-purple-200 hover:bg-purple-500/5 transition-colors" key={s._id}>
                     <td className="py-3 px-4">
                       {editingId === s._id ? (
                         <input
-                          className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-3 py-2 font-medium"
+                          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
                         />
@@ -233,7 +233,7 @@ export default function AdminServicesPage() {
                     <td className="py-3 px-4">
                       {editingId === s._id ? (
                         <input
-                          className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-3 py-2 font-medium"
+                          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
                           type="number"
                           step="0.01"
                           min={0}
@@ -242,13 +242,13 @@ export default function AdminServicesPage() {
                           placeholder="Price"
                         />
                       ) : (
-                        <span className="font-bold text-green-600 dark:text-green-400">{formatINR(s.price)}</span>
+                        <span className="font-bold text-green-600">{formatINR(s.price)}</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
                       {editingId === s._id ? (
                         <input
-                          className="w-full glass-panel rounded-lg border border-purple-200 dark:border-purple-500/30 px-3 py-2 font-medium"
+                          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
                           type="number"
                           min={0}
                           value={editBusinessVolume}
@@ -256,16 +256,16 @@ export default function AdminServicesPage() {
                           placeholder="Business Volume"
                         />
                       ) : (
-                        <span className="font-bold text-blue-600 dark:text-blue-400">{s.businessVolume}</span>
+                        <span className="font-bold text-blue-600">{s.businessVolume}</span>
                       )}
                     </td>
                     <td className="py-3 px-4">
                       {s.status === "active" ? (
-                        <span className="px-2 py-1 rounded-lg bg-green-500/10 text-green-700 dark:text-green-300 text-xs font-semibold">
+                        <span className="px-2 py-1 rounded-lg bg-green-500/10 text-green-700 text-xs font-semibold">
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 rounded-lg bg-gray-500/10 text-gray-700 dark:text-gray-300 text-xs font-semibold">
+                        <span className="px-2 py-1 rounded-lg bg-gray-500/10 text-gray-700 text-xs font-semibold">
                           Inactive
                         </span>
                       )}
@@ -275,14 +275,14 @@ export default function AdminServicesPage() {
                         {editingId === s._id ? (
                           <>
                             <button
-                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-green-200 dark:border-green-500/30 hover:bg-green-500/10 transition-colors"
+                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-green-200 hover:bg-green-500/10 transition-colors"
                               onClick={saveEdit}
                               disabled={busy}
                             >
                               ✓ Save
                             </button>
                             <button
-                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-red-200 dark:border-red-500/30 hover:bg-red-500/10 transition-colors"
+                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-red-200 hover:bg-red-500/10 transition-colors"
                               onClick={cancelEdit}
                               disabled={busy}
                             >
@@ -292,14 +292,14 @@ export default function AdminServicesPage() {
                         ) : (
                           <>
                             <button
-                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-blue-200 dark:border-blue-500/30 hover:bg-blue-500/10 transition-colors"
+                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-blue-200 hover:bg-blue-500/10 transition-colors"
                               onClick={() => startEdit(s)}
                               disabled={busy}
                             >
                               ✏️ Edit
                             </button>
                             <button
-                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-purple-200 dark:border-purple-500/30 hover:bg-purple-500/10 transition-colors"
+                              className="glass-panel rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 border border-purple-200 hover:bg-purple-500/10 transition-colors"
                               onClick={() => toggleActive(s)}
                               disabled={busy}
                             >
@@ -313,7 +313,7 @@ export default function AdminServicesPage() {
                 ))}
                 {services.length === 0 ? (
                   <tr>
-                    <td className="py-8 text-center text-zinc-600 dark:text-zinc-400" colSpan={5}>
+                    <td className="py-8 text-center text-zinc-600" colSpan={5}>
                       No services yet. Create your first service above!
                     </td>
                   </tr>
