@@ -19,6 +19,7 @@ interface ImageSliderProps {
   readonly interval?: number;
   readonly showControls?: boolean;
   readonly showIndicators?: boolean;
+  readonly externalUpdate?: number; // Trigger to show success message
 }
 
 export default function ImageSlider({
@@ -27,6 +28,7 @@ export default function ImageSlider({
   interval = 5000,
   showControls = true,
   showIndicators = true,
+  externalUpdate,
 }: ImageSliderProps) {
   const [slides, setSlides] = useState<SliderImage[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
