@@ -72,7 +72,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
         
         // Update Redux state if we have valid user data
-        if (data.user) {
+        if (data && data.user) {
           // Only update if user is different from current Redux state
           if (!currentUser || JSON.stringify(currentUser) !== JSON.stringify(data.user)) {
             dispatch(setUserProfile(data.user));
@@ -84,7 +84,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
         
         // Check if admin is required
-        if (options?.requireAdmin && data.user?.role !== "admin") {
+        if (options?.requireAdmin && data?.user?.role !== "admin") {
           router.push("/dashboard");
         }
       } catch (error) {
