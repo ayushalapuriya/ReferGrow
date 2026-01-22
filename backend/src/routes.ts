@@ -12,9 +12,13 @@ import { distributeBusinessVolumeWithSession } from "@/lib/bvDistribution";
 import { buildReferralTree } from "@/lib/referralTree";
 import { getBusinessOpportunityEmailContent } from "@/lib/businessOpportunity";
 import { sendEmail } from "@/lib/email";
+import { upload, getFileUrl } from "@/lib/upload";
+import path from "path";
+import express from "express";
 
 import { UserModel, type UserRole } from "@/models/User";
 import { ServiceModel } from "@/models/Service";
+import { CategoryModel } from "@/models/Category";
 import { PurchaseModel } from "@/models/Purchase";
 import { IncomeModel } from "@/models/Income";
 import { DistributionRuleModel } from "@/models/DistributionRule";
@@ -80,11 +84,16 @@ function clearAuthCookie(res: Response) {
 const DUMMY_PASSWORD_HASH = "$2b$12$npwxPAElS4BfdU.iS5LIFuqi0v31VhieuIsoP1t9cMORH152MK/3i";
 
 export function registerRoutes(app: Express) {
+  // Serve static files from uploads directory
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
   // Auth
   app.post("/api/auth/register", async (req, res) => {
     const schema = z.object({
+      mobile: z.string().min(10).max(15),
+      countryCode: z.string().default("+91"),
       name: z.string().min(1),
-      email: z.string().email(),
+      email: z.string().email().optional(),
       password: z.string().min(8),
       acceptedTerms: z.literal(true),
       referralCode: z
@@ -98,8 +107,15 @@ export function registerRoutes(app: Express) {
       const body = schema.parse(req.body);
       await connectToDatabase();
 
-      const existing = await UserModel.findOne({ email: body.email.toLowerCase() }).select("_id");
-      if (existing) return res.status(409).json({ error: "Email already in use" });
+      // Check if mobile already exists
+      const existingMobile = await UserModel.findOne({ mobile: body.mobile }).select("_id");
+      if (existingMobile) return res.status(409).json({ error: "Mobile number already in use" });
+
+      // Check if email already exists (if provided)
+      if (body.email) {
+        const existingEmail = await UserModel.findOne({ email: body.email.toLowerCase() }).select("_id");
+        if (existingEmail) return res.status(409).json({ error: "Email already in use" });
+      }
 
       let parentId: mongoose.Types.ObjectId | null = null;
       let position: "left" | "right" | null = null;
@@ -117,8 +133,10 @@ export function registerRoutes(app: Express) {
       const referralCode = await generateUniqueReferralCode();
 
       const user = await UserModel.create({
+        mobile: body.mobile,
+        countryCode: body.countryCode,
         name: body.name,
-        email: body.email,
+        email: body.email?.toLowerCase(),
         passwordHash,
         role: "user",
         referralCode,
@@ -127,34 +145,38 @@ export function registerRoutes(app: Express) {
       });
 
       // Non-blocking email - don't wait for it to complete
-      setTimeout(async () => {
-        try {
-          const content = getBusinessOpportunityEmailContent();
-          await sendEmail({ to: user.email, subject: content.subject, text: content.text });
-        } catch {
-          // ignore email errors
-        }
-      }, 0);
+      if (body.email) {
+        setTimeout(async () => {
+          try {
+            const content = getBusinessOpportunityEmailContent();
+            if (user.email) {
+              await sendEmail({ to: user.email, subject: content.subject, text: content.text });
+            }
+          } catch (err) {
+            console.error("Failed to send welcome email:", err);
+          }
+        }, 0);
+      }
 
-      const token = await signAuthToken({ sub: user._id.toString(), role: user.role, email: user.email });
-      setAuthCookie(res, token);
-
-      return res.status(201).json({
-        token,
+      return res.status(201).json({ 
+        message: "Registration successful",
         user: {
-          id: user._id.toString(),
+          _id: user._id,
+          mobile: user.mobile,
           name: user.name,
           email: user.email,
           role: user.role,
+          isVerified: user.isVerified,
           referralCode: user.referralCode,
-          parentUserId: user.parent?.toString() ?? null,
-        },
+        }
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       return res.status(400).json({ error: msg });
     }
   });
+
+  // Login
 
   app.post("/api/auth/login", async (req, res) => {
     const schema = z.object({ email: z.string().email(), password: z.string().min(1) });
@@ -183,7 +205,7 @@ export function registerRoutes(app: Express) {
       const ok = await verifyPassword(body.password, user.passwordHash);
       if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
-      const token = await signAuthToken({ sub: user._id.toString(), role: user.role, email: user.email });
+      const token = await signAuthToken({ sub: user._id.toString(), role: user.role, ...(user.email && { email: user.email }) });
       setAuthCookie(res, token);
 
       return res.json({
@@ -234,11 +256,263 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Profile Management - Get full profile
+  app.get("/api/profile", async (req, res) => {
+    try {
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      const user = await UserModel.findById(ctx.userId);
+      if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+      return res.json({
+        user: {
+          id: user._id.toString(),
+          mobile: user.mobile,
+          countryCode: user.countryCode,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          isVerified: user.isVerified,
+          isBlocked: user.isBlocked,
+          referralCode: user.referralCode,
+          
+          // Business Settings
+          businessName: user.businessName,
+          companyPhone: user.companyPhone,
+          companyEmail: user.companyEmail,
+          website: user.website,
+          billingAddress: user.billingAddress,
+          state: user.state,
+          pincode: user.pincode,
+          city: user.city,
+          language: user.language,
+          businessType: user.businessType,
+          industryType: user.industryType,
+          businessDescription: user.businessDescription,
+          gstin: user.gstin,
+          panNumber: user.panNumber,
+          isGSTRegistered: user.isGSTRegistered,
+          enableEInvoicing: user.enableEInvoicing,
+          enableTDS: user.enableTDS,
+          enableTCS: user.enableTCS,
+          businessLogo: user.businessLogo,
+          signature: user.signature,
+          currencyCode: user.currencyCode,
+          currencySymbol: user.currencySymbol,
+          
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unauthorized";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Profile Management - Update Basic Info (Signup fields)
+  app.put("/api/profile/basic", async (req, res) => {
+    const schema = z.object({
+      name: z.string().min(1).optional(),
+      email: z.string().email().optional(),
+    }).refine((v) => Object.keys(v).length > 0, "No fields to update");
+
+    try {
+      const ctx = await requireAuth(req);
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      // Check if email already exists (if updating email)
+      if (body.email) {
+        const existingEmail = await UserModel.findOne({ 
+          email: body.email.toLowerCase(),
+          _id: { $ne: ctx.userId }
+        }).select("_id");
+        if (existingEmail) return res.status(409).json({ error: "Email already in use" });
+      }
+
+      const updateData: any = {};
+      if (body.name) updateData.name = body.name;
+      if (body.email) updateData.email = body.email.toLowerCase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        ctx.userId, 
+        updateData, 
+        { new: true }
+      );
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ 
+        message: "Basic profile updated successfully",
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Profile Management - Update Business Settings
+  app.put("/api/profile/business", async (req, res) => {
+    const schema = z.object({
+      businessName: z.string().optional(),
+      companyPhone: z.string().optional(),
+      companyEmail: z.string().email().optional(),
+      website: z.string().url().optional(),
+      billingAddress: z.string().optional(),
+      state: z.string().optional(),
+      pincode: z.string().optional(),
+      city: z.string().optional(),
+      language: z.string().optional(),
+      businessType: z.string().optional(),
+      industryType: z.string().optional(),
+      businessDescription: z.string().optional(),
+      gstin: z.string().optional(),
+      panNumber: z.string().optional(),
+      isGSTRegistered: z.boolean().optional(),
+      enableEInvoicing: z.boolean().optional(),
+      enableTDS: z.boolean().optional(),
+      enableTCS: z.boolean().optional(),
+      businessLogo: z.string().url().optional(),
+      signature: z.string().optional(),
+      currencyCode: z.string().optional(),
+      currencySymbol: z.string().optional(),
+    }).refine((v) => Object.keys(v).length > 0, "No fields to update");
+
+    try {
+      const ctx = await requireAuth(req);
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        ctx.userId, 
+        body, 
+        { new: true }
+      );
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ 
+        message: "Business settings updated successfully",
+        user: {
+          id: user._id.toString(),
+          businessName: user.businessName,
+          companyPhone: user.companyPhone,
+          companyEmail: user.companyEmail,
+          website: user.website,
+          billingAddress: user.billingAddress,
+          state: user.state,
+          pincode: user.pincode,
+          city: user.city,
+          language: user.language,
+          businessType: user.businessType,
+          industryType: user.industryType,
+          businessDescription: user.businessDescription,
+          gstin: user.gstin,
+          panNumber: user.panNumber,
+          isGSTRegistered: user.isGSTRegistered,
+          enableEInvoicing: user.enableEInvoicing,
+          enableTDS: user.enableTDS,
+          enableTCS: user.enableTCS,
+          businessLogo: user.businessLogo,
+          signature: user.signature,
+          currencyCode: user.currencyCode,
+          currencySymbol: user.currencySymbol,
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Profile Image Upload
+  app.post("/api/upload/profile-image", upload.single("image"), async (req, res) => {
+    try {
+      console.log('Profile image upload request received');
+      
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      console.log('User authenticated:', ctx.userId);
+
+      if (!req.file) {
+        console.log('No file provided in request');
+        return res.status(400).json({ error: "No image provided" });
+      }
+
+      console.log('File received:', req.file.filename, req.file.size, req.file.mimetype);
+
+      // Get the file URL
+      const imageUrl = getFileUrl(req.file.filename);
+      console.log('Generated image URL:', imageUrl);
+
+      // Update user's businessLogo field
+      const user = await UserModel.findByIdAndUpdate(
+        ctx.userId,
+        { businessLogo: imageUrl },
+        { new: true }
+      );
+
+      if (!user) {
+        console.log('User not found:', ctx.userId);
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      console.log('Profile image updated successfully for user:', ctx.userId);
+
+      return res.json({ 
+        message: "Profile image uploaded successfully",
+        imageUrl: user.businessLogo
+      });
+    } catch (err: unknown) {
+      console.error('Profile image upload error:', err);
+      
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      
+      // Ensure we always return JSON
+      return res.status(status).json({ error: msg });
+    }
+  });
+
   // Public services
   app.get("/api/services", async (_req, res) => {
     await connectToDatabase();
     const services = await ServiceModel.find({ status: "active" }).sort({ createdAt: -1 });
-    res.json({ services });
+    
+    // Ensure all services have required fields for frontend compatibility
+    const processedServices = services.map(service => ({
+      _id: service._id,
+      name: service.name,
+      slug: service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      image: service.image || '/images/default-service.jpg', // Provide default image if missing
+      price: service.price,
+      businessVolume: service.businessVolume,
+      status: service.status,
+      // Include other optional fields if they exist
+      ...(service.originalPrice && { originalPrice: service.originalPrice }),
+      ...(service.currency && { currency: service.currency }),
+      ...(service.discountPercent && { discountPercent: service.discountPercent }),
+      ...(service.shortDescription && { shortDescription: service.shortDescription }),
+      ...(service.description && { description: service.description }),
+      ...(service.isFeatured !== undefined && { isFeatured: service.isFeatured }),
+      ...(service.categoryId && { categoryId: service.categoryId }),
+      ...(service.tags && { tags: service.tags }),
+      ...(service.rating && { rating: service.rating }),
+      ...(service.reviewCount && { reviewCount: service.reviewCount }),
+    }));
+    
+    res.json({ services: processedServices });
   });
 
   // Purchases
@@ -434,9 +708,20 @@ export function registerRoutes(app: Express) {
   app.post("/api/admin/services", async (req, res) => {
     const schema = z.object({
       name: z.string().min(1),
+      slug: z.string().min(1),
+      image: z.string().url(),
+      gallery: z.array(z.string().url()).optional(),
       price: z.number().finite().min(0),
+      originalPrice: z.number().finite().min(0).optional(),
+      currency: z.enum(["INR", "USD"]).default("INR"),
+      discountPercent: z.number().min(0).max(100).optional(),
       businessVolume: z.number().finite().min(0),
-      status: z.enum(["active", "inactive"]).optional(),
+      shortDescription: z.string().max(200).optional(),
+      description: z.string().optional(),
+      status: z.enum(["active", "inactive", "out_of_stock"]).default("active"),
+      isFeatured: z.boolean().default(false),
+      categoryId: z.string().optional(),
+      tags: z.array(z.string()).optional(),
     });
 
     try {
@@ -446,9 +731,20 @@ export function registerRoutes(app: Express) {
 
       const service = await ServiceModel.create({
         name: body.name,
+        slug: body.slug,
+        image: body.image,
+        gallery: body.gallery,
         price: body.price,
+        originalPrice: body.originalPrice,
+        currency: body.currency,
+        discountPercent: body.discountPercent,
         businessVolume: body.businessVolume,
-        status: body.status ?? "active",
+        shortDescription: body.shortDescription,
+        description: body.description,
+        status: body.status,
+        isFeatured: body.isFeatured,
+        categoryId: body.categoryId,
+        tags: body.tags,
       });
 
       return res.status(201).json({ service });
@@ -463,9 +759,20 @@ export function registerRoutes(app: Express) {
     const schema = z
       .object({
         name: z.string().min(1).optional(),
+        slug: z.string().min(1).optional(),
+        image: z.string().url().optional(),
+        gallery: z.array(z.string().url()).optional(),
         price: z.number().finite().min(0).optional(),
+        originalPrice: z.number().finite().min(0).optional(),
+        currency: z.enum(["INR", "USD"]).optional(),
+        discountPercent: z.number().min(0).max(100).optional(),
         businessVolume: z.number().finite().min(0).optional(),
-        status: z.enum(["active", "inactive"]).optional(),
+        shortDescription: z.string().max(200).optional(),
+        description: z.string().optional(),
+        status: z.enum(["active", "inactive", "out_of_stock"]).optional(),
+        isFeatured: z.boolean().optional(),
+        categoryId: z.string().optional(),
+        tags: z.array(z.string()).optional(),
       })
       .refine((v) => Object.keys(v).length > 0, "No fields to update");
 
@@ -479,6 +786,294 @@ export function registerRoutes(app: Express) {
       return res.json({ service });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Category Management
+  app.get("/api/admin/categories", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const categories = await CategoryModel.find({})
+        .sort({ sortOrder: 1, name: 1 });
+
+      return res.json({ categories });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Forbidden";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.post("/api/admin/categories", async (req, res) => {
+    const schema = z.object({
+      name: z.string().min(1).max(100),
+      slug: z.string().min(1).max(100),
+      code: z.string().min(1).max(10),
+      icon: z.string().optional(),
+      image: z.string().optional(),
+      isActive: z.boolean().default(true),
+      sortOrder: z.number().int().min(0).default(0),
+    });
+
+    try {
+      await requireRole(req, "admin");
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      const category = await CategoryModel.create({
+        name: body.name,
+        slug: body.slug,
+        code: body.code,
+        icon: body.icon,
+        image: body.image,
+        isActive: body.isActive,
+        sortOrder: body.sortOrder,
+      });
+
+      return res.status(201).json({ category });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/categories/:id", async (req, res) => {
+    const schema = z
+      .object({
+        name: z.string().min(1).max(100).optional(),
+        slug: z.string().min(1).max(100).optional(),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().int().min(0).optional(),
+      })
+      .refine((v) => Object.keys(v).length > 0, "No fields to update");
+
+    try {
+      await requireRole(req, "admin");
+      const body = schema.parse(req.body);
+      await connectToDatabase();
+
+      const category = await CategoryModel.findByIdAndUpdate(req.params.id, body, { new: true });
+      if (!category) return res.status(404).json({ error: "Category not found" });
+      return res.json({ category });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const category = await CategoryModel.findByIdAndDelete(req.params.id);
+      if (!category) return res.status(404).json({ error: "Category not found" });
+      
+      return res.json({ message: "Category deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Public categories endpoint
+  app.get("/api/categories", async (req, res) => {
+    try {
+      await connectToDatabase();
+
+      const categories = await CategoryModel.find({ isActive: true })
+        .sort({ sortOrder: 1, name: 1 })
+        .select('name slug code icon image');
+
+      return res.json({ categories });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      return res.status(500).json({ error: msg });
+    }
+  });
+
+  // Bulk Service Operations
+  app.post("/api/admin/services/bulk", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const { services, format } = req.body;
+
+      if (!services || !Array.isArray(services)) {
+        return res.status(400).json({ error: "Services array is required" });
+      }
+
+      if (!format || !['json', 'excel', 'csv'].includes(format)) {
+        return res.status(400).json({ error: "Format must be json, excel, or csv" });
+      }
+
+      // Process services and ensure they have proper category references
+      const processedServices = services.map(service => ({
+        ...service,
+        // Auto-generate slug if not provided
+        slug: service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        // Set default values
+        status: service.status || "active",
+        currency: service.currency || "INR",
+        isActive: service.isActive !== undefined ? service.isActive : true,
+        // Validate category exists if provided
+        categoryId: service.categoryId || null,
+      }));
+
+      // Bulk insert with category sorting
+      const result = await ServiceModel.insertMany(processedServices);
+
+      // Group by category for organized storage
+      const categoryGroups = processedServices.reduce((acc, service) => {
+        const categoryId = service.categoryId || 'uncategorized';
+        if (!acc[categoryId]) acc[categoryId] = [];
+        acc[categoryId].push(service);
+        return acc;
+      }, {} as Record<string, any[]>);
+
+      // Update categories with service counts
+      for (const [categoryId, categoryServices] of Object.entries(categoryGroups)) {
+        if (categoryId !== 'uncategorized') {
+          await CategoryModel.findByIdAndUpdate(categoryId, {
+            $inc: { serviceCount: (categoryServices as any[]).length }
+          });
+        }
+      }
+
+      return res.status(201).json({ 
+        message: `Successfully imported ${result.length} services`,
+        services: result,
+        categoryGroups
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Get services by category with sorting
+  app.get("/api/admin/services/by-category", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const { categoryId, sortBy = 'sortOrder', sortOrder = 'asc' } = req.query;
+
+      let query: any = {};
+      if (categoryId && categoryId !== 'all') {
+        query.categoryId = categoryId;
+      }
+
+      let sortQuery: any = {};
+      if (sortBy === 'name') {
+        sortQuery.name = sortOrder === 'desc' ? -1 : 1;
+      } else if (sortBy === 'price') {
+        sortQuery.price = sortOrder === 'desc' ? -1 : 1;
+      } else if (sortBy === 'businessVolume') {
+        sortQuery.businessVolume = sortOrder === 'desc' ? -1 : 1;
+      } else if (sortBy === 'sortOrder') {
+        sortQuery.sortOrder = sortOrder === 'desc' ? -1 : 1;
+      } else {
+        sortQuery.sortOrder = 1;
+      }
+
+      const services = await ServiceModel.find(query)
+        .sort(sortQuery)
+        .populate('categoryId', 'name code slug')
+        .lean();
+
+      return res.json({ services });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Forbidden";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Export services in different formats
+  app.get("/api/admin/services/export", async (req, res) => {
+    try {
+      await requireRole(req, "admin");
+      await connectToDatabase();
+
+      const { format = 'json', categoryId, sortBy = 'sortOrder', sortOrder = 'asc' } = req.query;
+
+      let query: any = {};
+      if (categoryId && categoryId !== 'all') {
+        query.categoryId = categoryId;
+      }
+
+      let sortQuery: any = {};
+      if (sortBy === 'name') {
+        sortQuery.name = sortOrder === 'desc' ? -1 : 1;
+      } else if (sortBy === 'price') {
+        sortQuery.price = sortOrder === 'desc' ? -1 : 1;
+      } else if (sortBy === 'businessVolume') {
+        sortQuery.businessVolume = sortOrder === 'desc' ? -1 : 1;
+      } else {
+        sortQuery.sortOrder = 1;
+      }
+
+      const services = await ServiceModel.find(query)
+        .sort(sortQuery)
+        .populate('categoryId', 'name code slug')
+        .lean();
+
+      if (format === 'csv') {
+        // CSV Export
+        const csv = [
+          'Name,Slug,Category,Price,Business Volume,Status,Featured,Description',
+          ...services.map(service => [
+            service.name,
+            service.slug,
+            (service.categoryId as any)?.name || 'Uncategorized',
+            service.price,
+            service.businessVolume,
+            service.status,
+            service.isFeatured || false,
+            `"${(service.description || '').replace(/"/g, '""')}"`
+          ].join(','))
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="services.csv"`);
+        return res.send(csv);
+      } else if (format === 'excel') {
+        // Excel Export (simplified CSV format that Excel can open)
+        const excelCsv = [
+          'Name\tSlug\tCategory\tPrice\tBV\tStatus\tFeatured\tDescription',
+          ...services.map(service => [
+            service.name,
+            service.slug,
+            (service.categoryId as any)?.name || 'Uncategorized',
+            service.price,
+            service.businessVolume,
+            service.status,
+            service.isFeatured || false,
+            service.description || ''
+          ].join('\t'))
+        ].join('\n');
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="services.xls"`);
+        return res.send(excelCsv);
+      } else {
+        // JSON Export
+        return res.json({ services });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Forbidden";
       const status = msg === "Forbidden" ? 403 : 400;
       return res.status(status).json({ error: msg });
     }

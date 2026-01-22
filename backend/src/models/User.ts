@@ -8,12 +8,42 @@ export type UserStatus = "active" | "suspended" | "deleted";
 
 const userSchema = new Schema(
   {
-    // Display name for UI.
+    // Signup Fields
+    mobile: { type: String, required: true, unique: true, trim: true },
+    countryCode: { type: String, default: "+91", trim: true },
     name: { type: String, trim: true, default: "" },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, unique: true, lowercase: true, trim: true, sparse: true },
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ["admin", "user"], required: true, default: "user" },
-    
+    isVerified: { type: Boolean, default: false },
+    isBlocked: { type: Boolean, default: false },
+    otp: { type: String, default: null },
+    otpExpiry: { type: Date, default: null },
+
+    // Business Settings (Profile Fields)
+    businessName: { type: String, trim: true },
+    companyPhone: { type: String, trim: true },
+    companyEmail: { type: String, lowercase: true, trim: true },
+    website: { type: String, trim: true },
+    billingAddress: { type: String, trim: true },
+    state: { type: String, trim: true },
+    pincode: { type: String, trim: true },
+    city: { type: String, trim: true },
+    language: { type: String, trim: true },
+    businessType: { type: String, trim: true },
+    industryType: { type: String, trim: true },
+    businessDescription: { type: String, trim: true },
+    gstin: { type: String, trim: true },
+    panNumber: { type: String, trim: true },
+    isGSTRegistered: { type: Boolean, default: false },
+    enableEInvoicing: { type: Boolean, default: false },
+    enableTDS: { type: Boolean, default: false },
+    enableTCS: { type: Boolean, default: false },
+    businessLogo: { type: String, trim: true },
+    signature: { type: String, trim: true },
+    currencyCode: { type: String, default: "INR", trim: true },
+    currencySymbol: { type: String, default: "₹", trim: true },
+
     // Account status: active, suspended (blocked by admin), deleted (soft delete)
     status: { type: String, enum: ["active", "suspended", "deleted"], default: "active", index: true },
     
@@ -34,7 +64,11 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-// Enforce the binary constraint: a given parent can have only one left child and one right child.
+// Additional indexes for better query performance
+userSchema.index({ isVerified: 1 });
+userSchema.index({ isBlocked: 1 });
+
+// Enforce binary constraint: a given parent can have only one left child and one right child.
 // Using a partial index keeps multiple root users (parent=null) from conflicting.
 userSchema.index(
   { parent: 1, position: 1 },

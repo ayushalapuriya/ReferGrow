@@ -14,6 +14,24 @@ export default function ProfileSection() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
+  // Function to refresh user data
+  const refreshUserData = async () => {
+    try {
+      const res = await apiFetch("/api/me");
+      if (res.ok) {
+        const body = await res.json();
+        if (body.user) {
+          dispatch({ type: 'user/setUserProfile', payload: body.user });
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(body.user));
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh user data:", error);
+    }
+  };
+
   // Check authentication state on mount
   useEffect(() => {
     const checkAuthState = async () => {
@@ -32,16 +50,7 @@ export default function ProfileSection() {
         }
         
         // Then verify with server
-        const res = await apiFetch("/api/me");
-        if (res.ok) {
-          const body = await res.json();
-          if (body.user) {
-            dispatch({ type: 'user/setUserProfile', payload: body.user });
-            if (typeof window !== 'undefined') {
-              localStorage.setItem('user', JSON.stringify(body.user));
-            }
-          }
-        }
+        await refreshUserData();
       } catch (error) {
         console.error("Auth check failed:", error);
         // Don't clear user state on network errors, let localStorage handle it
@@ -52,6 +61,20 @@ export default function ProfileSection() {
 
     checkAuthState();
   }, [dispatch]);
+
+  // Listen for profile updates from other components
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      refreshUserData();
+    };
+
+    // Listen for custom event when profile is updated
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -98,15 +121,23 @@ export default function ProfileSection() {
         onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
         className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
       >
-        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
           {user ? (
-            <User className="w-4 h-4 text-white" />
+            user.businessLogo && typeof user.businessLogo === 'string' ? (
+              <img 
+                src={user.businessLogo.startsWith('http') ? user.businessLogo : `http://localhost:4000${user.businessLogo}`}
+                alt="Profile" 
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <User className="w-4 h-4 text-white" />
+            )
           ) : (
             <UserCircle className="w-4 h-4 text-white" />
           )}
         </div>
-        <span className="hidden md:block">
-          {user ? (user.name || user.email) : "Hello, Guest"}
+        <span className="hidden md:block truncate max-w-[120px]">
+          {user ? (user.name || user.email || "User") : "Hello, Guest"}
         </span>
         <ChevronDown className="w-4 h-4" />
       </button>

@@ -1,16 +1,9 @@
 import { apiUrl } from "@/lib/apiClient";
 import ServicesClient from "@/app/services/ServicesClient";
 import { headers } from "next/headers";
+import type { Service } from "@/store/slices/serviceSlice";
 
 export const runtime = "nodejs";
-
-type Service = {
-  _id: string;
-  name: string;
-  price: number;
-  businessVolume: number;
-  status: string;
-};
 
 async function getServices() {
   try {

@@ -7,7 +7,7 @@ const secretKey = encoder.encode(env.JWT_SECRET);
 export type AuthTokenPayload = {
   sub: string; // user id
   role: "admin" | "user";
-  email: string;
+  email?: string;
 };
 
 export async function signAuthToken(payload: AuthTokenPayload) {

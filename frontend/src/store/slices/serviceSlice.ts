@@ -3,9 +3,24 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 export type Service = {
   _id: string;
   name: string;
+  slug: string; // SEO + clean URLs
+  image: string;
+  gallery?: string[];
   price: number;
+  originalPrice?: number;
+  currency?: "INR" | "USD";
+  discountPercent?: number;
+  shortDescription?: string;
+  description?: string; 
   businessVolume: number;
-  status?: string;
+  status?: "active" | "inactive" | "out_of_stock";
+  isFeatured?: boolean;
+  categoryId?: string;
+  tags?: string[];
+  rating?: number;  // Avg rating (0–5)
+  reviewCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ServiceState = {

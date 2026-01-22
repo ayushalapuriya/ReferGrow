@@ -6,7 +6,7 @@ import { UserModel } from "@/models/User";
 export type ReferralTreeNode = {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   referralCode: string;
   position?: "left" | "right" | null;
   children: ReferralTreeNode[];
@@ -109,7 +109,7 @@ export async function buildReferralTree(options: {
   const root: ReferralTreeNode = {
     id: rootUser._id.toString(),
     name: rootUser.name ?? "",
-    email: rootUser.email,
+    email: rootUser.email ?? null,
     referralCode: rootUser.referralCode,
     position: null,
     children: [],
@@ -136,7 +136,7 @@ export async function buildReferralTree(options: {
       const childNode: ReferralTreeNode = {
         id: child._id.toString(),
         name: (child as { name?: string }).name ?? "",
-        email: child.email,
+        email: child.email ?? null,
         referralCode: child.referralCode,
         position: (child as { position?: "left" | "right" | null }).position ?? null,
         children: [],
