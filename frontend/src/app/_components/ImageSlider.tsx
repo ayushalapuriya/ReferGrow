@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, Users, Clock, Zap, Network, Shield } from "lucide-react";
 import Image from "next/image";
 import { apiFetch } from "@/lib/apiClient";
 
@@ -108,12 +108,114 @@ export default function ImageSlider({
 
   if (slides.length === 0) {
     return (
-      <div className={`relative w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 ${className}`}>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-gray-700 text-center px-4">
-            <div className="text-6xl mb-4">🖼️</div>
-            <div className="font-semibold">No slides available</div>
-            <div className="text-sm mt-1">Admin can add slides to display here</div>
+      <div className={`relative w-full h-full overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 ${className}`}>
+
+        {/* PURE BLUE OVERLAY (NO DARK) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-700/40 via-blue-600/20 to-transparent" />
+
+        {/* Decorative blue glows */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -right-32 w-[28rem] h-[28rem] bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex items-center justify-center h-full px-6">
+          <div className="text-center max-w-4xl">
+
+            {/* Heading */}
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                Build Smarter Networks. Scale Without Limits.
+              </span>
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-blue-100 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-normal">
+              A modern infrastructure platform designed for scalable growth,
+              real-time performance tracking, and automated distribution.
+            </p>
+
+            {/* Trust indicators */}
+            <div className="mt-10 flex flex-wrap justify-center gap-12">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-500/20 rounded-xl border border-white/20">
+                  <Users className="w-6 h-6 text-blue-100" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">10,000+</div>
+                  <div className="text-sm text-blue-200">Active Users</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-500/20 rounded-xl border border-white/20">
+                  <Clock className="w-6 h-6 text-blue-100" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-white">24/7</div>
+                  <div className="text-sm text-blue-200">Dedicated Support</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature Cards */}
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: <Network className="w-7 h-7 text-white" />,
+                  title: "Scalable Network",
+                  desc: "Built to expand effortlessly without compromising speed or reliability."
+                },
+                {
+                  icon: <Shield className="w-7 h-7 text-white" />,
+                  title: "Complete Transparency",
+                  desc: "All activity remains fully visible, auditable, and verifiable at all times."
+                },
+                {
+                  icon: <Zap className="w-7 h-7 text-white" />,
+                  title: "Real-Time Distribution",
+                  desc: "Automated, instant reward processing with zero manual involvement."
+                }
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20
+                            hover:border-white/40 hover:bg-white/15
+                            transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-white font-semibold text-xl tracking-wide">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-blue-100 text-base leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="mt-16 flex flex-col sm:flex-row justify-center gap-6">
+              <a
+                href="/register"
+                className="px-10 py-4 rounded-xl bg-blue-600 text-white font-semibold text-lg
+                          hover:bg-blue-700 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+              >
+                Create Account
+              </a>
+
+              <a
+                href="/login"
+                className="px-10 py-4 rounded-xl border border-white/40 text-white font-semibold text-lg
+                          hover:border-white/70 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1"
+              >
+                Sign In
+              </a>
+            </div>
+
           </div>
         </div>
       </div>

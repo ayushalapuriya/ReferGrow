@@ -787,6 +787,38 @@ This message has been saved to the database with ID: ${contact._id}`,
     isActive: z.boolean().optional()
   });
 
+  // Batch update slider orders
+  app.put("/api/admin/sliders/reorder", async (req: Request, res: Response) => {
+    try {
+      console.log('Reorder request received:', req.body);
+      await requireRole(req, "admin");
+      const reorderSchema = z.object({
+        sliders: z.array(z.object({
+          id: z.string(),
+          order: z.number().int().min(0)
+        }))
+      });
+      const body = reorderSchema.parse(req.body);
+      console.log('Parsed body:', body);
+      await connectToDatabase();
+
+      const bulkOps = body.sliders.map(({ id, order }) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { $set: { order } }
+        }
+      }));
+
+      await Slider.bulkWrite(bulkOps);
+      return res.json({ message: "Sliders reordered successfully" });
+    } catch (err: unknown) {
+      console.error('Reorder error:', err);
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
   app.put("/api/admin/sliders/:id", async (req: Request, res: Response) => {
     try {
       await requireRole(req, "admin");
@@ -817,35 +849,6 @@ This message has been saved to the database with ID: ${contact._id}`,
       if (!slider) return res.status(404).json({ error: "Slider not found" });
       
       return res.json({ message: "Slider deleted successfully" });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Forbidden" ? 403 : 400;
-      return res.status(status).json({ error: msg });
-    }
-  });
-
-  // Batch update slider orders
-  app.put("/api/admin/sliders/reorder", async (req: Request, res: Response) => {
-    try {
-      await requireRole(req, "admin");
-      const reorderSchema = z.object({
-        sliders: z.array(z.object({
-          id: z.string(),
-          order: z.number().int().min(0)
-        }))
-      });
-      const body = reorderSchema.parse(req.body);
-      await connectToDatabase();
-
-      const bulkOps = body.sliders.map(({ id, order }) => ({
-        updateOne: {
-          filter: { _id: id },
-          update: { $set: { order } }
-        }
-      }));
-
-      await Slider.bulkWrite(bulkOps);
-      return res.json({ message: "Sliders reordered successfully" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;

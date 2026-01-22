@@ -165,17 +165,20 @@ export default function AdminSliderPage() {
     setSuccess(null);
 
     try {
+      console.log('Sending reorder data:', { sliders: reorderedSliders });
       const res = await apiFetch("/api/admin/sliders/reorder", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sliders: reorderedSliders })
       });
       const body = await readApiBody(res);
+      console.log('Response:', res.status, body);
       if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to reorder sliders");
       
       setSuccess("Sliders reordered successfully!");
       await loadSliders();
     } catch (err: unknown) {
+      console.error('Reorder error:', err);
       setError(err instanceof Error ? err.message : "Failed to reorder sliders");
     } finally {
       setBusy(false);
@@ -186,7 +189,7 @@ export default function AdminSliderPage() {
     if (index === 0) return;
     const newSliders = [...sliders];
     [newSliders[index], newSliders[index - 1]] = [newSliders[index - 1], newSliders[index]];
-    const reordered = newSliders.map((slider, idx) => ({ id: slider._id, order: idx }));
+    const reordered = newSliders.map((slider, idx) => ({ id: slider._id.toString(), order: idx }));
     reorderSliders(reordered);
   }
 
@@ -194,7 +197,7 @@ export default function AdminSliderPage() {
     if (index === sliders.length - 1) return;
     const newSliders = [...sliders];
     [newSliders[index], newSliders[index + 1]] = [newSliders[index + 1], newSliders[index]];
-    const reordered = newSliders.map((slider, idx) => ({ id: slider._id, order: idx }));
+    const reordered = newSliders.map((slider, idx) => ({ id: slider._id.toString(), order: idx }));
     reorderSliders(reordered);
   }
 

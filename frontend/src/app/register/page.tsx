@@ -75,7 +75,7 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
               Join ReferGrow
             </h1>
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-gray-600">
               Already have an account?{" "}
               <Link prefetch={false} className="font-medium text-blue-600 hover:underline" href="/login">
                 Sign in
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                 onChange={(e) => setReferralCode(e.target.value)}
                 placeholder="Enter referral code"
               />
-              <p className="text-xs text-gray-700 flex items-center gap-2">
+              <p className="text-xs text-gray-600 flex items-center gap-2">
                 <Gift className="w-4 h-4 text-blue-500" />
                 Join your referrer’s network to start earning together
               </p>
@@ -182,7 +182,7 @@ export default function RegisterPage() {
 
         {/* Back to Home */}
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-gray-700 hover:text-blue-600 transition-colors inline-flex items-center gap-1">
+          <Link href="/" className="text-sm text-gray-600 hover:text-blue-600 transition-colors inline-flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
