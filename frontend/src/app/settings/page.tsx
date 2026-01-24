@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Settings, Bell, Lock, Eye, Database, LogOut, ChevronRight, Toggle2 } from "lucide-react";
-import Link from "next/link";
+import { Settings, Bell, Lock, Eye, Database } from "lucide-react";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"account" | "notifications" | "privacy" | "data">("account");

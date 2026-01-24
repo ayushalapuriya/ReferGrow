@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ShoppingBag, Calendar, MapPin, DollarSign, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -15,54 +15,49 @@ interface Order {
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "pending" | "completed" | "cancelled">("all");
+  // Sample orders data - initialized directly to avoid useEffect setState warning
+  const sampleOrders: Order[] = [
+    {
+      id: "1",
+      orderNumber: "ORD-2024-001",
+      date: "2024-01-20",
+      total: 2999,
+      status: "completed",
+      items: 3,
+      shippingAddress: "123 Main Street, Mumbai, MH 400001"
+    },
+    {
+      id: "2",
+      orderNumber: "ORD-2024-002",
+      date: "2024-01-18",
+      total: 1599,
+      status: "processing",
+      items: 1,
+      shippingAddress: "456 Oak Avenue, Bangalore, KA 560001"
+    },
+    {
+      id: "3",
+      orderNumber: "ORD-2024-003",
+      date: "2024-01-15",
+      total: 4499,
+      status: "completed",
+      items: 5,
+      shippingAddress: "789 Pine Road, Delhi, DL 110001"
+    },
+    {
+      id: "4",
+      orderNumber: "ORD-2024-004",
+      date: "2024-01-12",
+      total: 899,
+      status: "pending",
+      items: 2,
+      shippingAddress: "321 Elm Street, Hyderabad, TG 500001"
+    }
+  ];
 
-  useEffect(() => {
-    // Sample orders data
-    const sampleOrders: Order[] = [
-      {
-        id: "1",
-        orderNumber: "ORD-2024-001",
-        date: "2024-01-20",
-        total: 2999,
-        status: "completed",
-        items: 3,
-        shippingAddress: "123 Main Street, Mumbai, MH 400001"
-      },
-      {
-        id: "2",
-        orderNumber: "ORD-2024-002",
-        date: "2024-01-18",
-        total: 1599,
-        status: "processing",
-        items: 1,
-        shippingAddress: "456 Oak Avenue, Bangalore, KA 560001"
-      },
-      {
-        id: "3",
-        orderNumber: "ORD-2024-003",
-        date: "2024-01-15",
-        total: 4499,
-        status: "completed",
-        items: 5,
-        shippingAddress: "789 Pine Road, Delhi, DL 110001"
-      },
-      {
-        id: "4",
-        orderNumber: "ORD-2024-004",
-        date: "2024-01-12",
-        total: 899,
-        status: "pending",
-        items: 2,
-        shippingAddress: "321 Elm Street, Hyderabad, TG 500001"
-      }
-    ];
-
-    setOrders(sampleOrders);
-    setLoading(false);
-  }, []);
+  const [orders, setOrders] = useState<Order[]>(sampleOrders);
+  const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<"all" | "pending" | "processing" | "completed" | "cancelled">("all");
 
   const getStatusColor = (status: string) => {
     switch (status) {
