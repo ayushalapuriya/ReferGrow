@@ -1,7 +1,9 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { createId } from "@paralleldrive/cuid2";
 
 const serviceSchema = new Schema(
   {
+    _id: { type: String, default: createId },
     name: { type: String, required: true, trim: true },
     
     // SEO-friendly URL slug
@@ -13,7 +15,7 @@ const serviceSchema = new Schema(
     // Additional images gallery
     gallery: [{ type: String }],
     
-    // Price for purchasing the service.
+    // Price for purchasing the service
     price: { type: Number, required: true, min: 0 },
     
     // Original price for discount display
@@ -25,7 +27,7 @@ const serviceSchema = new Schema(
     // Discount percentage
     discountPercent: { type: Number, min: 0, max: 100 },
 
-    // Business Volume (BV) for this service purchase.
+    // Business Volume (BV) for this service purchase
     businessVolume: { type: Number, required: true, min: 0 },
 
     // Short description for previews
@@ -34,26 +36,19 @@ const serviceSchema = new Schema(
     // Full description
     description: { type: String, trim: true },
 
-    // Enhanced status options with approval workflow
+    // Service status
     status: { 
       type: String, 
-      enum: ["pending_approval", "approved", "rejected", "active", "inactive", "out_of_stock"], 
-      default: "pending_approval", 
+      enum: ["active", "inactive", "out_of_stock"], 
+      default: "active", 
       index: true 
     },
-    
-    // Approval tracking
-    approvedAt: { type: Date, default: null },
-    approvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
-    rejectedAt: { type: Date, default: null },
-    rejectedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
-    rejectionReason: { type: String, trim: true },
     
     // Featured flag for highlighting
     isFeatured: { type: Boolean, default: false },
     
     // Category reference
-    categoryId: { type: Schema.Types.ObjectId, ref: "Category" },
+    categoryId: { type: String, ref: "Category" },
     
     // Tags for filtering and search
     tags: [{ type: String, trim: true }],
@@ -61,52 +56,19 @@ const serviceSchema = new Schema(
     // Rating and reviews
     rating: { type: Number, min: 0, max: 5, default: 0 },
     reviewCount: { type: Number, min: 0, default: 0 },
-
-    // Legacy fields kept for backward compatibility with older data.
-    // New code should use businessVolume/status.
-    bv: { type: Number, required: false, min: 0 },
-
-    // Legacy boolean (kept for older data).
-    isActive: { type: Boolean, default: undefined },
   },
   { timestamps: true }
 );
 
 // Indexes for better query performance
-serviceSchema.index({ slug: 1 });
+// Note: slug index is created automatically via unique: true constraint above
 serviceSchema.index({ status: 1, isFeatured: 1 });
 serviceSchema.index({ categoryId: 1 });
 serviceSchema.index({ tags: 1 });
 serviceSchema.index({ rating: -1 });
 
-serviceSchema.pre("validate", function syncLegacyFields() {
-  const doc = this as unknown as {
-    businessVolume?: number;
-    bv?: number;
-    status?: "active" | "inactive" | "out_of_stock";
-    isActive?: boolean;
-  };
-
-  if (doc.businessVolume == null && doc.bv != null) {
-    doc.businessVolume = doc.bv;
-  }
-
-  if (!doc.status && typeof doc.isActive === "boolean") {
-    doc.status = doc.isActive ? "active" : "inactive";
-  }
-
-  // Keep legacy fields in sync for mixed environments.
-  if (doc.businessVolume != null) {
-    doc.bv = doc.businessVolume;
-  }
-  if (doc.status) {
-    doc.isActive = doc.status === "active";
-  }
-
-});
-
 export type Service = InferSchemaType<typeof serviceSchema> & {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
 };
 
 export const ServiceModel: Model<Service> =

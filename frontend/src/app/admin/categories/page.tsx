@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
 import { FolderOpen, Plus, Edit, Trash2, Search, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import AdminCategoryUpload from "./AdminCategoryUpload";
 
 interface Category {
   _id: string;
@@ -47,6 +48,7 @@ export default function CategoriesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSubcategoryModal, setShowSubcategoryModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [activeTab, setActiveTab] = useState<"manage" | "bulk">("manage");
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -267,26 +269,54 @@ export default function CategoriesPage() {
               Manage service categories and subcategories
             </p>
           </div>
+          {activeTab === "manage" && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Category
+            </button>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-4 border-b border-gray-200 mb-6">
           <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={() => setActiveTab("manage")}
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "manage"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-600 hover:text-gray-900"
+            }`}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create Category
+            Manage Categories
+          </button>
+          <button
+            onClick={() => setActiveTab("bulk")}
+            className={`px-4 py-3 font-medium border-b-2 transition-colors ${
+              activeTab === "bulk"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            Bulk Import
           </button>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
+        {/* Search (only show on manage tab) */}
+        {activeTab === "manage" && (
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        )}
       </div>
 
       {/* Error Display */}
@@ -296,139 +326,149 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Categories List */}
-      <div className="space-y-4">
-        {filteredCategories.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Categories Found</h3>
-            <p className="text-gray-500">Create your first category to get started.</p>
-          </div>
-        ) : (
-          filteredCategories.map((category) => {
-            const categorySubcategories = getSubcategoriesForCategory(category._id);
-            const isExpanded = expandedCategories.has(category._id);
+      {/* Tab Content */}
+      {activeTab === "manage" ? (
+        <>
+          {/* Categories List */}
+          <div className="space-y-4">
+            {filteredCategories.length === 0 ? (
+              <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Categories Found</h3>
+                <p className="text-gray-500">Create your first category to get started.</p>
+              </div>
+            ) : (
+              filteredCategories.map((category) => {
+                const categorySubcategories = getSubcategoriesForCategory(category._id);
+                const isExpanded = expandedCategories.has(category._id);
 
-            return (
-              <div key={category._id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                {/* Category Header */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <button
-                        onClick={() => toggleCategoryExpansion(category._id)}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-500" />
-                        )}
-                      </button>
-                      
-                      <div className="flex items-center space-x-3">
-                        {category.image ? (
-                          <img
-                            src={category.image}
-                            alt={category.name}
-                            className="w-10 h-10 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
-                            <FolderOpen className="w-5 h-5 text-gray-400" />
+                return (
+                  <div key={category._id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    {/* Category Header */}
+                    <div className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={() => toggleCategoryExpansion(category._id)}
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5 text-gray-500" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-gray-500" />
+                            )}
+                          </button>
+                          
+                          <div className="flex items-center space-x-3">
+                            {category.image ? (
+                              <img
+                                src={category.image}
+                                alt={category.name}
+                                className="w-10 h-10 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center">
+                                <FolderOpen className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )}
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                              <div className="flex items-center space-x-4 text-sm text-gray-500">
+                                <span>Code: {category.code}</span>
+                                <span>Slug: {category.slug}</span>
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  category.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                }`}>
+                                  {category.isActive ? "Active" : "Inactive"}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        )}
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span>Code: {category.code}</span>
-                            <span>Slug: {category.slug}</span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              category.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                            }`}>
-                              {category.isActive ? "Active" : "Inactive"}
-                            </span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => openSubcategoryModal(category)}
+                            className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm"
+                          >
+                            <Plus className="w-4 h-4 mr-1 inline" />
+                            Add Subcategory
+                          </button>
+                          <button
+                            onClick={() => deleteCategory(category._id)}
+                            className="p-2 text-red-600 hover:text-red-800 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Category Stats */}
+                      <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
+                        <span>{categorySubcategories.length} subcategories</span>
+                        <span>Sort order: {category.sortOrder}</span>
+                        <span>Created: {new Date(category.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Subcategories */}
+                    {isExpanded && categorySubcategories.length > 0 && (
+                      <div className="border-t border-gray-200 bg-gray-50">
+                        <div className="p-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-3">Subcategories</h4>
+                          <div className="space-y-2">
+                            {categorySubcategories.map((subcategory) => (
+                              <div key={subcategory._id} className="bg-white p-3 rounded-lg border border-gray-200">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    {subcategory.image ? (
+                                      <img
+                                        src={subcategory.image}
+                                        alt={subcategory.name}
+                                        className="w-8 h-8 rounded object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
+                                        <FolderOpen className="w-4 h-4 text-gray-400" />
+                                      </div>
+                                    )}
+                                    <div>
+                                      <p className="font-medium text-gray-900">{subcategory.name}</p>
+                                      <div className="flex items-center space-x-3 text-xs text-gray-500">
+                                        <span>Code: {subcategory.code}</span>
+                                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                                          subcategory.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                        }`}>
+                                          {subcategory.isActive ? "Active" : "Inactive"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => deleteSubcategory(subcategory._id)}
+                                    className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => openSubcategoryModal(category)}
-                        className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm"
-                      >
-                        <Plus className="w-4 h-4 mr-1 inline" />
-                        Add Subcategory
-                      </button>
-                      <button
-                        onClick={() => deleteCategory(category._id)}
-                        className="p-2 text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    )}
                   </div>
-
-                  {/* Category Stats */}
-                  <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
-                    <span>{categorySubcategories.length} subcategories</span>
-                    <span>Sort order: {category.sortOrder}</span>
-                    <span>Created: {new Date(category.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-
-                {/* Subcategories */}
-                {isExpanded && categorySubcategories.length > 0 && (
-                  <div className="border-t border-gray-200 bg-gray-50">
-                    <div className="p-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-3">Subcategories</h4>
-                      <div className="space-y-2">
-                        {categorySubcategories.map((subcategory) => (
-                          <div key={subcategory._id} className="bg-white p-3 rounded-lg border border-gray-200">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                {subcategory.image ? (
-                                  <img
-                                    src={subcategory.image}
-                                    alt={subcategory.name}
-                                    className="w-8 h-8 rounded object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-8 h-8 bg-gray-200 rounded flex items-center justify-center">
-                                    <FolderOpen className="w-4 h-4 text-gray-400" />
-                                  </div>
-                                )}
-                                <div>
-                                  <p className="font-medium text-gray-900">{subcategory.name}</p>
-                                  <div className="flex items-center space-x-3 text-xs text-gray-500">
-                                    <span>Code: {subcategory.code}</span>
-                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                                      subcategory.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                    }`}>
-                                      {subcategory.isActive ? "Active" : "Inactive"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => deleteSubcategory(subcategory._id)}
-                                className="p-1 text-red-600 hover:text-red-800 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
+                );
+              })
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Bulk Import Tab */}
+          <AdminCategoryUpload />
+        </>
+      )}
 
       {/* Create Category Modal */}
       {showCreateModal && (

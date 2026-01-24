@@ -12,7 +12,9 @@ import { distributeBusinessVolumeWithSession } from "@/lib/bvDistribution";
 import { buildReferralTree } from "@/lib/referralTree";
 import { getBusinessOpportunityEmailContent } from "@/lib/businessOpportunity";
 import { sendEmail } from "@/lib/email";
-import { upload, getFileUrl } from "@/lib/upload";
+import { upload, getFileUrl, importUpload } from "@/lib/upload";
+import { processBulkServiceUpload, generateServiceImportTemplate } from "@/lib/bulkServiceImport";
+import { processBulkCategoryUpload, generateCategoryImportTemplate } from "@/lib/bulkCategoryImport";
 import path from "path";
 import express from "express";
 
@@ -542,32 +544,38 @@ export function registerRoutes(app: Express) {
 
   // Public services
   app.get("/api/services", async (_req, res) => {
-    await connectToDatabase();
-    const services = await ServiceModel.find({ status: "active" }).sort({ createdAt: -1 });
-    
-    // Ensure all services have required fields for frontend compatibility
-    const processedServices = services.map(service => ({
-      _id: service._id,
-      name: service.name,
-      slug: service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      image: service.image || '/images/default-service.jpg', // Provide default image if missing
-      price: service.price,
-      businessVolume: service.businessVolume,
-      status: service.status,
-      // Include other optional fields if they exist
-      ...(service.originalPrice && { originalPrice: service.originalPrice }),
-      ...(service.currency && { currency: service.currency }),
-      ...(service.discountPercent && { discountPercent: service.discountPercent }),
-      ...(service.shortDescription && { shortDescription: service.shortDescription }),
-      ...(service.description && { description: service.description }),
-      ...(service.isFeatured !== undefined && { isFeatured: service.isFeatured }),
-      ...(service.categoryId && { categoryId: service.categoryId }),
-      ...(service.tags && { tags: service.tags }),
-      ...(service.rating && { rating: service.rating }),
-      ...(service.reviewCount && { reviewCount: service.reviewCount }),
-    }));
-    
-    res.json({ services: processedServices });
+    try {
+      await connectToDatabase();
+      const services = await ServiceModel.find({ status: "active" }).sort({ createdAt: -1 }).lean();
+      
+      // Ensure all services have required fields for frontend compatibility
+      const processedServices = services.map(service => ({
+        _id: service._id?.toString() || '',
+        name: service.name || '',
+        slug: service.slug || service.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '',
+        image: service.image || '/images/default-service.jpg', // Provide default image if missing
+        price: service.price || 0,
+        businessVolume: service.businessVolume || 0,
+        status: service.status || 'active',
+        // Include other optional fields if they exist
+        ...(service.originalPrice && { originalPrice: service.originalPrice }),
+        ...(service.currency && { currency: service.currency }),
+        ...(service.discountPercent && { discountPercent: service.discountPercent }),
+        ...(service.shortDescription && { shortDescription: service.shortDescription }),
+        ...(service.description && { description: service.description }),
+        ...(service.isFeatured !== undefined && { isFeatured: service.isFeatured }),
+        ...(service.categoryId && { categoryId: service.categoryId }),
+        ...(service.tags && { tags: service.tags }),
+        ...(service.rating && { rating: service.rating }),
+        ...(service.reviewCount && { reviewCount: service.reviewCount }),
+        ...(service.gallery && { gallery: service.gallery }),
+      }));
+      
+      res.json({ services: processedServices });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      res.status(500).json({ error: msg, services: [] });
+    }
   });
 
   // Purchases
@@ -763,8 +771,8 @@ export function registerRoutes(app: Express) {
   app.post("/api/admin/services", async (req, res) => {
     const schema = z.object({
       name: z.string().min(1),
-      slug: z.string().min(1),
-      image: z.string().url(),
+      slug: z.string().min(1).optional(),
+      image: z.string().url().optional(),
       gallery: z.array(z.string().url()).optional(),
       price: z.number().finite().min(0),
       originalPrice: z.number().finite().min(0).optional(),
@@ -784,10 +792,22 @@ export function registerRoutes(app: Express) {
       const body = schema.parse(req.body);
       await connectToDatabase();
 
+      // Auto-generate slug if not provided
+      const slug = body.slug || body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      
+      // Use default image if not provided
+      const image = body.image || '/images/default-service.jpg';
+
+      // Check for duplicate slug
+      const existingService = await ServiceModel.findOne({ slug });
+      if (existingService) {
+        return res.status(400).json({ error: `Service with slug "${slug}" already exists` });
+      }
+
       const service = await ServiceModel.create({
         name: body.name,
-        slug: body.slug,
-        image: body.image,
+        slug,
+        image,
         gallery: body.gallery,
         price: body.price,
         originalPrice: body.originalPrice,
@@ -853,16 +873,93 @@ export function registerRoutes(app: Express) {
 
       const categories = await CategoryModel.find({ isActive: true })
         .sort({ sortOrder: 1, name: 1 })
-        .select('name slug code icon image');
+        .select('_id name slug code icon image isActive sortOrder')
+        .lean();
 
-      return res.json({ categories });
+      const processedCategories = categories.map(cat => ({
+        _id: cat._id?.toString() || '',
+        name: cat.name || '',
+        slug: cat.slug || '',
+        code: cat.code || '',
+        icon: cat.icon,
+        image: cat.image,
+        isActive: cat.isActive !== false,
+        sortOrder: cat.sortOrder || 0,
+      }));
+
+      return res.json({ categories: processedCategories });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Server error";
-      return res.status(500).json({ error: msg });
+      return res.status(500).json({ error: msg, categories: [] });
     }
   });
 
-  // Bulk Service Operations
+  // Bulk Service Import from Excel/CSV
+  app.post("/api/admin/services/bulk-upload", importUpload.single("file"), async (req, res) => {
+    try {
+      const ctx = await requireAdminRole(req);
+      await connectToDatabase();
+
+      if (!req.file) {
+        return res.status(400).json({ error: "File is required" });
+      }
+
+      // Read file buffer
+      const fs = await import("fs").then(m => m.promises);
+      const fileBuffer = await fs.readFile(req.file.path);
+
+      // Process bulk upload
+      const result = await processBulkServiceUpload(fileBuffer, req.file.originalname, ServiceModel);
+
+      // Clean up uploaded file
+      await fs.unlink(req.file.path).catch(() => {}); // Ignore errors if file doesn't exist
+
+      if (!result.success && result.errors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Import failed with ${result.errors.length} error(s)`,
+          totalRows: result.totalRows,
+          successfulInserts: result.successfulInserts,
+          errors: result.errors.slice(0, 10), // Return first 10 errors
+          warnings: result.warnings,
+          summary: result.summary,
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: `Successfully imported ${result.successfulInserts} services`,
+        totalRows: result.totalRows,
+        successfulInserts: result.successfulInserts,
+        errors: result.errors,
+        warnings: result.warnings,
+        summary: result.summary,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      const status = msg === "Forbidden" ? 403 : 500;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Download Service Import Template
+  app.get("/api/admin/services/template/download", async (req, res) => {
+    try {
+      await requireAdminRole(req);
+
+      const template = generateServiceImportTemplate();
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", 'attachment; filename="service-import-template.xlsx"');
+      res.send(template);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      const status = msg === "Forbidden" ? 403 : 500;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Old bulk endpoint (for backward compatibility - remove in future)
   app.post("/api/admin/services/bulk", async (req, res) => {
     try {
       await requireRole(req, "admin");
@@ -1831,6 +1928,71 @@ This message has been saved to the database with ID: ${contact._id}`,
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Bulk Category Import from Excel/CSV
+  app.post("/api/admin/categories/bulk-upload", importUpload.single("file"), async (req, res) => {
+    try {
+      const ctx = await requireAdminRole(req);
+      await connectToDatabase();
+
+      if (!req.file) {
+        return res.status(400).json({ error: "File is required" });
+      }
+
+      // Read file buffer
+      const fs = await import("fs").then(m => m.promises);
+      const fileBuffer = await fs.readFile(req.file.path);
+
+      // Process bulk upload
+      const result = await processBulkCategoryUpload(fileBuffer, req.file.originalname, CategoryModel);
+
+      // Clean up uploaded file
+      await fs.unlink(req.file.path).catch(() => {}); // Ignore errors if file doesn't exist
+
+      if (!result.success && result.errors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Import failed with ${result.errors.length} error(s)`,
+          totalRows: result.totalRows,
+          successfulInserts: result.successfulInserts,
+          errors: result.errors.slice(0, 10), // Return first 10 errors
+          warnings: result.warnings,
+          summary: result.summary,
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: `Successfully imported ${result.successfulInserts} categories`,
+        totalRows: result.totalRows,
+        successfulInserts: result.successfulInserts,
+        errors: result.errors,
+        warnings: result.warnings,
+        summary: result.summary,
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      const status = msg === "Forbidden" ? 403 : 500;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Download Category Import Template
+  app.get("/api/admin/categories/template/download", async (req, res) => {
+    try {
+      await requireAdminRole(req);
+
+      const template = generateCategoryImportTemplate();
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", 'attachment; filename="category-import-template.xlsx"');
+      res.send(template);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Server error";
+      const status = msg === "Forbidden" ? 403 : 500;
       return res.status(status).json({ error: msg });
     }
   });

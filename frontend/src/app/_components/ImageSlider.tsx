@@ -161,8 +161,8 @@ export default function ImageSlider({
             <div className="mt-8 sm:mt-12 lg:mt-16 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 px-4 sm:px-0">
               <a
                 href="/register"
-                className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl bg-blue-600 text-white font-semibold text-base sm:text-lg
-                          hover:bg-blue-700 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+                className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl bg-white text-blue-600 font-semibold text-base sm:text-lg
+                          hover:bg-gray-100 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
               >
                 Create Account
               </a>

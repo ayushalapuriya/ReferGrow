@@ -47,3 +47,44 @@ export const upload = multer({
 export function getFileUrl(filename: string): string {
   return `/uploads/profile-images/${filename}`;
 }
+
+// Configure multer for service import files (Excel/CSV)
+const importStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const importsDir = path.join(uploadsDir, "imports");
+    if (!fs.existsSync(importsDir)) {
+      fs.mkdirSync(importsDir, { recursive: true });
+    }
+    cb(null, importsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, `service-import-${uniqueSuffix}${ext}`);
+  }
+});
+
+// File filter for Excel/CSV files only
+const importFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedMimes = [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-excel",
+    "text/csv",
+    "application/csv"
+  ];
+
+  if (allowedMimes.includes(file.mimetype) || file.originalname.endsWith('.xlsx') || file.originalname.endsWith('.csv')) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only Excel (.xlsx) and CSV (.csv) files are allowed"));
+  }
+};
+
+// Configure multer for imports
+export const importUpload = multer({
+  storage: importStorage,
+  fileFilter: importFileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit for imports
+  },
+});

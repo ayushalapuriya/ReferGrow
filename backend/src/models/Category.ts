@@ -1,7 +1,9 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
+import { createId } from "@paralleldrive/cuid2";
 
 const categorySchema = new Schema(
   {
+    _id: { type: String, default: createId },
     name: { 
       type: String, 
       required: true, 
@@ -68,7 +70,7 @@ const categorySchema = new Schema(
 );
 
 export type Category = InferSchemaType<typeof categorySchema> & {
-  _id: mongoose.Types.ObjectId;
+  _id: string;
 };
 
 export const CategoryModel: Model<Category> =
