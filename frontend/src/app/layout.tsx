@@ -40,7 +40,7 @@ export default function RootLayout({
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
-                    <span className="text-2xl">🌱</span>
+                    <span className="text-2xl font-bold text-blue-600">▼</span>
                   </div>
                   <h3 className="font-bold text-lg text-gray-900">ReferGrow</h3>
                 </div>
@@ -53,7 +53,7 @@ export default function RootLayout({
                 <h4 className="font-semibold text-sm text-gray-900 mb-3">Platform</h4>
                 <ul className="space-y-2 text-sm">
                   <li><Link prefetch={false} href="/services" className="text-gray-700 hover:text-blue-600 transition-colors">Services</Link></li>
-                  <li><Link prefetch={false} href="/buisness-opportunity" className="text-gray-700 hover:text-blue-600 transition-colors">Opportunity</Link></li>
+                  <li><Link prefetch={false} href="/business-opportunity" className="text-gray-700 hover:text-blue-600 transition-colors">Opportunity</Link></li>
                   <li><Link prefetch={false} href="/referrals" className="text-gray-700 hover:text-blue-600 transition-colors">Referrals</Link></li>
                 </ul>
               </div>

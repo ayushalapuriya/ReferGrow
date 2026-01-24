@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
-import { User, Camera, Save, Upload, Building, Phone, Mail, Globe, MapPin, CreditCard, FileText, Settings } from "lucide-react";
+import { User, Camera, Save, Upload, Building, Phone, Mail, Globe, MapPin, CreditCard, FileText, Settings, ShoppingBag, Cog } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { apiFetch } from "@/lib/apiClient";
 
@@ -140,8 +141,8 @@ export default function ProfilePage() {
         enableTCS: data.user.enableTCS || false,
       });
       
-      if (data.user.businessLogo) {
-        setImagePreview(data.user.businessLogo);
+      if (data.user.profileImage) {
+        setImagePreview(data.user.profileImage);
       }
     } catch (error) {
       console.error("Failed to load profile:", error);
@@ -163,50 +164,45 @@ export default function ProfilePage() {
   };
 
   const uploadProfileImage = async () => {
-    if (!profileImage) return;
+    if (!profileImage) {
+      alert('Please select an image first');
+      return;
+    }
     
     const formData = new FormData();
     formData.append("image", profileImage);
     
     try {
-      console.log('Uploading image:', profileImage.name);
+      console.log('Uploading image:', profileImage.name, 'Size:', profileImage.size);
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/upload/profile-image`, {
+      // Use fetch directly for FormData uploads (apiFetch may interfere with multipart/form-data)
+      const res = await fetch("/api/upload/profile-image", {
         method: "POST",
-        headers: {
-          // Don't set Content-Type header when using FormData, let the browser set it
-        },
         body: formData,
-        credentials: "include", // Include cookies for authentication
+        credentials: "include",
+        headers: {
+          "accept": "application/json"
+        }
+        // Don't set Content-Type - let the browser set it with boundary for multipart/form-data
       });
       
-      console.log('Response status:', res.status);
-      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+      const body = await res.json();
+      console.log('Upload response:', body, 'Status:', res.status);
       
-      // Get response text first to see what we actually received
-      const responseText = await res.text();
-      console.log('Response text:', responseText);
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('Failed to parse JSON:', parseError);
-        throw new Error(`Server returned non-JSON response: ${responseText.substring(0, 100)}`);
+      if (!res.ok) {
+        throw new Error(body.error || "Upload failed");
       }
       
-      if (res.ok) {
-        setSuccessMessage("Profile image uploaded successfully!");
-        setProfileImage(null);
-        // Reload profile to get updated image
-        await loadProfile();
-        
-        // Trigger profile update event to refresh navbar
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('profileUpdated'));
-        }
-      } else {
-        throw new Error(data.error || "Upload failed");
+      setSuccessMessage("Profile image uploaded successfully!");
+      setProfileImage(null);
+      setTimeout(() => setSuccessMessage(""), 3000);
+      
+      // Reload profile to get updated image
+      await loadProfile();
+      
+      // Trigger profile update event to refresh navbar
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
@@ -355,12 +351,22 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
                   {imagePreview ? (
                     <img 
-                      src={imagePreview.startsWith('http') ? imagePreview : `http://localhost:4000${imagePreview}`}
+                      src={
+                        imagePreview.startsWith('http') 
+                          ? imagePreview 
+                          : imagePreview.startsWith('/uploads')
+                          ? `http://localhost:4000${imagePreview}`
+                          : imagePreview // base64 data URL
+                      }
                       alt="Profile" 
                       className="w-20 h-20 rounded-full object-cover"
+                      onError={(e) => {
+                        console.error('Failed to load image:', imagePreview);
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   ) : (
                     <User className="w-10 h-10 text-blue-600" />
@@ -391,6 +397,22 @@ export default function ProfilePage() {
                 Upload Image
               </button>
             )}
+            <div className="flex gap-3">
+              <Link
+                href="/orders"
+                className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 font-medium"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                Orders
+              </Link>
+              <Link
+                href="/settings"
+                className="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-200 flex items-center gap-2 font-medium"
+              >
+                <Cog className="w-4 h-4" />
+                Settings
+              </Link>
+            </div>
           </div>
         </div>
 

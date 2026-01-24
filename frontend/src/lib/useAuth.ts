@@ -86,7 +86,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
         
         // Check if admin is required
-        if (options?.requireAdmin && data?.user && typeof data.user === 'object' && 'role' in data.user && data.user.role !== "admin") {
+        if (options?.requireAdmin && data?.user && typeof data.user === 'object' && 'role' in data.user && !["super_admin", "admin", "moderator"].includes(data.user.role as string)) {
           router.push("/dashboard");
         }
       } catch (error) {

@@ -240,6 +240,7 @@ export function registerRoutes(app: Express) {
         user: {
           id: user._id.toString(),
           name: user.name,
+          fullName: user.fullName,
           email: user.email,
           role: user.role,
           referralCode: user.referralCode,
@@ -289,6 +290,7 @@ export function registerRoutes(app: Express) {
           email: user.email,
           role: user.role,
           referralCode: user.referralCode,
+          profileImage: user.profileImage,
           parentUserId: user.parent?.toString() ?? null,
         },
       });
@@ -340,6 +342,7 @@ export function registerRoutes(app: Express) {
           enableTDS: user.enableTDS,
           enableTCS: user.enableTCS,
           businessLogo: user.businessLogo,
+          profileImage: user.profileImage,
           signature: user.signature,
           currencyCode: user.currencyCode,
           currencySymbol: user.currencySymbol,
@@ -482,6 +485,8 @@ export function registerRoutes(app: Express) {
   app.post("/api/upload/profile-image", upload.single("image"), async (req, res) => {
     try {
       console.log('Profile image upload request received');
+      console.log('Request headers:', req.headers);
+      console.log('Request body:', req.body);
       
       const ctx = await requireAuth(req);
       await connectToDatabase();
@@ -489,20 +494,26 @@ export function registerRoutes(app: Express) {
       console.log('User authenticated:', ctx.userId);
 
       if (!req.file) {
-        console.log('No file provided in request');
+        console.log('No file provided in request. Files:', req.files);
         return res.status(400).json({ error: "No image provided" });
       }
 
-      console.log('File received:', req.file.filename, req.file.size, req.file.mimetype);
+      console.log('File received:', {
+        filename: req.file.filename,
+        originalname: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        path: req.file.path
+      });
 
       // Get the file URL
       const imageUrl = getFileUrl(req.file.filename);
       console.log('Generated image URL:', imageUrl);
 
-      // Update user's businessLogo field
+      // Update user's profileImage field
       const user = await UserModel.findByIdAndUpdate(
         ctx.userId,
-        { businessLogo: imageUrl },
+        { profileImage: imageUrl },
         { new: true }
       );
 
@@ -511,11 +522,12 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      console.log('Profile image updated successfully for user:', ctx.userId);
+      console.log('Profile image updated successfully for user:', ctx.userId, 'Image URL:', user.profileImage);
 
       return res.json({ 
         message: "Profile image uploaded successfully",
-        imageUrl: user.businessLogo
+        imageUrl: user.profileImage,
+        success: true
       });
     } catch (err: unknown) {
       console.error('Profile image upload error:', err);
@@ -524,7 +536,7 @@ export function registerRoutes(app: Express) {
       const status = msg === "Unauthorized" ? 401 : 400;
       
       // Ensure we always return JSON
-      return res.status(status).json({ error: msg });
+      return res.status(status).json({ error: msg, success: false });
     }
   });
 
@@ -1302,7 +1314,7 @@ This message has been saved to the database with ID: ${contact._id}`,
   const sliderCreateSchema = z.object({
     title: z.string().min(1).max(100),
     description: z.string().max(500).optional(),
-    imageUrl: z.string().url(),
+    imageUrl: z.string().min(1), // Accept both URLs and base64 data URLs
     order: z.number().int().min(0),
     isActive: z.boolean().default(true)
   });
@@ -1326,7 +1338,7 @@ This message has been saved to the database with ID: ${contact._id}`,
   const sliderUpdateSchema = z.object({
     title: z.string().min(1).max(100).optional(),
     description: z.string().max(500).optional(),
-    imageUrl: z.string().url().optional(),
+    imageUrl: z.string().min(1).optional(), // Accept both URLs and base64 data URLs
     order: z.number().int().min(0).optional(),
     isActive: z.boolean().optional()
   });

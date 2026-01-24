@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
             tabIndex={0}
           >
             <div className="flex items-center justify-between mb-4">
-              <TrendingUp className="w-8 h-8 text-purple-600" />
+              <TrendingUp className="w-8 h-8 text-blue-600" />
               <span className="text-sm text-gray-500">New</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">{analytics.users.newRegistrations.toLocaleString()}</p>
@@ -267,7 +267,7 @@ export default function AnalyticsPage() {
                   }
                 }}
               >
-                <p className="text-xl font-bold text-purple-600">{analytics.users.providers.new.toLocaleString()}</p>
+                <p className="text-xl font-bold text-blue-600">{analytics.users.providers.new.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">New</p>
               </button>
             </div>
@@ -312,7 +312,7 @@ export default function AnalyticsPage() {
                   }
                 }}
               >
-                <p className="text-xl font-bold text-purple-600">{analytics.users.buyers.new.toLocaleString()}</p>
+                <p className="text-xl font-bold text-blue-600">{analytics.users.buyers.new.toLocaleString()}</p>
                 <p className="text-sm text-gray-600">New</p>
               </button>
             </div>
@@ -365,7 +365,7 @@ export default function AnalyticsPage() {
 
           <div className="bg-white p-6 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <UserCheck className="w-8 h-8 text-purple-600" />
+              <UserCheck className="w-8 h-8 text-blue-600" />
               <span className="text-sm text-gray-500">Active</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">{analytics.services.active.toLocaleString()}</p>
@@ -402,7 +402,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Quick Summary */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 border border-blue-200">
+      <div className="bg-gradient-to-r from-blue-50 to-gray-50 rounded-lg p-8 border border-blue-200">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Platform Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
@@ -420,8 +420,8 @@ export default function AnalyticsPage() {
             <p className="text-gray-600">Active Services</p>
           </div>
           <div className="text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-8 h-8 text-purple-600" />
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TrendingUp className="w-8 h-8 text-blue-600" />
             </div>
             <p className="text-3xl font-bold text-gray-900">{analytics.users.newRegistrations.toLocaleString()}</p>
             <p className="text-gray-600">New Users This Month</p>

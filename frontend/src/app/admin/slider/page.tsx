@@ -221,10 +221,10 @@ export default function AdminSliderPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-gray-500 flex items-center justify-center text-white">
                 <ImageIcon className="w-6 h-6" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-gray-600 bg-clip-text text-transparent">
                 Slider Management
               </h1>
             </div>
@@ -234,14 +234,14 @@ export default function AdminSliderPage() {
           </div>
           <div className="flex gap-3">
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-blue-200" 
               prefetch={false}
               href="/admin/services"
             >
               Services
             </Link>
             <Link 
-              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200" 
+              className="glass-panel rounded-xl px-5 py-2.5 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-blue-200" 
               prefetch={false}
               href="/dashboard"
             >
@@ -259,7 +259,7 @@ export default function AdminSliderPage() {
         )}
 
         {/* Create New Slider */}
-        <div className="glass-panel rounded-2xl border border-purple-200 p-6 mb-6">
+        <div className="glass-panel rounded-2xl border border-blue-200 p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white">
               <Plus className="w-5 h-5" />
@@ -278,7 +278,7 @@ export default function AdminSliderPage() {
                 maxLength={100}
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full glass-panel rounded-lg border border-purple-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                className="w-full glass-panel rounded-lg border border-blue-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter slider title"
               />
             </div>
@@ -303,7 +303,7 @@ export default function AdminSliderPage() {
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full glass-panel rounded-lg border border-purple-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+                className="w-full glass-panel rounded-lg border border-blue-200 px-4 py-2 font-medium transition-all focus:ring-2 focus:ring-purple-500"
                 placeholder="Enter slider description (optional)"
               />
             </div>
@@ -312,7 +312,7 @@ export default function AdminSliderPage() {
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+                className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
               >
                 {busy ? "Creating..." : "Create Slider"}
               </button>
@@ -321,7 +321,7 @@ export default function AdminSliderPage() {
         </div>
 
         {/* Sliders List */}
-        <div className="glass-panel rounded-2xl border border-purple-200 p-6">
+        <div className="glass-panel rounded-2xl border border-blue-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
@@ -343,7 +343,7 @@ export default function AdminSliderPage() {
               <button
                 onClick={refreshSliders}
                 disabled={isRefreshing}
-                className="flex items-center gap-2 glass-panel rounded-xl px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-purple-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 glass-panel rounded-xl px-4 py-2 text-sm font-medium transition-all hover:scale-105 hover:shadow-lg border border-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Refresh all sliders"
               >
                 <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -361,7 +361,7 @@ export default function AdminSliderPage() {
                   onClick={() => setActiveImageId(slider._id)}
                   className={`flex-shrink-0 relative px-4 py-2 rounded-lg border transition-all ${
                     activeImageId === slider._id
-                      ? 'bg-purple-500 text-white border-purple-500 shadow-lg'
+                      ? 'bg-blue-500 text-white border-purple-500 shadow-lg'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-purple-300 hover:shadow-md'
                   }`}
                 >
@@ -384,7 +384,7 @@ export default function AdminSliderPage() {
                     )}
                   </div>
                   {activeImageId === slider._id && (
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-purple-600 rounded-full"></div>
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-600 rounded-full"></div>
                   )}
                 </button>
               ))}
@@ -403,8 +403,8 @@ export default function AdminSliderPage() {
                   key={slider._id} 
                   className={`border rounded-lg p-4 transition-all ${
                     activeImageId === slider._id
-                      ? 'border-purple-500 bg-purple-50/50 shadow-lg'
-                      : 'border-purple-200 hover:bg-purple-50/50'
+                      ? 'border-purple-500 bg-blue-50/50 shadow-lg'
+                      : 'border-blue-200 hover:bg-blue-50/50'
                   }`}
                 >
                   <div className="flex gap-4">
@@ -420,7 +420,7 @@ export default function AdminSliderPage() {
                       />
                       {/* Active Indicator */}
                       {activeImageId === slider._id && (
-                        <div className="absolute top-2 right-2 w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
+                        <div className="absolute top-2 right-2 w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                       )}
                     </div>
                     

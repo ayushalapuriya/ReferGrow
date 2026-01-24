@@ -123,11 +123,21 @@ export default function ProfileSection() {
       >
         <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
           {user ? (
-            user.businessLogo && typeof user.businessLogo === 'string' ? (
+            user.profileImage && typeof user.profileImage === 'string' ? (
               <img 
-                src={user.businessLogo.startsWith('http') ? user.businessLogo : `http://localhost:4000${user.businessLogo}`}
+                src={
+                  user.profileImage.startsWith('http') 
+                    ? user.profileImage 
+                    : user.profileImage.startsWith('/uploads')
+                    ? `http://localhost:4000${user.profileImage}`
+                    : user.profileImage
+                }
                 alt="Profile" 
                 className="w-6 h-6 rounded-full object-cover"
+                onError={(e) => {
+                  console.error('Failed to load profile image:', user.profileImage);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             ) : (
               <User className="w-4 h-4 text-white" />

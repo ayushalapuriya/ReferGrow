@@ -49,7 +49,7 @@ export default function SliderInlineEdit({ slider, onSave, onCancel, busy }: Sli
           type="text"
           value={editData.title}
           onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
+          className="w-full glass-panel rounded-lg border border-blue-200 px-3 py-2 font-medium"
           maxLength={100}
         />
       </div>
@@ -72,7 +72,7 @@ export default function SliderInlineEdit({ slider, onSave, onCancel, busy }: Sli
         <textarea
           value={editData.description}
           onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-          className="w-full glass-panel rounded-lg border border-purple-200 px-3 py-2 font-medium"
+          className="w-full glass-panel rounded-lg border border-blue-200 px-3 py-2 font-medium"
           rows={2}
           maxLength={500}
         />

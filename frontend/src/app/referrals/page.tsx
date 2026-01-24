@@ -140,8 +140,8 @@ export default function ReferralsPage() {
               
               <NodeView node={tree} depth={0} />
               
-              <div className="mt-8 pt-6 border-t border-purple-200 flex items-start gap-3">
-                <span className="text-2xl">💡</span>
+              <div className="mt-8 pt-6 border-t border-gray-200 flex items-start gap-3">
+                <span className="text-2xl">ℹ</span>
                 <p className="text-xs text-zinc-600">
                   <strong>Note:</strong> This view shows up to 5 levels of your referral network for optimal performance. 
                   Each level represents a generation in your binary tree structure. Click &ldquo;Collapse&rdquo; or &ldquo;Expand&rdquo; to manage tree visibility.
@@ -149,8 +149,8 @@ export default function ReferralsPage() {
               </div>
             </div>
           ) : (
-            <div className="glass-panel rounded-2xl border border-purple-200 p-12 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
+            <div className="glass-panel rounded-2xl border border-gray-200 p-12 text-center">
+              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-blue-500/20 to-gray-500/20 flex items-center justify-center text-4xl mb-4 animate-pulse">
                 🌟
               </div>
               <p className="text-lg text-zinc-600">Loading your network...</p>

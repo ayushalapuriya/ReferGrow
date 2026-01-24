@@ -85,7 +85,7 @@ const userSchema = new Schema(
     incomeSlab: { type: String, trim: true },
     
     // KYC Documents
-    profileImage: { type: String, trim: true },
+    profileImage: { type: String, trim: true }, // Profile/avatar image uploaded by user
     panNumber: { type: String, trim: true, uppercase: true },
     panDocument: { type: String, trim: true },
     aadhaarNumber: { type: String, trim: true },

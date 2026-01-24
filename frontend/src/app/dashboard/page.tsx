@@ -272,16 +272,16 @@ export default function DashboardPage() {
           </div>
         ) : null}
 
-        <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 p-6 mb-6 transition-all hover:shadow-2xl" style={{animationDelay: '0.3s'}}>
+        <div className="glass-panel animate-fade-in rounded-2xl border border-blue-200 p-6 mb-6 transition-all hover:shadow-2xl" style={{animationDelay: '0.3s'}}>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-gray-500 flex items-center justify-center text-white">
               <ShoppingCart className="w-5 h-5" />
             </div>
             <h2 className="font-semibold text-lg">Purchase Service</h2>
           </div>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <select
-              className="flex-1 glass-panel rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+              className="flex-1 glass-panel rounded-xl border border-blue-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-blue-500"
               value={selectedServiceId}
               onChange={(e) => setSelectedServiceId(e.target.value)}
             >
@@ -296,7 +296,7 @@ export default function DashboardPage() {
             </select>
             <div className="flex gap-2 sm:flex-col">
               <button
-                className="rounded-xl border border-purple-200 px-6 py-3 text-sm font-semibold transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+                className="rounded-xl border border-blue-200 px-6 py-3 text-sm font-semibold transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
                 onClick={addSelectedToCart}
                 disabled={busy || !selectedServiceId}
                 type="button"
@@ -304,7 +304,7 @@ export default function DashboardPage() {
                 {addedToCart ? "Added" : "Add to Cart"}
               </button>
               <button
-                className="rounded-xl bg-linear-to-r from-purple-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+                className="rounded-xl bg-linear-to-r from-blue-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
                 onClick={buyService}
                 disabled={busy || !selectedServiceId}
                 type="button"
@@ -320,7 +320,7 @@ export default function DashboardPage() {
           ) : null}
         </div>
 
-        <div className="glass-panel animate-fade-in rounded-2xl border border-purple-200 p-6 transition-all hover:shadow-2xl" style={{animationDelay: '0.4s'}}>
+        <div className="glass-panel animate-fade-in rounded-2xl border border-blue-200 p-6 transition-all hover:shadow-2xl" style={{animationDelay: '0.4s'}}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white">
@@ -329,16 +329,16 @@ export default function DashboardPage() {
               <h2 className="font-semibold text-lg">Income History</h2>
             </div>
             <Link 
-              className="text-sm font-medium bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent hover:underline transition-all hover:scale-105" 
+              className="text-sm font-medium bg-linear-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent hover:underline transition-all hover:scale-105" 
               prefetch={false}
               href="/referrals"
             >
               View Referral Tree →
             </Link>
           </div>
-          <div className="mt-4 overflow-auto rounded-xl border border-purple-200">
+          <div className="mt-4 overflow-auto rounded-xl border border-blue-200">
             <table className="w-full text-sm">
-              <thead className="bg-linear-to-r from-purple-500/10 to-blue-500/10 text-left text-zinc-700">
+              <thead className="bg-linear-to-r from-blue-500/10 to-blue-500/10 text-left text-zinc-700">
                 <tr>
                   <th className="py-3 px-4 font-semibold">Date</th>
                   <th className="py-3 px-4 font-semibold">From</th>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {incomes.map((inc) => (
-                  <tr key={inc._id} className="border-t border-purple-200 hover:bg-purple-500/5 transition-colors">
+                  <tr key={inc._id} className="border-t border-blue-200 hover:bg-blue-500/5 transition-colors">
                     <td className="py-3 px-4">{new Date(inc.createdAt).toLocaleString()}</td>
                     <td className="py-3 px-4 font-medium">{inc.fromUser?.email ?? "—"}</td>
                     <td className="py-3 px-4">

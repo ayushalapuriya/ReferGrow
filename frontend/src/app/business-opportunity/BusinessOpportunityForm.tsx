@@ -39,11 +39,11 @@ export default function BusinessOpportunityForm() {
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-2xl">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-gray-500 flex items-center justify-center text-white text-2xl">
           <Mail className="w-8 h-8 text-white" />
         </div>
         <div>
-          <h2 className="font-bold text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Get More Information</h2>
+          <h2 className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-gray-600 bg-clip-text text-transparent">Get More Information</h2>
           <p className="text-sm text-zinc-600">Receive detailed information about our business opportunity</p>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function BusinessOpportunityForm() {
       <form onSubmit={submit}>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
-            className="flex-1 glass-panel rounded-xl border border-purple-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-purple-500"
+            className="flex-1 glass-panel rounded-xl border border-blue-200 px-4 py-3 font-medium transition-all focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -60,7 +60,7 @@ export default function BusinessOpportunityForm() {
             autoComplete="email"
           />
           <button
-            className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-xl disabled:opacity-60 disabled:hover:scale-100"
             disabled={busy}
             type="submit"
           >

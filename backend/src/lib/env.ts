@@ -4,7 +4,7 @@ import { z } from "zod";
 // Only import this from server-side code (route handlers, server components).
 const envSchema = z.object({
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
-  JWT_SECRET: z.string().min(32, "JWT_SECRET should be at least 32 chars"),
+  JWT_SECRET: z.string().min(64, "JWT_SECRET should be at least 64 chars"),
 
   // Used once to bootstrap the first admin.
   ADMIN_SETUP_SECRET: z.string().min(8).optional(),

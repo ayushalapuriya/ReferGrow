@@ -18,9 +18,9 @@ export default function CartPage() {
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-linear-to-r from-purple-50 to-pink-50 border border-purple-200 mb-4">
-              <ShoppingCart className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-semibold text-purple-700">Shopping Cart</span>
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-linear-to-r from-blue-50 to-gray-50 border border-blue-200 mb-4">
+              <ShoppingCart className="w-5 h-5 text-blue-600" />
+              <span className="text-sm font-semibold text-blue-700">Shopping Cart</span>
             </div>
             <h1 className="text-4xl font-bold text-zinc-900">
               Your Cart ({cart.totalQuantity} {cart.totalQuantity === 1 ? 'item' : 'items'})
@@ -31,7 +31,7 @@ export default function CartPage() {
           </div>
           <Link 
             prefetch={false}
-            className="inline-flex items-center gap-2 text-purple-700 hover:text-purple-800 font-medium transition-colors" 
+            className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-medium transition-colors" 
             href="/services"
           >
             Continue Shopping
@@ -52,7 +52,7 @@ export default function CartPage() {
             <Link
               prefetch={false}
               href="/services"
-              className="inline-flex items-center gap-3 rounded-2xl bg-linear-to-r from-purple-600 to-pink-600 px-8 py-4 font-bold text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+              className="inline-flex items-center gap-3 rounded-2xl bg-linear-to-r from-blue-600 to-blue-700 px-8 py-4 font-bold text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
             >
               <Package className="w-5 h-5" />
               Browse Services

@@ -229,7 +229,7 @@ export default function KYCPage() {
             {users.map((user) => (
               <div key={user._id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
                 {/* User Header */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6">
+                <div className="bg-gradient-to-r from-blue-50 to-gray-50 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                       {user.profileImage ? (

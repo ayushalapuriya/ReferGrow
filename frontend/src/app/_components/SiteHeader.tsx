@@ -24,7 +24,7 @@ export default function SiteHeader() {
           {/* Logo */}
           <Link className="flex items-center gap-2 group" href="/">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
-              <span className="text-2xl">🌱</span>
+              <span className="text-2xl font-bold text-blue-600">▼</span>
             </div>
             <span className="text-xl font-bold text-gray-900">
               ReferGrow

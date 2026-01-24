@@ -118,7 +118,7 @@ function UsersPage() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "super_admin":
-        return "bg-purple-100 text-purple-800";
+        return "bg-blue-100 text-blue-800";
       case "admin":
         return "bg-blue-100 text-blue-800";
       case "moderator":

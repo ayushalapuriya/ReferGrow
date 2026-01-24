@@ -40,6 +40,10 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
+// Serve static files from the uploads directory
+const uploadsPath = path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadsPath));
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });

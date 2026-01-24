@@ -122,86 +122,46 @@ export default function ImageSlider({
           <div className="text-center max-w-4xl">
 
             {/* Heading */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 leading-tight tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 sm:mb-6 leading-tight tracking-tight">
               <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                 Build Smarter Networks. Scale Without Limits.
               </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-blue-100 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-normal">
+            <p className="text-blue-100 text-sm sm:text-base md:text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed font-normal px-2 sm:px-0">
               A modern infrastructure platform designed for scalable growth,
               real-time performance tracking, and automated distribution.
             </p>
 
             {/* Trust indicators */}
-            <div className="mt-10 flex flex-wrap justify-center gap-12">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-500/20 rounded-xl border border-white/20">
-                  <Users className="w-6 h-6 text-blue-100" />
+            <div className="mt-6 sm:mt-10 flex flex-wrap justify-center gap-6 sm:gap-12">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl border border-white/20">
+                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-100" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">10,000+</div>
-                  <div className="text-sm text-blue-200">Active Users</div>
+                  <div className="text-lg sm:text-2xl font-bold text-white">10,000+</div>
+                  <div className="text-xs sm:text-sm text-blue-200">Active Users</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-500/20 rounded-xl border border-white/20">
-                  <Clock className="w-6 h-6 text-blue-100" />
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-2 sm:p-3 bg-blue-500/20 rounded-xl border border-white/20">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-100" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-white">24/7</div>
-                  <div className="text-sm text-blue-200">Dedicated Support</div>
+                  <div className="text-lg sm:text-2xl font-bold text-white">24/7</div>
+                  <div className="text-xs sm:text-sm text-blue-200">Dedicated Support</div>
                 </div>
               </div>
-            </div>
-
-            {/* Feature Cards */}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  icon: <Network className="w-7 h-7 text-white" />,
-                  title: "Scalable Network",
-                  desc: "Built to expand effortlessly without compromising speed or reliability."
-                },
-                {
-                  icon: <Shield className="w-7 h-7 text-white" />,
-                  title: "Complete Transparency",
-                  desc: "All activity remains fully visible, auditable, and verifiable at all times."
-                },
-                {
-                  icon: <Zap className="w-7 h-7 text-white" />,
-                  title: "Real-Time Distribution",
-                  desc: "Automated, instant reward processing with zero manual involvement."
-                }
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="group relative bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-white/20
-                            hover:border-white/40 hover:bg-white/15
-                            transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
-                >
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      {item.icon}
-                    </div>
-                    <h3 className="text-white font-semibold text-xl tracking-wide">
-                      {item.title}
-                    </h3>
-                  </div>
-                  <p className="text-blue-100 text-base leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              ))}
             </div>
 
             {/* CTA */}
-            <div className="mt-16 flex flex-col sm:flex-row justify-center gap-6">
+            <div className="mt-8 sm:mt-12 lg:mt-16 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 px-4 sm:px-0">
               <a
                 href="/register"
-                className="px-10 py-4 rounded-xl bg-blue-600 text-white font-semibold text-lg
+                className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl bg-blue-600 text-white font-semibold text-base sm:text-lg
                           hover:bg-blue-700 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
               >
                 Create Account
@@ -209,7 +169,7 @@ export default function ImageSlider({
 
               <a
                 href="/login"
-                className="px-10 py-4 rounded-xl border border-white/40 text-white font-semibold text-lg
+                className="px-6 sm:px-8 lg:px-10 py-3 sm:py-4 rounded-xl border border-white/40 text-white font-semibold text-base sm:text-lg
                           hover:border-white/70 hover:bg-white/10 transition-all duration-300 hover:-translate-y-1"
               >
                 Sign In
@@ -267,7 +227,7 @@ export default function ImageSlider({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-gray-50 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-4">🖼️</div>
               <div className="text-gray-600">
@@ -279,18 +239,68 @@ export default function ImageSlider({
         )}
         
         {/* Overlay gradient for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40" />
         
-        {/* Slide content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8 lg:p-12 text-white">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 drop-shadow-lg">
-            {currentSlide.title}
-          </h2>
-          {currentSlide.description && (
-            <p className="text-sm md:text-base lg:text-lg opacity-90 max-w-3xl drop-shadow-md">
-              {currentSlide.description}
-            </p>
-          )}
+        {/* Hero section overlay with features */}
+        <div className="absolute inset-0 flex items-center justify-center z-20 w-full">
+          <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-full px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-10 md:py-12">
+            <div className="text-center max-w-4xl space-y-2 sm:space-y-3 md:space-y-4">
+              {/* Heading */}
+              <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+                  Build Smarter Networks. Scale Without Limits.
+                </span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-blue-100 text-xs sm:text-sm md:text-base lg:text-lg max-w-3xl mx-auto leading-relaxed font-normal">
+                A modern infrastructure platform designed for scalable growth,
+                real-time performance tracking, and automated distribution.
+              </p>
+
+              {/* Trust indicators */}
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-blue-500/30 rounded-lg border border-white/30 backdrop-blur-sm">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-100" />
+                  </div>
+                  <div>
+                    <div className="text-sm sm:text-base md:text-lg font-bold text-white">10,000+</div>
+                    <div className="text-xs text-blue-200">Active Users</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 bg-blue-500/30 rounded-lg border border-white/30 backdrop-blur-sm">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-100" />
+                  </div>
+                  <div>
+                    <div className="text-sm sm:text-base md:text-lg font-bold text-white">24/7</div>
+                    <div className="text-xs text-blue-200">Dedicated Support</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 md:gap-5">
+                <a
+                  href="/register"
+                  className="px-6 sm:px-7 md:px-8 py-2.5 sm:py-3 rounded-lg bg-blue-600 text-white font-semibold text-sm sm:text-base
+                            hover:bg-blue-700 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Create Account
+                </a>
+
+                <a
+                  href="/login"
+                  className="px-6 sm:px-7 md:px-8 py-2.5 sm:py-3 rounded-lg border border-white/40 text-white font-semibold text-sm sm:text-base
+                            hover:border-white/70 hover:bg-white/10 transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Sign In
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
