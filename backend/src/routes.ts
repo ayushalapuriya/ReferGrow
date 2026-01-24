@@ -25,6 +25,8 @@ import { DistributionRuleModel } from "@/models/DistributionRule";
 import { IncomeLogModel } from "@/models/IncomeLog";
 import { ContactModel } from "@/models/Contact";
 import { Slider } from "@/models/Slider";
+import { SubcategoryModel } from "@/models/Subcategory";
+import { AnalyticsModel } from "@/models/Analytics";
 
 type AuthContext = { userId: string; role: UserRole; email: string };
 
@@ -47,12 +49,17 @@ async function requireAuth(req: Request): Promise<AuthContext> {
   
   // Verify user still exists and is active
   await connectToDatabase();
-  const user = await UserModel.findById(payload.sub).select("status sessionExpiresAt").lean();
+  const user = await UserModel.findById(payload.sub).select("status sessionExpiresAt activityStatus").lean();
   
   if (!user) throw new Error("Unauthorized");
   if (user.status === "deleted") throw new Error("Account has been deleted");
   if (user.status === "suspended") throw new Error("Account has been suspended by administrator");
   if (user.sessionExpiresAt && new Date(user.sessionExpiresAt) < new Date()) {
+    // Update activity status to inactive on session expiration
+    await UserModel.findByIdAndUpdate(payload.sub, { 
+      activityStatus: "inactive",
+      lastLogoutAt: new Date()
+    });
     throw new Error("Session has expired");
   }
   
@@ -62,6 +69,18 @@ async function requireAuth(req: Request): Promise<AuthContext> {
 async function requireRole(req: Request, role: UserRole): Promise<AuthContext> {
   const ctx = await requireAuth(req);
   if (ctx.role !== role) throw new Error("Forbidden");
+  return ctx;
+}
+
+async function requireAdminRole(req: Request): Promise<AuthContext> {
+  const ctx = await requireAuth(req);
+  if (!["super_admin", "admin", "moderator"].includes(ctx.role)) throw new Error("Forbidden");
+  return ctx;
+}
+
+async function requireSuperAdminOrAdmin(req: Request): Promise<AuthContext> {
+  const ctx = await requireAuth(req);
+  if (!["super_admin", "admin"].includes(ctx.role)) throw new Error("Forbidden");
   return ctx;
 }
 
@@ -101,6 +120,7 @@ export function registerRoutes(app: Express) {
         .optional()
         .transform((v) => (typeof v === "string" ? v.trim() : v))
         .transform((v) => (v ? v : undefined)),
+      fullName: z.string().min(1),
     });
 
     try {
@@ -136,6 +156,7 @@ export function registerRoutes(app: Express) {
         mobile: body.mobile,
         countryCode: body.countryCode,
         name: body.name,
+        fullName: body.fullName,
         email: body.email?.toLowerCase(),
         passwordHash,
         role: "user",
@@ -205,6 +226,12 @@ export function registerRoutes(app: Express) {
       const ok = await verifyPassword(body.password, user.passwordHash);
       if (!ok) return res.status(401).json({ error: "Invalid credentials" });
 
+      // Update user activity status to active on successful login
+      await UserModel.findByIdAndUpdate(user._id, { 
+        activityStatus: "active",
+        lastLoginAt: new Date()
+      });
+
       const token = await signAuthToken({ sub: user._id.toString(), role: user.role, ...(user.email && { email: user.email }) });
       setAuthCookie(res, token);
 
@@ -225,9 +252,25 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  app.post("/api/auth/logout", (_req, res) => {
-    clearAuthCookie(res);
-    res.json({ ok: true });
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      // Update user activity status to inactive on logout
+      await UserModel.findByIdAndUpdate(ctx.userId, { 
+        activityStatus: "inactive",
+        lastLogoutAt: new Date()
+      });
+
+      clearAuthCookie(res);
+      res.json({ ok: true });
+    } catch (err: unknown) {
+      // Even if auth fails, clear the cookie
+      clearAuthCookie(res);
+      const msg = err instanceof Error ? err.message : "Logout failed";
+      return res.status(400).json({ error: msg });
+    }
   });
 
   // Me
@@ -784,100 +827,6 @@ export function registerRoutes(app: Express) {
       const service = await ServiceModel.findByIdAndUpdate(req.params.id, body, { new: true });
       if (!service) return res.status(404).json({ error: "Not found" });
       return res.json({ service });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Forbidden" ? 403 : 400;
-      return res.status(status).json({ error: msg });
-    }
-  });
-
-  // Category Management
-  app.get("/api/admin/categories", async (req, res) => {
-    try {
-      await requireRole(req, "admin");
-      await connectToDatabase();
-
-      const categories = await CategoryModel.find({})
-        .sort({ sortOrder: 1, name: 1 });
-
-      return res.json({ categories });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Forbidden";
-      const status = msg === "Forbidden" ? 403 : 400;
-      return res.status(status).json({ error: msg });
-    }
-  });
-
-  app.post("/api/admin/categories", async (req, res) => {
-    const schema = z.object({
-      name: z.string().min(1).max(100),
-      slug: z.string().min(1).max(100),
-      code: z.string().min(1).max(10),
-      icon: z.string().optional(),
-      image: z.string().optional(),
-      isActive: z.boolean().default(true),
-      sortOrder: z.number().int().min(0).default(0),
-    });
-
-    try {
-      await requireRole(req, "admin");
-      const body = schema.parse(req.body);
-      await connectToDatabase();
-
-      const category = await CategoryModel.create({
-        name: body.name,
-        slug: body.slug,
-        code: body.code,
-        icon: body.icon,
-        image: body.image,
-        isActive: body.isActive,
-        sortOrder: body.sortOrder,
-      });
-
-      return res.status(201).json({ category });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Forbidden" ? 403 : 400;
-      return res.status(status).json({ error: msg });
-    }
-  });
-
-  app.put("/api/admin/categories/:id", async (req, res) => {
-    const schema = z
-      .object({
-        name: z.string().min(1).max(100).optional(),
-        slug: z.string().min(1).max(100).optional(),
-        icon: z.string().optional(),
-        image: z.string().optional(),
-        isActive: z.boolean().optional(),
-        sortOrder: z.number().int().min(0).optional(),
-      })
-      .refine((v) => Object.keys(v).length > 0, "No fields to update");
-
-    try {
-      await requireRole(req, "admin");
-      const body = schema.parse(req.body);
-      await connectToDatabase();
-
-      const category = await CategoryModel.findByIdAndUpdate(req.params.id, body, { new: true });
-      if (!category) return res.status(404).json({ error: "Category not found" });
-      return res.json({ category });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Forbidden" ? 403 : 400;
-      return res.status(status).json({ error: msg });
-    }
-  });
-
-  app.delete("/api/admin/categories/:id", async (req, res) => {
-    try {
-      await requireRole(req, "admin");
-      await connectToDatabase();
-
-      const category = await CategoryModel.findByIdAndDelete(req.params.id);
-      if (!category) return res.status(404).json({ error: "Category not found" });
-      
-      return res.json({ message: "Category deleted successfully" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;
@@ -1444,6 +1393,688 @@ This message has been saved to the database with ID: ${contact._id}`,
       if (!slider) return res.status(404).json({ error: "Slider not found" });
       
       return res.json({ message: "Slider deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // KYC Submission Route
+  app.put("/api/user/kyc", async (req: Request, res: Response) => {
+    try {
+      const ctx = await requireAuth(req);
+      const body = z.object({
+        fullName: z.string().min(1),
+        fatherName: z.string().optional(),
+        address: z.string().min(1),
+        dob: z.string().transform(val => new Date(val)),
+        occupation: z.string().min(1),
+        incomeSlab: z.string().min(1),
+        profileImage: z.string().optional(),
+        panNumber: z.string().min(10),
+        panDocument: z.string().optional(),
+        aadhaarNumber: z.string().min(12),
+        aadhaarDocument: z.string().optional(),
+        bankAccountName: z.string().min(1),
+        bankAccountNumber: z.string().min(1),
+        bankName: z.string().min(1),
+        bankAddress: z.string().min(1),
+        bankIfsc: z.string().min(11),
+        bankDocument: z.string().optional(),
+        nominees: z.array(z.object({
+          relation: z.string().min(1),
+          name: z.string().min(1),
+          dob: z.string().transform(val => new Date(val)),
+          mobile: z.string().min(10)
+        })).optional()
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        ctx.userId,
+        {
+          $set: {
+            ...body,
+            kycStatus: "submitted",
+            kycSubmittedAt: new Date()
+          }
+        },
+        { new: true, runValidators: true }
+      ).select("-passwordHash");
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ message: "KYC submitted successfully", user });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Admin Analytics Dashboard
+  app.get("/api/admin/analytics", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const startOfYear = new Date(today.getFullYear(), 0, 1);
+
+      // User Analytics
+      const totalUsers = await UserModel.countDocuments({ status: { $ne: "deleted" } });
+      const activeUsers = await UserModel.countDocuments({ status: { $ne: "deleted" }, activityStatus: "active" });
+      
+      // Provider Analytics (role: "user" = service providers in this system)
+      const totalProviders = await UserModel.countDocuments({ status: { $ne: "deleted" }, role: "user" });
+      const activeProviders = await UserModel.countDocuments({ status: { $ne: "deleted" }, activityStatus: "active", role: "user" });
+      const newProviders = await UserModel.countDocuments({
+        createdAt: { $gte: startOfMonth },
+        status: { $ne: "deleted" },
+        role: "user"
+      });
+      
+      // Buyer Analytics (roles: "admin", "moderator" = buyers in this system)
+      const totalBuyers = await UserModel.countDocuments({ 
+        status: { $ne: "deleted" }, 
+        role: { $in: ["admin", "moderator"] }
+      });
+      const activeBuyers = await UserModel.countDocuments({ 
+        status: { $ne: "deleted" }, 
+        activityStatus: "active",
+        role: { $in: ["admin", "moderator"] }
+      });
+      const newBuyers = await UserModel.countDocuments({
+        createdAt: { $gte: startOfMonth },
+        status: { $ne: "deleted" },
+        role: { $in: ["admin", "moderator"] }
+      });
+      
+      const newRegistrations = await UserModel.countDocuments({
+        createdAt: { $gte: startOfMonth },
+        status: { $ne: "deleted" }
+      });
+
+      // Service Analytics
+      const totalServices = await ServiceModel.countDocuments();
+      const pendingServices = await ServiceModel.countDocuments({ status: "pending_approval" });
+      const approvedServices = await ServiceModel.countDocuments({ status: "approved" });
+      const rejectedServices = await ServiceModel.countDocuments({ status: "rejected" });
+      const activeServices = await ServiceModel.countDocuments({ status: "active" });
+
+      // Inquiry Analytics (using Contact model as inquiries)
+      const totalInquiries = await ContactModel.countDocuments();
+      const pendingInquiries = await ContactModel.countDocuments({ status: "pending" });
+
+      return res.json({
+        users: {
+          total: totalUsers,
+          active: activeUsers,
+          providers: {
+            total: totalProviders,
+            active: activeProviders,
+            new: newProviders
+          },
+          buyers: {
+            total: totalBuyers,
+            active: activeBuyers,
+            new: newBuyers
+          },
+          newRegistrations
+        },
+        services: {
+          total: totalServices,
+          pending: pendingServices,
+          approved: approvedServices,
+          rejected: rejectedServices,
+          active: activeServices
+        },
+        inquiries: {
+          total: totalInquiries,
+          pending: pendingInquiries
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // User Management Routes
+  app.get("/api/admin/users", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = req.query.search as string || "";
+      const role = req.query.role as string;
+      const status = req.query.status as string;
+
+      const today = new Date();
+      const query: any = { status: { $ne: "deleted" } };
+      
+      // Handle special "new" filter for users created this month
+      if (status === "new") {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        query.createdAt = { $gte: startOfMonth };
+      } else if (status === "active" || status === "inactive") {
+        // Filter by activity status for active/inactive
+        query.activityStatus = status;
+      } else if (status) {
+        // Filter by account status for other values (suspended, etc.)
+        query.status = status;
+      }
+      
+      if (search) {
+        query.$or = [
+          { name: { $regex: search, $options: "i" } },
+          { fullName: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+          { mobile: { $regex: search, $options: "i" } }
+        ];
+      }
+      if (role) query.role = role;
+
+      const users = await UserModel.find(query)
+        .select("-passwordHash")
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .populate("parent", "name email mobile");
+
+      const total = await UserModel.countDocuments(query);
+
+      return res.json({
+        users,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.post("/api/admin/users", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        name: z.string().min(1),
+        email: z.string().email().optional(),
+        mobile: z.string().min(10),
+        countryCode: z.string().default("+91"),
+        password: z.string().min(8),
+        role: z.enum(["super_admin", "admin", "moderator", "user"]),
+        referralCode: z.string().optional()
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      // Check if user already exists
+      const existingUser = await UserModel.findOne({
+        $or: [
+          { mobile: body.mobile },
+          { email: body.email }
+        ]
+      });
+
+      if (existingUser) {
+        return res.status(400).json({ error: "User with this mobile or email already exists" });
+      }
+
+      const passwordHash = await hashPassword(body.password);
+      const referralCode = body.referralCode || await generateUniqueReferralCode();
+
+      const user = new UserModel({
+        ...body,
+        passwordHash,
+        referralCode,
+        fullName: body.name,
+        isVerified: true
+      });
+
+      await user.save();
+
+      return res.status(201).json({
+        message: "User created successfully",
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          mobile: user.mobile,
+          role: user.role,
+          status: user.status,
+          createdAt: user.createdAt
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/users/:id/status", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        status: z.enum(["active", "suspended", "deleted"])
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        req.params.id,
+        { $set: { status: body.status } },
+        { new: true, runValidators: true }
+      ).select("-passwordHash");
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ message: "User status updated successfully", user });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        req.params.id,
+        { $set: { status: "deleted" } },
+        { new: true }
+      );
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ message: "User deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Service Approval Routes
+  app.get("/api/admin/services/pending", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const services = await ServiceModel.find({ status: "pending_approval" })
+        .populate("categoryId", "name code")
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+      const total = await ServiceModel.countDocuments({ status: "pending_approval" });
+
+      return res.json({
+        services,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/services/:id/approve", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const ctx = await requireAuth(req);
+
+      const service = await ServiceModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            status: "approved",
+            approvedAt: new Date(),
+            approvedBy: ctx.userId
+          }
+        },
+        { new: true, runValidators: true }
+      ).populate("categoryId", "name code");
+
+      if (!service) return res.status(404).json({ error: "Service not found" });
+
+      return res.json({ message: "Service approved successfully", service });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/services/:id/reject", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      const body = z.object({
+        reason: z.string().min(1, "Rejection reason is required")
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const ctx = await requireAuth(req);
+
+      const service = await ServiceModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            status: "rejected",
+            rejectedAt: new Date(),
+            rejectedBy: ctx.userId,
+            rejectionReason: body.reason
+          }
+        },
+        { new: true, runValidators: true }
+      ).populate("categoryId", "name code");
+
+      if (!service) return res.status(404).json({ error: "Service not found" });
+
+      return res.json({ message: "Service rejected successfully", service });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.delete("/api/admin/services/:id", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      await connectToDatabase();
+
+      const service = await ServiceModel.findByIdAndDelete(req.params.id);
+      if (!service) return res.status(404).json({ error: "Service not found" });
+
+      return res.json({ message: "Service deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Category Management Routes
+  app.post("/api/admin/categories", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        name: z.string().min(1).max(100),
+        slug: z.string().min(1).max(100),
+        code: z.string().min(1).max(10),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        isActive: z.boolean().default(true),
+        sortOrder: z.number().min(0).default(0)
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const category = new CategoryModel(body);
+      await category.save();
+
+      return res.status(201).json({ message: "Category created successfully", category });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/categories/:id", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        name: z.string().min(1).max(100).optional(),
+        slug: z.string().min(1).max(100).optional(),
+        code: z.string().min(1).max(10).optional(),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        isActive: z.boolean().optional(),
+        sortOrder: z.number().min(0).optional()
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const category = await CategoryModel.findByIdAndUpdate(
+        req.params.id,
+        { $set: body },
+        { new: true, runValidators: true }
+      );
+
+      if (!category) return res.status(404).json({ error: "Category not found" });
+
+      return res.json({ message: "Category updated successfully", category });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      await connectToDatabase();
+
+      const category = await CategoryModel.findByIdAndDelete(req.params.id);
+      if (!category) return res.status(404).json({ error: "Category not found" });
+
+      return res.json({ message: "Category deleted successfully" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Subcategory Management Routes
+  app.post("/api/admin/subcategories", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        name: z.string().min(1).max(100),
+        slug: z.string().min(1).max(100),
+        code: z.string().min(1).max(10),
+        categoryId: z.string(),
+        icon: z.string().optional(),
+        image: z.string().optional(),
+        isActive: z.boolean().default(true),
+        sortOrder: z.number().min(0).default(0)
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const subcategory = new SubcategoryModel(body);
+      await subcategory.save();
+
+      return res.status(201).json({ message: "Subcategory created successfully", subcategory });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.get("/api/admin/subcategories", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const categoryId = req.query.categoryId as string;
+      const query: any = {};
+      if (categoryId) query.categoryId = categoryId;
+
+      const subcategories = await SubcategoryModel.find(query)
+        .populate("categoryId", "name code")
+        .sort({ sortOrder: 1, name: 1 });
+
+      return res.json({ subcategories });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Payment Link Management
+  app.get("/api/admin/payment-settings", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      await connectToDatabase();
+
+      // Get payment settings from the first admin user (or create default settings)
+      const adminUser = await UserModel.findOne({ role: { $in: ["admin", "super_admin"] } })
+        .select("paymentLinkEnabled upiLink");
+
+      const settings = {
+        paymentLinkEnabled: adminUser?.paymentLinkEnabled || false,
+        upiLink: adminUser?.upiLink || ""
+      };
+
+      return res.json(settings);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/payment-settings", async (req: Request, res: Response) => {
+    try {
+      await requireSuperAdminOrAdmin(req);
+      const body = z.object({
+        paymentLinkEnabled: z.boolean(),
+        upiLink: z.string().optional()
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const updated = await UserModel.updateMany(
+        { role: { $in: ["admin", "super_admin"] } },
+        { $set: body }
+      );
+
+      return res.json({ message: "Payment settings updated successfully", updated });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // KYC Management Routes
+  app.get("/api/admin/kyc/pending", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const users = await UserModel.find({ kycStatus: "submitted" })
+        .select("-passwordHash")
+        .sort({ kycSubmittedAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+      const total = await UserModel.countDocuments({ kycStatus: "submitted" });
+
+      return res.json({
+        users,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/kyc/:id/approve", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            kycStatus: "verified",
+            kycVerifiedAt: new Date()
+          }
+        },
+        { new: true, runValidators: true }
+      ).select("-passwordHash");
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ message: "KYC approved successfully", user });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  app.put("/api/admin/kyc/:id/reject", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      const body = z.object({
+        reason: z.string().min(1, "Rejection reason is required")
+      }).parse(req.body);
+
+      await connectToDatabase();
+
+      const user = await UserModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            kycStatus: "rejected",
+            kycRejectedAt: new Date(),
+            kycRejectionReason: body.reason
+          }
+        },
+        { new: true, runValidators: true }
+      ).select("-passwordHash");
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json({ message: "KYC rejected successfully", user });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;

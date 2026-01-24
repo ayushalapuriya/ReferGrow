@@ -1,12 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
 import { env } from "@/lib/env";
+import type { UserRole } from "@/models/User";
 
 const encoder = new TextEncoder();
 const secretKey = encoder.encode(env.JWT_SECRET);
 
 export type AuthTokenPayload = {
   sub: string; // user id
-  role: "admin" | "user";
+  role: UserRole;
   email?: string;
 };
 
@@ -27,11 +28,11 @@ export async function verifyAuthToken(token: string) {
     throw new Error("Invalid token subject");
   }
 
-  const role = payload.role;
-  const email = payload.email;
+  const role = payload.role as UserRole;
+  const email = payload.email as string | undefined;
 
-  if ((role !== "admin" && role !== "user") || typeof email !== "string") {
-    throw new Error("Invalid token payload");
+  if (!role || typeof role !== "string") {
+    throw new Error("Invalid token role");
   }
 
   return {

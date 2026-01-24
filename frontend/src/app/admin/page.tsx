@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/useAuth";
-import { Settings, List, Users, BarChart3, Mail, Image as ImageIcon } from "lucide-react";
+import { Settings, List, Users, BarChart3, Mail, Image as ImageIcon, UserCheck, FolderOpen, CreditCard, FileCheck } from "lucide-react";
 
 export default function AdminPage() {
   useAuth({ requireAdmin: true }); // Protect admin page
@@ -19,6 +19,114 @@ export default function AdminPage() {
 
       {/* Admin Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Analytics Dashboard */}
+        <Link
+          href="/admin/analytics"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <BarChart3 className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            Analytics Dashboard
+          </h3>
+          <p className="text-gray-600">
+            View comprehensive platform analytics and insights
+          </p>
+        </Link>
+
+        {/* User Management */}
+        <Link
+          href="/admin/users"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            User Management
+          </h3>
+          <p className="text-gray-600">
+            Create, manage and monitor user accounts and roles
+          </p>
+        </Link>
+
+        {/* Service Approval */}
+        <Link
+          href="/admin/service-approval"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <UserCheck className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            Service Approval
+          </h3>
+          <p className="text-gray-600">
+            Review and approve/reject service listings
+          </p>
+        </Link>
+
+        {/* Category Management */}
+        <Link
+          href="/admin/categories"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <FolderOpen className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            Categories & Subcategories
+          </h3>
+          <p className="text-gray-600">
+            Manage service categories and subcategories
+          </p>
+        </Link>
+
+        {/* KYC Management */}
+        <Link
+          href="/admin/kyc"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <FileCheck className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            KYC Management
+          </h3>
+          <p className="text-gray-600">
+            Review and approve user KYC submissions
+          </p>
+        </Link>
+
+        {/* Payment Settings */}
+        <Link
+          href="/admin/payment-settings"
+          className="bg-white rounded-lg border border-gray-200 p-8 hover:shadow-md transition-shadow group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 rounded-lg bg-blue-100">
+              <CreditCard className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-gray-900">
+            Payment Settings
+          </h3>
+          <p className="text-gray-600">
+            Configure payment links and UPI settings
+          </p>
+        </Link>
+
         {/* Contact Management */}
         <Link
           href="/admin/contacts"
@@ -102,7 +210,7 @@ export default function AdminPage() {
             </div>
           </div>
           <h3 className="text-xl font-bold mb-2 text-gray-900">
-            Admin Dashboard
+            User Dashboard
           </h3>
           <p className="text-gray-600">
             View platform as a regular user

@@ -34,13 +34,20 @@ const serviceSchema = new Schema(
     // Full description
     description: { type: String, trim: true },
 
-    // Enhanced status options
+    // Enhanced status options with approval workflow
     status: { 
       type: String, 
-      enum: ["active", "inactive", "out_of_stock"], 
-      default: "active", 
+      enum: ["pending_approval", "approved", "rejected", "active", "inactive", "out_of_stock"], 
+      default: "pending_approval", 
       index: true 
     },
+    
+    // Approval tracking
+    approvedAt: { type: Date, default: null },
+    approvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    rejectedAt: { type: Date, default: null },
+    rejectedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+    rejectionReason: { type: String, trim: true },
     
     // Featured flag for highlighting
     isFeatured: { type: Boolean, default: false },

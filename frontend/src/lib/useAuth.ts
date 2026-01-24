@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -10,6 +10,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((s) => s.user.profile);
+  const [loading, setLoading] = useState(true);
 
   // Initial load from localStorage if no user in Redux state
   useEffect(() => {
@@ -38,6 +39,7 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        setLoading(true);
         const res = await apiFetch("/api/me");
         const body = await readApiBody(res);
         
@@ -50,11 +52,11 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
           }
         }
         
-        let data: { user?: any; error?: string } | undefined;
+        let data: { user?: unknown; error?: string } | undefined;
         
         // Handle JSON response
         if (body.json) {
-          data = body.json as { user?: any; error?: string };
+          data = body.json as { user?: unknown; error?: string };
         } else if (body.text) {
           // Handle non-JSON responses (like HTML error pages)
           try {
@@ -72,10 +74,10 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
         
         // Update Redux state if we have valid user data
-        if (data && data.user) {
+        if (data && data.user && typeof data.user === 'object' && data.user !== null) {
           // Only update if user is different from current Redux state
           if (!currentUser || JSON.stringify(currentUser) !== JSON.stringify(data.user)) {
-            dispatch(setUserProfile(data.user));
+            dispatch(setUserProfile(data.user as Record<string, unknown>));
             // Also update localStorage for persistence
             if (typeof window !== 'undefined') {
               localStorage.setItem('user', JSON.stringify(data.user));
@@ -84,15 +86,19 @@ export function useAuth(options?: { requireAdmin?: boolean }) {
         }
         
         // Check if admin is required
-        if (options?.requireAdmin && data?.user?.role !== "admin") {
+        if (options?.requireAdmin && data?.user && typeof data.user === 'object' && 'role' in data.user && data.user.role !== "admin") {
           router.push("/dashboard");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
         // Don't automatically redirect on auth errors, let components handle it
+      } finally {
+        setLoading(false);
       }
     };
 
     checkAuth();
   }, [router, options?.requireAdmin, dispatch, currentUser]);
+
+  return { user: currentUser, loading };
 }

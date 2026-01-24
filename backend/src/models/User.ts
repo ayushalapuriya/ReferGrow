@@ -1,10 +1,12 @@
 import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
 
-export type UserRole = "admin" | "user";
+export type UserRole = "super_admin" | "admin" | "moderator" | "user";
 
 export type BinaryPosition = "left" | "right";
 
 export type UserStatus = "active" | "suspended" | "deleted";
+
+export type UserActivityStatus = "active" | "inactive";
 
 const userSchema = new Schema(
   {
@@ -14,7 +16,7 @@ const userSchema = new Schema(
     name: { type: String, trim: true, default: "" },
     email: { type: String, unique: true, lowercase: true, trim: true, sparse: true },
     passwordHash: { type: String, required: true },
-    role: { type: String, enum: ["admin", "user"], required: true, default: "user" },
+    role: { type: String, enum: ["super_admin", "admin", "moderator", "user"], required: true, default: "user" },
     isVerified: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     otp: { type: String, default: null },
@@ -34,7 +36,6 @@ const userSchema = new Schema(
     industryType: { type: String, trim: true },
     businessDescription: { type: String, trim: true },
     gstin: { type: String, trim: true },
-    panNumber: { type: String, trim: true },
     isGSTRegistered: { type: Boolean, default: false },
     enableEInvoicing: { type: Boolean, default: false },
     enableTDS: { type: Boolean, default: false },
@@ -46,6 +47,13 @@ const userSchema = new Schema(
 
     // Account status: active, suspended (blocked by admin), deleted (soft delete)
     status: { type: String, enum: ["active", "suspended", "deleted"], default: "active", index: true },
+    
+    // Activity status: tracks if user is currently logged in (active) or logged out (inactive)
+    activityStatus: { type: String, enum: ["active", "inactive"], default: "inactive", index: true },
+    
+    // Login tracking
+    lastLoginAt: { type: Date, default: null },
+    lastLogoutAt: { type: Date, default: null },
     
     // Session expiry: when set, user cannot login after this date
     sessionExpiresAt: { type: Date, default: null },
@@ -60,6 +68,48 @@ const userSchema = new Schema(
     // - null when parent is null (root)
     // - each parent can have at most 1 left + 1 right child
     position: { type: String, enum: ["left", "right"], default: null, index: true },
+
+    // KYC Information
+    kycStatus: { type: String, enum: ["pending", "submitted", "verified", "rejected"], default: "pending" },
+    kycSubmittedAt: { type: Date, default: null },
+    kycVerifiedAt: { type: Date, default: null },
+    kycRejectedAt: { type: Date, default: null },
+    kycRejectionReason: { type: String, trim: true },
+    
+    // Personal Information for KYC
+    fullName: { type: String, required: true, trim: true },
+    fatherName: { type: String, trim: true },
+    address: { type: String, trim: true },
+    dob: { type: Date, default: null },
+    occupation: { type: String, trim: true },
+    incomeSlab: { type: String, trim: true },
+    
+    // KYC Documents
+    profileImage: { type: String, trim: true },
+    panNumber: { type: String, trim: true, uppercase: true },
+    panDocument: { type: String, trim: true },
+    aadhaarNumber: { type: String, trim: true },
+    aadhaarDocument: { type: String, trim: true },
+    
+    // Bank Details
+    bankAccountName: { type: String, trim: true },
+    bankAccountNumber: { type: String, trim: true },
+    bankName: { type: String, trim: true },
+    bankAddress: { type: String, trim: true },
+    bankIfsc: { type: String, trim: true, uppercase: true },
+    bankDocument: { type: String, trim: true },
+    
+    // Nominees
+    nominees: [{
+      relation: { type: String, required: true, trim: true },
+      name: { type: String, required: true, trim: true },
+      dob: { type: Date, required: true },
+      mobile: { type: String, required: true, trim: true }
+    }],
+
+    // Payment Settings (for admin)
+    paymentLinkEnabled: { type: Boolean, default: false },
+    upiLink: { type: String, trim: true },
   },
   { timestamps: true }
 );
