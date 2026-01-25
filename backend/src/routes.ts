@@ -1820,6 +1820,25 @@ This message has been saved to the database with ID: ${contact._id}`,
     }
   });
 
+  app.get("/api/admin/users/:id", async (req: Request, res: Response) => {
+    try {
+      await requireAdminRole(req);
+      await connectToDatabase();
+
+      const user = await UserModel.findById(req.params.id)
+        .select("-passwordHash")
+        .populate("parent", "name email mobile");
+
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      return res.json(user);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Forbidden" ? 403 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
   // Service Approval Routes
   app.get("/api/admin/services/pending", async (req: Request, res: Response) => {
     try {

@@ -53,6 +53,7 @@ function UsersPage() {
     pages: 0
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   // Initialize filters from URL parameters
   useEffect(() => {
@@ -66,6 +67,20 @@ function UsersPage() {
   useEffect(() => {
     fetchUsers();
   }, [currentPage, searchTerm, roleFilter, statusFilter]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (activeDropdown && !target.closest('.dropdown-container')) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeDropdown]);
 
   const fetchUsers = async () => {
     try {
@@ -113,6 +128,33 @@ function UsersPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     }
+  };
+
+  const deleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user");
+      }
+
+      // Trigger real-time update across all tabs
+      globalThis.localStorage.setItem('admin-action-updated', Date.now().toString());
+      
+      await fetchUsers();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
+
+  const viewUserDetails = (userId: string) => {
+    router.push(`/admin/users/${userId}`);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -340,9 +382,46 @@ function UsersPage() {
                           <CheckCircle className="w-4 h-4" />
                         </button>
                       )}
-                      <button className="text-gray-400 hover:text-gray-600">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
+                      <div className="relative dropdown-container">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdown(activeDropdown === user._id ? null : user._id);
+                          }}
+                          className="text-gray-600 hover:text-gray-900"
+                          title="More Actions"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {activeDropdown === user._id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10 dropdown-container">
+                            <div className="py-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  viewUserDetails(user._id);
+                                  setActiveDropdown(null);
+                                }}
+                                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteUser(user._id);
+                                  setActiveDropdown(null);
+                                }}
+                                className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete User
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
