@@ -40,7 +40,7 @@ export default function RootLayout({
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-9 h-9 rounded-lg bg-gradient-to-br flex items-center justify-center shadow-sm">
-                    <span className="text-2xl font-bold text-blue-600">▼</span>
+                    <span className="text-2xl">🌱</span>
                   </div>
                   <h3 className="font-bold text-lg text-gray-900">ReferGrow</h3>
                 </div>
