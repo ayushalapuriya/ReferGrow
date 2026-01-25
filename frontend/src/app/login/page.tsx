@@ -6,18 +6,17 @@ import { useRouter } from "next/navigation";
 import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { useAppDispatch } from "@/store/hooks";
 import { setUserProfile } from "@/store/slices/userSlice";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
@@ -28,7 +27,7 @@ export default function LoginPage() {
       });
 
       const body = await readApiBody(res);
-      const data = body.json as any;
+      const data = body.json as { error?: string } | null;
       if (!res.ok) throw new Error(data?.error ?? body.text ?? "Login failed");
 
       // Give browser a beat to persist the cookie
@@ -39,14 +38,17 @@ export default function LoginPage() {
       try {
         const meRes = await apiFetch("/api/me");
         const meBody = await readApiBody(meRes);
-        const meJson = meBody.json as any;
+        const meJson = meBody.json as { user?: { role?: string } } | null;
         if (meRes.ok) {
-          dispatch(setUserProfile(meJson.user ?? null));
-          userRole = meJson.user?.role ?? "user";
+          dispatch(setUserProfile(meJson?.user ?? null));
+          userRole = meJson?.user?.role ?? "user";
         }
       } catch {
         // ignore
       }
+
+      // Show success toast
+      toast.success("Login successful! Redirecting...");
 
       // Redirect based on user role
       if (userRole === "admin") {
@@ -56,7 +58,9 @@ export default function LoginPage() {
       }
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -112,12 +116,6 @@ export default function LoginPage() {
                 required
               />
             </div>
-
-            {error && (
-              <div className="rounded-md bg-red-50 border border-red-200 p-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
 
             <button
               className="btn-primary w-full rounded-md px-4 py-2.5 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"

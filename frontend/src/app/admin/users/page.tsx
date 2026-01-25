@@ -2,8 +2,9 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { Users, Plus, Search, Filter, MoreVertical, Eye, Edit, Trash2, Ban, CheckCircle } from "lucide-react";
+import { Plus, Search, MoreVertical, Eye, Trash2, Ban, CheckCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface User {
   _id: string;
@@ -95,13 +96,16 @@ function UsersPage() {
 
       const response = await fetch(`/api/admin/users?${params}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch users");
       }
       const data: UsersResponse = await response.json();
       setUsers(data.users);
       setPagination(data.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -118,15 +122,28 @@ function UsersPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update user status");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to update user status");
       }
 
+      await response.json();
+      
       // Trigger real-time update across all tabs
       globalThis.localStorage.setItem('admin-action-updated', Date.now().toString());
       
+      // Show success notification
+      const statusMessages = {
+        active: "User activated successfully",
+        suspended: "User suspended successfully", 
+        deleted: "User deleted successfully"
+      };
+      toast.success(statusMessages[status]);
+      
       await fetchUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -141,15 +158,23 @@ function UsersPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete user");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete user");
       }
+
+      await response.json();
 
       // Trigger real-time update across all tabs
       globalThis.localStorage.setItem('admin-action-updated', Date.now().toString());
       
+      // Show success notification
+      toast.success("User deleted successfully");
+      
       await fetchUsers();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -214,8 +239,8 @@ function UsersPage() {
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
           <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center space-x-4 mb-4">
+            {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="flex items-center space-x-4 mb-4">
                 <div className="h-10 bg-gray-200 rounded w-10"></div>
                 <div className="flex-1">
                   <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>

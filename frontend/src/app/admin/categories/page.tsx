@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
-import { FolderOpen, Plus, Edit, Trash2, Search, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { FolderOpen, Plus, Search, Edit2, Trash2, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { toast } from "react-toastify";
 import AdminCategoryUpload from "./AdminCategoryUpload";
 
 interface Category {
@@ -108,14 +109,19 @@ export default function CategoriesPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create category");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to create category");
       }
 
+      toast.success("Category created successfully");
       await fetchCategories();
       setShowCreateModal(false);
       resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Category creation error:", err);
     }
   };
 
@@ -130,14 +136,19 @@ export default function CategoriesPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create subcategory");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to create subcategory");
       }
 
+      toast.success("Subcategory created successfully");
       await fetchSubcategories();
       setShowSubcategoryModal(false);
       resetForm();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Subcategory creation error:", err);
     }
   };
 
@@ -152,13 +163,18 @@ export default function CategoriesPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete category");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete category");
       }
 
+      toast.success("Category deleted successfully");
       await fetchCategories();
       await fetchSubcategories();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Category deletion error:", err);
     }
   };
 
@@ -173,12 +189,17 @@ export default function CategoriesPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete subcategory");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to delete subcategory");
       }
 
+      toast.success("Subcategory deleted successfully");
       await fetchSubcategories();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Subcategory deletion error:", err);
     }
   };
 

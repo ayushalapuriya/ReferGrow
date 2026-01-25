@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, User, Mail, Phone, Calendar, Shield, Activity, Clock } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface UserDetails {
   _id: string;
@@ -45,13 +46,17 @@ export default function UserDetailsPage() {
       const response = await fetch(`/api/admin/users/${userId}`);
       
       if (!response.ok) {
-        throw new Error("Failed to fetch user details");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to fetch user details");
       }
       
       const userData = await response.json();
       setUser(userData);
+      toast.success("User details loaded successfully");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

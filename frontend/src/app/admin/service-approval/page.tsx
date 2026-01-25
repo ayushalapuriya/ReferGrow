@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
 import { Settings, CheckCircle, XCircle, Clock, Eye, MoreVertical, Search } from "lucide-react";
+import { toast } from "react-toastify";
 
 interface Service {
   _id: string;
@@ -89,12 +90,16 @@ export default function ServiceApprovalPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to approve service");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to approve service");
       }
 
+      toast.success("Service approved successfully");
       await fetchPendingServices();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -109,14 +114,18 @@ export default function ServiceApprovalPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to reject service");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to reject service");
       }
 
       setShowRejectModal(false);
       setRejectionReason("");
+      toast.success("Service rejected successfully");
       await fetchPendingServices();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 

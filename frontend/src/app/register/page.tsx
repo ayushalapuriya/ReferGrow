@@ -7,6 +7,7 @@ import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { Gift } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { setUserProfile } from "@/store/slices/userSlice";
+import { toast } from "react-toastify";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,12 +17,10 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
 
     try {
@@ -48,6 +47,9 @@ export default function RegisterPage() {
         // ignore
       }
 
+      // Show success toast
+      toast.success("Account created successfully! Redirecting...");
+
       // Redirect based on user role
       if (userRole === "admin") {
         router.push("/admin");
@@ -56,7 +58,9 @@ export default function RegisterPage() {
       }
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      toast.error(errorMessage);
+      console.error("Registration error:", err);
     } finally {
       setLoading(false);
     }
@@ -153,12 +157,6 @@ export default function RegisterPage() {
                 I accept the <span className="font-medium text-blue-600">Terms &amp; Conditions</span>
               </span>
             </label>
-
-            {error && (
-              <div className="rounded-md bg-red-50 border border-red-200 p-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
 
             <button
               className="btn-primary w-full rounded-md px-4 py-2.5 font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
