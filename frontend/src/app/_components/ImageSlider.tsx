@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play, Users, Clock, Zap, Network, Shield } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, Users, Clock, Zap, Network, Shield, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import { apiFetch } from "@/lib/apiClient";
 
