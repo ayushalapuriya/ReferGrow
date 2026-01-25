@@ -542,6 +542,88 @@ export function registerRoutes(app: Express) {
     }
   });
 
+  // Update Profile Image (without upload)
+  app.put("/api/profile/update-profile-image", async (req, res) => {
+    try {
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      const { profileImage } = req.body;
+
+      if (!profileImage) {
+        return res.status(400).json({ error: "Profile image URL is required" });
+      }
+
+      // Update user's profileImage field
+      const user = await UserModel.findByIdAndUpdate(
+        ctx.userId,
+        { profileImage },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      console.log('Profile image updated successfully for user:', ctx.userId, 'Image URL:', user.profileImage);
+
+      return res.json({ 
+        message: "Profile image updated successfully",
+        profileImage: user.profileImage,
+        success: true
+      });
+    } catch (err: unknown) {
+      console.error('Profile image update error:', err);
+      
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      
+      return res.status(status).json({ error: msg, success: false });
+    }
+  });
+
+  // Get Previously Uploaded Profile Images
+  app.get("/api/uploads/profile-images", async (req, res) => {
+    try {
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      // Get the uploads directory path
+      const fs = require('fs');
+      const path = require('path');
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'profile-images');
+
+      // Check if directory exists
+      if (!fs.existsSync(uploadsDir)) {
+        return res.json({ images: [] });
+      }
+
+      // Read all files in the profile-images directory
+      const files = fs.readdirSync(uploadsDir);
+      
+      // Filter for image files and create URLs
+      const imageFiles = files
+        .filter((file: string) => {
+          const ext = path.extname(file).toLowerCase();
+          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+        })
+        .map((file: string) => `/uploads/profile-images/${file}`)
+        .sort((a: string, b: string) => {
+          // Sort by modification time (newest first)
+          const statA = fs.statSync(path.join(uploadsDir, path.basename(a)));
+          const statB = fs.statSync(path.join(uploadsDir, path.basename(b)));
+          return statB.mtime.getTime() - statA.mtime.getTime();
+        });
+
+      return res.json({ images: imageFiles });
+    } catch (err: unknown) {
+      console.error('Failed to fetch profile images:', err);
+      const msg = err instanceof Error ? err.message : "Internal server error";
+      const status = msg === "Unauthorized" ? 401 : 500;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
   // Public services
   app.get("/api/services", async (_req, res) => {
     try {
