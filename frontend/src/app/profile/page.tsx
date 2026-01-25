@@ -6,7 +6,7 @@ import { User, Camera, Save, Upload, Building, Phone, Mail, Globe, MapPin, Credi
 import { useAppDispatch } from "@/store/hooks";
 import { apiFetch, apiUrl } from "@/lib/apiClient";
 import { showToast } from "@/lib/toast";
-import { useFileValidation } from "@/lib/hooks";
+import { useFileValidation, useFormValidation, commonValidationRules } from "@/lib/hooks";
 
 interface UserProfile {
   id: string;
@@ -107,6 +107,33 @@ export default function ProfilePage() {
     enableTDS: false,
     enableTCS: false,
   });
+
+  // Form validation for company info
+  const companyValidationRules = {
+    businessName: commonValidationRules.businessName,
+    companyEmail: commonValidationRules.email,
+    website: commonValidationRules.website,
+  };
+
+  const {
+    data: companyFormData,
+    errors: companyErrors,
+    touched: companyTouched,
+    isValid: isCompanyValid,
+    handleChange: handleCompanyChange,
+    handleBlur: handleCompanyBlur,
+    validateForm: validateCompanyForm,
+    setError: setCompanyError
+  } = useFormValidation(companyValidationRules, {
+    validateOnChange: true,
+    validateOnBlur: true,
+    initialData: companyInfo
+  });
+
+  // Update companyInfo when form data changes
+  useEffect(() => {
+    setCompanyInfo(companyFormData as any);
+  }, [companyFormData]);
 
   useEffect(() => {
     loadProfile();
@@ -297,6 +324,13 @@ export default function ProfilePage() {
   };
 
   const saveCompanyInfo = async () => {
+    // Validate form before saving
+    const validationResult = validateCompanyForm();
+    if (!validationResult.isValid) {
+      showToast.error("Please fix the errors in the form");
+      return;
+    }
+
     setSaving(true);
     try {
       const res = await apiFetch("/api/profile/business", {
@@ -600,11 +634,22 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
                   <input
-                    type="url"
+                    type="text"
                     value={companyInfo.website}
-                    onChange={(e) => setCompanyInfo({ ...companyInfo, website: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => handleCompanyChange('website', e.target.value)}
+                    onBlur={() => handleCompanyBlur('website')}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      companyTouched.website && companyErrors.website 
+                        ? 'border-red-500' 
+                        : 'border-gray-300'
+                    }`}
+                    placeholder="www.example.com"
                   />
+                  {companyTouched.website && companyErrors.website && (
+                    <div className="mt-1 text-sm text-red-600">
+                      {companyErrors.website}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="mt-6">

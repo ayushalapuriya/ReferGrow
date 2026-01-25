@@ -8,6 +8,7 @@ export interface ValidationRule {
   email?: boolean;
   phone?: boolean;
   url?: boolean;
+  website?: boolean;
   gstin?: boolean;
   pan?: boolean;
   pincode?: boolean;
@@ -61,6 +62,10 @@ export class ValidationUtils {
       return 'Please enter a valid URL';
     }
 
+    if (rules.website && !this.isValidWebsiteUrl(value)) {
+      return 'Please enter a valid website (e.g., www.example.com or example.com)';
+    }
+
     if (rules.gstin && !this.isValidGSTIN(value)) {
       return 'Please enter a valid GSTIN number';
     }
@@ -97,6 +102,12 @@ export class ValidationUtils {
     } catch {
       return false;
     }
+  }
+
+  static isValidWebsiteUrl(url: string): boolean {
+    // Check for www. and .com pattern, no HTTP/HTTPS required
+    const websiteRegex = /^(www\.)?[a-zA-Z0-9-]+\.com(\.[a-zA-Z]{2,})?$/;
+    return websiteRegex.test(url.toLowerCase());
   }
 
   static isValidGSTIN(gstin: string): boolean {
@@ -171,7 +182,7 @@ export const commonValidationRules = {
   },
   website: {
     required: false,
-    url: true
+    website: true
   },
   gstin: {
     required: false,
