@@ -6,6 +6,7 @@ import { Package, ShoppingCart } from "lucide-react";
 import { formatINR } from "@/lib/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearCart, removeItem, updateQty } from "@/store/slices/cartSlice";
+import { showToast } from "@/lib/toast";
 
 export default function CartPage() {
   const dispatch = useAppDispatch();
@@ -172,7 +173,7 @@ export default function CartPage() {
                   type="button"
                   onClick={() => {
                     // Placeholder: integrate checkout / payment later
-                    alert("Checkout coming soon! We'll notify you when payment processing is live.");
+                    showToast.info("Checkout coming soon! We'll notify you when payment processing is live.");
                   }}
                 >
                   Proceed to Checkout

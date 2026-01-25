@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { User, Camera, Save, Upload, Building, Phone, Mail, Globe, MapPin, CreditCard, FileText, Settings, ShoppingBag, Cog } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { apiFetch } from "@/lib/apiClient";
+import { showToast } from "@/lib/toast";
 
 interface UserProfile {
   id: string;
@@ -165,7 +166,7 @@ export default function ProfilePage() {
 
   const uploadProfileImage = async () => {
     if (!profileImage) {
-      alert('Please select an image first');
+      showToast.warning('Please select an image first');
       return;
     }
     
@@ -197,6 +198,7 @@ export default function ProfilePage() {
       setProfileImage(null);
       setTimeout(() => setSuccessMessage(""), 3000);
       
+      showToast.success("Profile image uploaded successfully!");
       // Reload profile to get updated image
       await loadProfile();
       
@@ -206,7 +208,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
-      alert(`Failed to upload profile image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showToast.error(`Failed to upload profile image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -233,7 +235,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update basic info:", error);
-      alert("Failed to update basic information");
+      showToast.error("Failed to update basic information");
     } finally {
       setSaving(false);
     }
@@ -257,7 +259,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update company info:", error);
-      alert("Failed to update company information");
+      showToast.error("Failed to update company information");
     } finally {
       setSaving(false);
     }
@@ -281,7 +283,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update address info:", error);
-      alert("Failed to update address information");
+      showToast.error("Failed to update address information");
     } finally {
       setSaving(false);
     }
@@ -305,7 +307,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update business settings:", error);
-      alert("Failed to update business settings");
+      showToast.error("Failed to update business settings");
     } finally {
       setSaving(false);
     }
@@ -329,7 +331,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update tax settings:", error);
-      alert("Failed to update tax settings");
+      showToast.error("Failed to update tax settings");
     } finally {
       setSaving(false);
     }

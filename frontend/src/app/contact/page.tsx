@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Phone, Clock } from "lucide-react";
 import { apiFetch } from "@/lib/apiClient";
+import { showToast } from "@/lib/toast";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -25,14 +26,14 @@ export default function ContactPage() {
       });
       
       if (response.ok) {
-        alert("Thank you for your message! We'll get back to you soon.");
+        showToast.success("Thank you for your message! We'll get back to you soon.");
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         const errorData = await response.json();
-        alert(errorData?.error || "Failed to send message. Please try again.");
+        showToast.error(errorData?.error || "Failed to send message. Please try again.");
       }
     } catch (error) {
-      alert("Failed to send message. Please try again.");
+      showToast.error("Failed to send message. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
