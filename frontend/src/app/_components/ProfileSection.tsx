@@ -5,7 +5,7 @@ import Link from "next/link";
 import { User, ChevronDown, LogOut, Settings, Link as LinkIcon, UserCircle, ShoppingBag, Home, Users, Image as ImageIcon } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { clearUserProfile } from "@/store/slices/userSlice";
-import { apiFetch } from "@/lib/apiClient";
+import { apiFetch, apiUrl } from "@/lib/apiClient";
 
 export default function ProfileSection() {
   const user = useAppSelector((s) => s.user.profile);
@@ -126,10 +126,10 @@ export default function ProfileSection() {
             user.profileImage && typeof user.profileImage === 'string' ? (
               <img 
                 src={
-                  user.profileImage.startsWith('http') 
+                  user.profileImage?.startsWith('http') 
                     ? user.profileImage 
-                    : user.profileImage.startsWith('/uploads')
-                    ? `http://localhost:4000${user.profileImage}`
+                    : user.profileImage?.startsWith('/uploads')
+                    ? apiUrl(user.profileImage)
                     : user.profileImage
                 }
                 alt="Profile" 

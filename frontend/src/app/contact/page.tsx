@@ -1,21 +1,58 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, Clock } from "lucide-react";
+import { Mail, Phone, Clock, AlertCircle } from "lucide-react";
 import { apiFetch } from "@/lib/apiClient";
 import { showToast } from "@/lib/toast";
+import { useFormValidation, commonValidationRules } from "@/lib/hooks";
+
+interface ContactFormData extends Record<string, string> {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: ""
+  const validationRules = {
+    name: commonValidationRules.name,
+    email: commonValidationRules.email,
+    subject: commonValidationRules.subject,
+    message: commonValidationRules.message
+  };
+
+  const {
+    data: formData,
+    errors,
+    touched,
+    isValid,
+    handleChange,
+    handleBlur,
+    validateForm,
+    resetForm
+  } = useFormValidation<ContactFormData>(validationRules, {
+    validateOnChange: true,
+    validateOnBlur: true,
+    initialData: {
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    }
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate all fields
+    const validationResult = validateForm();
+    if (!validationResult.isValid) {
+      showToast.error("Please fix the errors in the form");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -27,7 +64,7 @@ export default function ContactPage() {
       
       if (response.ok) {
         showToast.success("Thank you for your message! We'll get back to you soon.");
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        resetForm();
       } else {
         const errorData = await response.json();
         showToast.error(errorData?.error || "Failed to send message. Please try again.");
@@ -39,9 +76,14 @@ export default function ContactPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    handleChange(name as keyof ContactFormData, value);
+  };
+
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name } = e.target;
+    handleBlur(name as keyof ContactFormData);
   };
 
   return (
@@ -70,11 +112,23 @@ export default function ContactPage() {
                     id="name"
                     name="name"
                     value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      touched.name && errors.name 
+                        ? 'border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="John Doe"
-                    required
+                    aria-invalid={touched.name && !!errors.name}
+                    aria-describedby={errors.name ? 'name-error' : undefined}
                   />
+                  {touched.name && errors.name && (
+                    <div id="name-error" className="mt-1 flex items-center text-sm text-red-600">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.name}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -86,11 +140,23 @@ export default function ContactPage() {
                     id="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      touched.email && errors.email 
+                        ? 'border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="john@example.com"
-                    required
+                    aria-invalid={touched.email && !!errors.email}
+                    aria-describedby={errors.email ? 'email-error' : undefined}
                   />
+                  {touched.email && errors.email && (
+                    <div id="email-error" className="mt-1 flex items-center text-sm text-red-600">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.email}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -102,11 +168,23 @@ export default function ContactPage() {
                     id="subject"
                     name="subject"
                     value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
+                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      touched.subject && errors.subject 
+                        ? 'border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="How can we help you?"
-                    required
+                    aria-invalid={touched.subject && !!errors.subject}
+                    aria-describedby={errors.subject ? 'subject-error' : undefined}
                   />
+                  {touched.subject && errors.subject && (
+                    <div id="subject-error" className="mt-1 flex items-center text-sm text-red-600">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.subject}
+                    </div>
+                  )}
                 </div>
                 
                 <div>
@@ -117,17 +195,29 @@ export default function ContactPage() {
                     id="message"
                     name="message"
                     value={formData.message}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
+                    onBlur={handleInputBlur}
                     rows={4}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      touched.message && errors.message 
+                        ? 'border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="Tell us more about how we can assist you..."
-                    required
+                    aria-invalid={touched.message && !!errors.message}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
                   />
+                  {touched.message && errors.message && (
+                    <div id="message-error" className="mt-1 flex items-center text-sm text-red-600">
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      {errors.message}
+                    </div>
+                  )}
                 </div>
                 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isValid}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
                 >
                   {isSubmitting ? "Sending..." : "Send Message"}

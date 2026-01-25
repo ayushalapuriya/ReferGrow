@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { User, Camera, Save, Upload, Building, Phone, Mail, Globe, MapPin, CreditCard, FileText, Settings, ShoppingBag, Cog } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
-import { apiFetch } from "@/lib/apiClient";
+import { apiFetch, apiUrl } from "@/lib/apiClient";
 import { showToast } from "@/lib/toast";
+import { useFileValidation } from "@/lib/hooks";
 
 interface UserProfile {
   id: string;
@@ -53,8 +54,21 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState("basic");
   const [successMessage, setSuccessMessage] = useState("");
-  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+
+  // File validation for profile image
+  const {
+    file: profileImage,
+    error: imageError,
+    isValid: isImageValid,
+    setFile: setProfileImage,
+    setError: setImageError,
+    reset: resetImageValidation
+  } = useFileValidation({
+    maxSize: 2 * 1024 * 1024, // 2MB
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+    validateOnChange: true
+  });
 
   // Form states for different sections
   const [basicInfo, setBasicInfo] = useState({
@@ -98,52 +112,76 @@ export default function ProfilePage() {
     loadProfile();
   }, []);
 
+  const handleAuthError = (error: unknown, defaultMessage: string) => {
+    const errorMessage = error instanceof Error ? error.message : defaultMessage;
+    
+    // Show specific error for authentication issues
+    if (errorMessage.includes('signature') || errorMessage.includes('token')) {
+      showToast.error("Authentication failed. Please log in again.");
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2000);
+      return;
+    }
+    
+    showToast.error(errorMessage);
+  };
+
   const loadProfile = async () => {
     try {
       const res = await apiFetch("/api/profile");
       const data = await res.json();
-      setProfile(data.user);
+      
+      // Check if user data exists in response
+      const userData = data.user || data;
+      
+      if (!userData) {
+        console.error("No user data found in response:", data);
+        return;
+      }
+      
+      setProfile(userData);
       
       // Initialize form states
       setBasicInfo({
-        name: data.user.name || "",
-        email: data.user.email || "",
+        name: userData.name || "",
+        email: userData.email || "",
       });
       
       setCompanyInfo({
-        businessName: data.user.businessName || "",
-        companyPhone: data.user.companyPhone || "",
-        companyEmail: data.user.companyEmail || "",
-        website: data.user.website || "",
-        businessDescription: data.user.businessDescription || "",
+        businessName: userData.businessName || "",
+        companyPhone: userData.companyPhone || "",
+        companyEmail: userData.companyEmail || "",
+        website: userData.website || "",
+        businessDescription: userData.businessDescription || "",
       });
       
       setAddressInfo({
-        billingAddress: data.user.billingAddress || "",
-        city: data.user.city || "",
-        state: data.user.state || "",
-        pincode: data.user.pincode || "",
+        billingAddress: userData.billingAddress || "",
+        city: userData.city || "",
+        state: userData.state || "",
+        pincode: userData.pincode || "",
       });
       
       setBusinessSettings({
-        businessType: data.user.businessType || "",
-        industryType: data.user.industryType || "",
-        language: data.user.language || "",
-        currencyCode: data.user.currencyCode || "INR",
-        currencySymbol: data.user.currencySymbol || "₹",
+        businessType: userData.businessType || "",
+        industryType: userData.industryType || "",
+        language: userData.language || "",
+        currencyCode: userData.currencyCode || "INR",
+        currencySymbol: userData.currencySymbol || "₹",
       });
       
       setTaxSettings({
-        gstin: data.user.gstin || "",
-        panNumber: data.user.panNumber || "",
-        isGSTRegistered: data.user.isGSTRegistered || false,
-        enableEInvoicing: data.user.enableEInvoicing || false,
-        enableTDS: data.user.enableTDS || false,
-        enableTCS: data.user.enableTCS || false,
+        gstin: userData.gstin || "",
+        panNumber: userData.panNumber || "",
+        isGSTRegistered: userData.isGSTRegistered || false,
+        enableEInvoicing: userData.enableEInvoicing || false,
+        enableTDS: userData.enableTDS || false,
+        enableTCS: userData.enableTCS || false,
       });
       
-      if (data.user.profileImage) {
-        setImagePreview(data.user.profileImage);
+      if (userData.profileImage) {
+        setImagePreview(userData.profileImage);
       }
     } catch (error) {
       console.error("Failed to load profile:", error);
@@ -167,6 +205,11 @@ export default function ProfilePage() {
   const uploadProfileImage = async () => {
     if (!profileImage) {
       showToast.warning('Please select an image first');
+      return;
+    }
+
+    if (!isImageValid) {
+      showToast.error(imageError || 'Invalid image file');
       return;
     }
     
@@ -195,7 +238,8 @@ export default function ProfilePage() {
       }
       
       setSuccessMessage("Profile image uploaded successfully!");
-      setProfileImage(null);
+      resetImageValidation();
+      setImagePreview("");
       setTimeout(() => setSuccessMessage(""), 3000);
       
       showToast.success("Profile image uploaded successfully!");
@@ -224,6 +268,7 @@ export default function ProfilePage() {
       
       if (res.ok) {
         setSuccessMessage(data.message);
+        showToast.success("Basic information updated successfully!");
         await loadProfile();
         
         // Trigger profile update event to refresh navbar
@@ -231,11 +276,21 @@ export default function ProfilePage() {
           window.dispatchEvent(new CustomEvent('profileUpdated'));
         }
       } else {
+        // Handle specific authentication errors
+        if (res.status === 401 || data.error?.includes('signature') || data.error?.includes('token')) {
+          showToast.error("Session expired. Please log in again.");
+          // Redirect to login after a short delay
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+          return;
+        }
+        
         throw new Error(data.error || "Update failed");
       }
     } catch (error) {
       console.error("Failed to update basic info:", error);
-      showToast.error("Failed to update basic information");
+      handleAuthError(error, "Failed to update basic information");
     } finally {
       setSaving(false);
     }
@@ -301,6 +356,7 @@ export default function ProfilePage() {
       
       if (res.ok) {
         setSuccessMessage(data.message);
+        showToast.success("Business settings updated successfully!");
         await loadProfile();
       } else {
         throw new Error(data.error || "Update failed");
@@ -360,14 +416,19 @@ export default function ProfilePage() {
                         imagePreview.startsWith('http') 
                           ? imagePreview 
                           : imagePreview.startsWith('/uploads')
-                          ? `http://localhost:4000${imagePreview}`
+                          ? apiUrl(imagePreview)
                           : imagePreview // base64 data URL
                       }
                       alt="Profile" 
                       className="w-20 h-20 rounded-full object-cover"
                       onError={(e) => {
                         console.error('Failed to load image:', imagePreview);
+                        // Hide the broken image and show fallback
                         e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.innerHTML = '<div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center"><svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>';
+                        }
                       }}
                     />
                   ) : (
@@ -391,13 +452,25 @@ export default function ProfilePage() {
               </div>
             </div>
             {profileImage && (
-              <button
-                onClick={uploadProfileImage}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Upload className="w-4 h-4" />
-                Upload Image
-              </button>
+              <div className="flex flex-col gap-2">
+                {imageError && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                    {imageError}
+                  </div>
+                )}
+                <button
+                  onClick={uploadProfileImage}
+                  disabled={!isImageValid}
+                  className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
+                    isImageValid 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  }`}
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Image
+                </button>
+              </div>
             )}
             <div className="flex gap-3">
               <Link
