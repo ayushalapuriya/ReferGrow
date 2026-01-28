@@ -72,6 +72,10 @@ const nextConfig: NextConfig = {
         source: "/health",
         destination: `${normalized}/health`,
       },
+      {
+        source: "/uploads/:path*",
+        destination: `${normalized}/uploads/:path*`,
+      },
     ];
   },
 };
