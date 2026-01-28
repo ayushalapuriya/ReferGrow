@@ -25,21 +25,37 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter for images only
+// File filter for images only with enhanced security
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  if (file.mimetype.startsWith("image/")) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only image files are allowed"));
+  // Check MIME type
+  if (!file.mimetype.startsWith("image/")) {
+    return cb(new Error("Only image files are allowed"));
   }
+  
+  // Check file extension
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+  const fileExtension = path.extname(file.originalname).toLowerCase();
+  
+  if (!allowedExtensions.includes(fileExtension)) {
+    return cb(new Error("Invalid file extension. Allowed: " + allowedExtensions.join(', ')));
+  }
+  
+  // Check filename for suspicious patterns
+  const suspiciousPatterns = [/\.php$/, /\.asp$/, /\.jsp$/, /\.exe$/, /\.bat$/, /\.sh$/];
+  if (suspiciousPatterns.some(pattern => pattern.test(file.originalname))) {
+    return cb(new Error("Suspicious file name detected"));
+  }
+  
+  cb(null, true);
 };
 
-// Configure multer
+// Configure multer with enhanced security
 export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 2 * 1024 * 1024, // Reduced to 2MB for better security
+    files: 1, // Only allow one file at a time
   },
 });
 
@@ -64,7 +80,7 @@ const importStorage = multer.diskStorage({
   }
 });
 
-// File filter for Excel/CSV files only
+// File filter for Excel/CSV files only with enhanced security
 const importFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   const allowedMimes = [
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -73,18 +89,34 @@ const importFileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFi
     "application/csv"
   ];
 
-  if (allowedMimes.includes(file.mimetype) || file.originalname.endsWith('.xlsx') || file.originalname.endsWith('.csv')) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only Excel (.xlsx) and CSV (.csv) files are allowed"));
+  // Check MIME type
+  if (!allowedMimes.includes(file.mimetype)) {
+    return cb(new Error("Invalid file type. Only Excel (.xlsx) and CSV (.csv) files are allowed"));
   }
+  
+  // Check file extension
+  const allowedExtensions = ['.xlsx', '.csv'];
+  const fileExtension = path.extname(file.originalname).toLowerCase();
+  
+  if (!allowedExtensions.includes(fileExtension)) {
+    return cb(new Error("Invalid file extension. Allowed: " + allowedExtensions.join(', ')));
+  }
+  
+  // Check filename for suspicious patterns
+  const suspiciousPatterns = [/\.php$/, /\.asp$/, /\.jsp$/, /\.exe$/, /\.bat$/, /\.sh$/, /\.js$/];
+  if (suspiciousPatterns.some(pattern => pattern.test(file.originalname))) {
+    return cb(new Error("Suspicious file name detected"));
+  }
+
+  cb(null, true);
 };
 
-// Configure multer for imports
+// Configure multer for imports with enhanced security
 export const importUpload = multer({
   storage: importStorage,
   fileFilter: importFileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit for imports
+    fileSize: 5 * 1024 * 1024, // Reduced to 5MB for imports
+    files: 1, // Only allow one file at a time
   },
 });

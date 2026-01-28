@@ -12,12 +12,22 @@ export type AuthTokenPayload = {
 };
 
 export async function signAuthToken(payload: AuthTokenPayload) {
-  // 7 days by default; adjust as needed.
+  // Shorter token lifetime for better security
   return new SignJWT({ role: payload.role, email: payload.email })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(payload.sub)
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime("15m") // 15 minutes instead of 7 days
+    .sign(secretKey);
+}
+
+// Refresh token function for longer-lived sessions
+export async function signRefreshToken(payload: AuthTokenPayload) {
+  return new SignJWT({ sub: payload.sub })
+    .setProtectedHeader({ alg: "HS256" })
+    .setSubject(payload.sub)
+    .setIssuedAt()
+    .setExpirationTime("7d") // 7 days for refresh token
     .sign(secretKey);
 }
 
@@ -40,4 +50,16 @@ export async function verifyAuthToken(token: string) {
     role,
     email,
   } satisfies AuthTokenPayload;
+}
+
+export async function verifyRefreshToken(token: string) {
+  const { payload } = await jwtVerify(token, secretKey);
+
+  if (!payload.sub || typeof payload.sub !== "string") {
+    throw new Error("Invalid refresh token subject");
+  }
+
+  return {
+    sub: payload.sub,
+  };
 }

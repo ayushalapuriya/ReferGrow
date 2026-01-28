@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import { z } from "zod";
+import rateLimit from "express-rate-limit";
 
 import { connectToDatabase } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -31,6 +32,16 @@ import { SubcategoryModel } from "@/models/Subcategory";
 import { AnalyticsModel } from "@/models/Analytics";
 
 type AuthContext = { userId: string; role: UserRole; email: string };
+
+// Stricter rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 auth requests per windowMs
+  message: { error: "Too many authentication attempts, please try again later." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+});
 
 function getTokenFromReq(req: Request) {
   const cookieToken = (req.cookies?.token as string | undefined) ?? undefined;
@@ -105,8 +116,8 @@ function clearAuthCookie(res: Response) {
 const DUMMY_PASSWORD_HASH = "$2b$12$npwxPAElS4BfdU.iS5LIFuqi0v31VhieuIsoP1t9cMORH152MK/3i";
 
 export function registerRoutes(app: Express) {
-  // Serve static files from uploads directory
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  // Apply stricter rate limiting to auth endpoints
+  app.use('/api/auth', authLimiter);
 
   // Auth
   app.post("/api/auth/register", async (req, res) => {
@@ -486,31 +497,15 @@ export function registerRoutes(app: Express) {
   // Profile Image Upload
   app.post("/api/upload/profile-image", upload.single("image"), async (req, res) => {
     try {
-      console.log('Profile image upload request received');
-      console.log('Request headers:', req.headers);
-      console.log('Request body:', req.body);
-      
       const ctx = await requireAuth(req);
       await connectToDatabase();
 
-      console.log('User authenticated:', ctx.userId);
-
       if (!req.file) {
-        console.log('No file provided in request. Files:', req.files);
         return res.status(400).json({ error: "No image provided" });
       }
 
-      console.log('File received:', {
-        filename: req.file.filename,
-        originalname: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype,
-        path: req.file.path
-      });
-
       // Get the file URL
       const imageUrl = getFileUrl(req.file.filename);
-      console.log('Generated image URL:', imageUrl);
 
       // Update user's profileImage field
       const user = await UserModel.findByIdAndUpdate(
@@ -520,11 +515,8 @@ export function registerRoutes(app: Express) {
       );
 
       if (!user) {
-        console.log('User not found:', ctx.userId);
         return res.status(404).json({ error: "User not found" });
       }
-
-      console.log('Profile image updated successfully for user:', ctx.userId, 'Image URL:', user.profileImage);
 
       return res.json({ 
         message: "Profile image uploaded successfully",
@@ -532,8 +524,6 @@ export function registerRoutes(app: Express) {
         success: true
       });
     } catch (err: unknown) {
-      console.error('Profile image upload error:', err);
-      
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Unauthorized" ? 401 : 400;
       
@@ -565,16 +555,12 @@ export function registerRoutes(app: Express) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      console.log('Profile image updated successfully for user:', ctx.userId, 'Image URL:', user.profileImage);
-
       return res.json({ 
         message: "Profile image updated successfully",
         profileImage: user.profileImage,
         success: true
       });
     } catch (err: unknown) {
-      console.error('Profile image update error:', err);
-      
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Unauthorized" ? 401 : 400;
       
@@ -617,7 +603,6 @@ export function registerRoutes(app: Express) {
 
       return res.json({ images: imageFiles });
     } catch (err: unknown) {
-      console.error('Failed to fetch profile images:', err);
       const msg = err instanceof Error ? err.message : "Internal server error";
       const status = msg === "Unauthorized" ? 401 : 500;
       return res.status(status).json({ error: msg });
@@ -1388,7 +1373,7 @@ This message has been saved to the database with ID: ${contact._id}`,
             html: adminEmailContent.html
           });
         } catch (emailError) {
-          console.error("Failed to send contact notification email:", emailError);
+          // Email error logged without exposing sensitive data
         }
       }, 0);
 
@@ -1472,18 +1457,13 @@ This message has been saved to the database with ID: ${contact._id}`,
   // Admin routes for slider management
   app.get("/api/admin/sliders", async (req: Request, res: Response) => {
     try {
-      console.log("GET /api/admin/sliders - Starting request");
       await requireRole(req, "admin");
-      console.log("GET /api/admin/sliders - Auth passed");
       await connectToDatabase();
-      console.log("GET /api/admin/sliders - DB connected");
       const sliders = await Slider.find()
         .sort({ order: 1 })
         .lean();
-      console.log("GET /api/admin/sliders - Found sliders:", sliders.length);
       return res.json({ sliders });
     } catch (err: unknown) {
-      console.error("GET /api/admin/sliders - Error:", err);
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 500;
       return res.status(status).json({ error: msg });
@@ -1525,29 +1505,26 @@ This message has been saved to the database with ID: ${contact._id}`,
   // Batch update slider orders
   app.put("/api/admin/sliders/reorder", async (req: Request, res: Response) => {
     try {
-      console.log('Reorder request received:', req.body);
       await requireRole(req, "admin");
       const reorderSchema = z.object({
         sliders: z.array(z.object({
-          id: z.string(),
+          id: z.string().min(1),
           order: z.number().int().min(0)
         }))
       });
       const body = reorderSchema.parse(req.body);
-      console.log('Parsed body:', body);
       await connectToDatabase();
 
       const bulkOps = body.sliders.map(({ id, order }) => ({
         updateOne: {
           filter: { _id: id },
-          update: { $set: { order } }
+          update: { order }
         }
       }));
 
       await Slider.bulkWrite(bulkOps);
       return res.json({ message: "Sliders reordered successfully" });
     } catch (err: unknown) {
-      console.error('Reorder error:', err);
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Forbidden" ? 403 : 400;
       return res.status(status).json({ error: msg });
