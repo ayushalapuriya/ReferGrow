@@ -75,6 +75,7 @@ export default function ProfilePage() {
   const [basicInfo, setBasicInfo] = useState({
     name: "",
     email: "",
+    mobile: "",
   });
 
   const [companyInfo, setCompanyInfo] = useState({
@@ -181,6 +182,7 @@ export default function ProfilePage() {
       setBasicInfo({
         name: userData.name || "",
         email: userData.email || "",
+        mobile: userData.mobile || "",
       });
       
       setCompanyInfo({
@@ -691,6 +693,18 @@ export default function ProfilePage() {
                     onChange={(e) => setBasicInfo({ ...basicInfo, email: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+                  <input
+                    type="tel"
+                    value={basicInfo.mobile || ""}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, mobile: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    minLength={10}
+                    maxLength={15}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Mobile number must be unique</p>
                 </div>
               </div>
               <div className="mt-6">

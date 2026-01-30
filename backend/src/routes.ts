@@ -376,6 +376,7 @@ export function registerRoutes(app: Express) {
     const schema = z.object({
       name: z.string().min(1).optional(),
       email: z.string().email().optional(),
+      mobile: z.string().min(10).max(15).optional(),
     }).refine((v) => Object.keys(v).length > 0, "No fields to update");
 
     try {
@@ -392,9 +393,19 @@ export function registerRoutes(app: Express) {
         if (existingEmail) return res.status(409).json({ error: "Email already in use" });
       }
 
+      // Check if mobile already exists (if updating mobile)
+      if (body.mobile) {
+        const existingMobile = await UserModel.findOne({ 
+          mobile: body.mobile,
+          _id: { $ne: ctx.userId }
+        }).select("_id");
+        if (existingMobile) return res.status(409).json({ error: "Mobile number already in use" });
+      }
+
       const updateData: any = {};
       if (body.name) updateData.name = body.name;
       if (body.email) updateData.email = body.email.toLowerCase();
+      if (body.mobile) updateData.mobile = body.mobile;
 
       const user = await UserModel.findByIdAndUpdate(
         ctx.userId, 
@@ -410,6 +421,7 @@ export function registerRoutes(app: Express) {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          mobile: user.mobile,
         }
       });
     } catch (err: unknown) {

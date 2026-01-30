@@ -13,6 +13,8 @@ export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -27,7 +29,7 @@ export default function RegisterPage() {
       const res = await apiFetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, referralCode, acceptedTerms }),
+        body: JSON.stringify({ name, fullName: name, mobile, countryCode, email, password, referralCode, acceptedTerms }),
       });
 
       const body = await readApiBody(res);
@@ -99,6 +101,46 @@ export default function RegisterPage() {
                 autoComplete="name"
                 placeholder="Enter your name"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="countryCode" className="block text-sm font-medium text-gray-700">Country Code</label>
+              <select
+                id="countryCode"
+                className="w-full rounded-md border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+              >
+                <option value="+91">🇮🇳 India (+91)</option>
+                <option value="+1">🇺🇸 United States (+1)</option>
+                <option value="+44">🇬🇧 United Kingdom (+44)</option>
+                <option value="+61">🇦🇺 Australia (+61)</option>
+                <option value="+1">🇨🇦 Canada (+1)</option>
+                <option value="+971">🇦🇪 UAE (+971)</option>
+                <option value="+65">🇸🇬 Singapore (+65)</option>
+                <option value="+60">🇲🇾 Malaysia (+60)</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">Mobile Number</label>
+              <div className="flex gap-2">
+                <div className="flex items-center px-3 py-2.5 border border-gray-300 rounded-md bg-gray-50 text-gray-700 min-w-[80px]">
+                  {countryCode}
+                </div>
+                <input
+                  id="mobile"
+                  className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  value={mobile}
+                  onChange={(e) => setMobile(e.target.value)}
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  minLength={10}
+                  maxLength={15}
+                  placeholder="Enter your mobile number"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
