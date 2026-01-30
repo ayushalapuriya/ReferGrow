@@ -123,14 +123,14 @@ export default function ProfileSection() {
       >
         <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
           {user ? (
-            user.profileImage && typeof user.profileImage === 'string' ? (
+            user.profileImage && typeof user.profileImage === 'string' && !user.profileImage.includes('anonymous') && (user.profileImage.startsWith('data:image/') || user.profileImage.startsWith('/uploads')) ? (
               <img 
                 src={
                   user.profileImage?.startsWith('http') 
                     ? user.profileImage 
                     : user.profileImage?.startsWith('/uploads')
                     ? apiUrl(user.profileImage)
-                    : user.profileImage
+                    : user.profileImage // base64 data URL
                 }
                 alt="Profile" 
                 className="w-6 h-6 rounded-full object-cover"

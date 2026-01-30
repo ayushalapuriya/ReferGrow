@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { User, Save, Upload, Building, Phone, Mail, Globe, MapPin, CreditCard, FileText, Settings, ShoppingBag, Cog, Edit, X, Image as ImageIcon } from "lucide-react";
+import { User, Save, Upload, Building, MapPin, CreditCard, Settings, ShoppingBag, Cog, Edit, X } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { apiFetch, apiUrl } from "@/lib/apiClient";
 import { showToast } from "@/lib/toast";
@@ -138,14 +138,31 @@ export default function ProfilePage() {
   }, [companyFormData]);
 
   // Image management states
-  const [showImageModal, setShowImageModal] = useState(false);
-  const [previousImages, setPreviousImages] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [showUploadButton, setShowUploadButton] = useState(false);
-  const [selectedImageType, setSelectedImageType] = useState<'new' | 'previous' | null>(null);
 
   useEffect(() => {
     loadProfile();
+    
+    // Check and clear corrupted profile image
+    const checkAndClearCorruptedImage = async () => {
+      try {
+        const res = await apiFetch("/api/profile");
+        const data = await res.json();
+        const user = data.user || data;
+        
+        if (user.profileImage && user.profileImage.includes('anonymous')) {
+          console.log('Found corrupted profile image, clearing...');
+          await apiFetch("/api/profile/clear-image", { method: "POST" });
+          // Reload profile after clearing
+          loadProfile();
+        }
+      } catch (error) {
+        console.error('Error checking profile image:', error);
+      }
+    };
+    
+    checkAndClearCorruptedImage();
   }, []);
 
   const handleAuthError = (error: unknown, defaultMessage: string) => {
@@ -217,7 +234,7 @@ export default function ProfilePage() {
         enableTCS: userData.enableTCS || false,
       });
       
-      if (userData.profileImage) {
+      if (userData.profileImage && !userData.profileImage.includes('anonymous') && (userData.profileImage.startsWith('data:image/') || userData.profileImage.startsWith('/uploads'))) {
         setImagePreview(userData.profileImage);
       }
     } catch (error) {
@@ -227,84 +244,24 @@ export default function ProfilePage() {
     }
   };
 
-  const loadPreviousImages = async () => {
-    try {
-      const res = await apiFetch("/api/uploads/profile-images");
-      if (res.ok) {
-        const data = await res.json();
-        setPreviousImages(data.images || []);
-      }
-    } catch (error) {
-      console.error("Failed to load previous images:", error);
-    }
-  };
-
-  const handleImageSelect = (imageUrl: string) => {
-    setImagePreview(imageUrl);
-    setSelectedImageType('previous');
-    setShowUploadButton(true);
-    setShowImageModal(false); // Auto-close modal after selection
-    showToast.info("Image selected. Click 'Update Profile' to save changes.");
-  };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setProfileImage(file);
-      setSelectedImageType('new');
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
         setShowUploadButton(true);
-        setShowImageModal(false); // Auto-close modal after file selection
         showToast.info("Image selected. Click 'Upload Image' to save changes.");
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleNewImageUpload = () => {
-    setShowImageModal(false);
-    // Trigger file input click
-    document.getElementById('profile-image-input')?.click();
-  };
-
-  const handleEditClick = () => {
-    setShowImageModal(true);
-    loadPreviousImages();
-  };
-
   const uploadProfileImage = async () => {
     setIsUploading(true);
     
     try {
-      // Handle previous image selection (no upload needed, just update profile)
-      if (selectedImageType === 'previous' && imagePreview) {
-        const res = await apiFetch("/api/profile/update-profile-image", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ profileImage: imagePreview }),
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          showToast.success("Profile image updated successfully!");
-          setShowUploadButton(false);
-          setSelectedImageType(null);
-          await loadProfile();
-          
-          // Trigger profile update event to refresh navbar
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('profileUpdated'));
-          }
-        } else {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to update profile image");
-        }
-        return;
-      }
-
-      // Handle new image upload
       if (!profileImage) {
         showToast.warning('Please select an image first');
         return;
@@ -339,7 +296,6 @@ export default function ProfilePage() {
       
       showToast.success("Profile image uploaded successfully!");
       setShowUploadButton(false);
-      setSelectedImageType(null);
       setProfileImage(null);
       resetImageValidation();
       await loadProfile();
@@ -349,9 +305,9 @@ export default function ProfilePage() {
         window.dispatchEvent(new CustomEvent('profileUpdated'));
       }
     } catch (error) {
-      console.error("Failed to upload/update image:", error);
+      console.error("Failed to upload image:", error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      showToast.error(`Failed to update profile image: ${errorMessage}`);
+      showToast.error(`Failed to upload profile image: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }
@@ -360,7 +316,6 @@ export default function ProfilePage() {
   const cancelImageSelection = () => {
     setImagePreview(profile?.profileImage || '');
     setShowUploadButton(false);
-    setSelectedImageType(null);
     setProfileImage(null);
     resetImageValidation();
     showToast.info("Image selection cancelled");
@@ -553,9 +508,9 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <button 
-                  onClick={handleEditClick}
+                  onClick={() => document.getElementById('profile-image-input')?.click()}
                   className="absolute bottom-0 right-0 bg-blue-600 rounded-full p-1 cursor-pointer hover:bg-blue-700 transition-colors"
-                  title="Edit profile picture"
+                  title="Change profile picture"
                 >
                   <Edit className="w-4 h-4 text-white" />
                 </button>
@@ -575,7 +530,7 @@ export default function ProfilePage() {
             </div>
             {showUploadButton && (
               <div className="flex flex-col gap-2">
-                {selectedImageType === 'new' && imageError && (
+                {imageError && (
                   <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
                     {imageError}
                   </div>
@@ -583,11 +538,9 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={uploadProfileImage}
-                    disabled={isUploading || (selectedImageType === 'new' && !isImageValid)}
+                    disabled={isUploading || !isImageValid}
                     className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-                      isUploading 
-                        ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                        : selectedImageType === 'new' && !isImageValid
+                      isUploading || !isImageValid
                         ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
@@ -600,7 +553,7 @@ export default function ProfilePage() {
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        {selectedImageType === 'previous' ? 'Update Profile' : 'Upload Image'}
+                        Upload Image
                       </>
                     )}
                   </button>
@@ -984,82 +937,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Image Selection Modal */}
-      {showImageModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Update Profile Picture</h2>
-              <button
-                onClick={() => setShowImageModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {/* Upload New Image Option */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
-                <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <h3 className="text-lg font-medium mb-2">Upload New Image</h3>
-                <p className="text-gray-600 mb-4">Choose a new image from your device</p>
-                <button
-                  onClick={() => {
-                    setShowImageModal(false);
-                    document.getElementById('profile-image-input')?.click();
-                  }}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Upload className="w-4 h-4 inline mr-2" />
-                  Upload Image
-                </button>
-              </div>
-
-              {/* Previously Uploaded Images */}
-              {previousImages.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Previously Uploaded Images</h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                    {previousImages.map((imageUrl, index) => (
-                      <div
-                        key={index}
-                        className="relative group cursor-pointer"
-                        onClick={() => handleImageSelect(imageUrl)}
-                      >
-                        <img
-                          src={
-                            imageUrl.startsWith('http') 
-                              ? imageUrl 
-                              : imageUrl.startsWith('/uploads')
-                              ? apiUrl(imageUrl)
-                              : imageUrl
-                          }
-                          alt={`Previous upload ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border-2 border-gray-200 group-hover:border-blue-400 transition-colors"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder-image.jpg';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 rounded-lg transition-all flex items-center justify-center">
-                          <Edit className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {previousImages.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <ImageIcon className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No previously uploaded images found</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
   );
 }
