@@ -13,7 +13,7 @@ import { distributeBusinessVolumeWithSession } from "@/lib/bvDistribution";
 import { buildReferralTree } from "@/lib/referralTree";
 import { getBusinessOpportunityEmailContent } from "@/lib/businessOpportunity";
 import { sendEmail } from "@/lib/email";
-import { upload, getFileUrl, importUpload } from "@/lib/upload";
+import { importUpload } from "@/lib/upload";
 import { processBulkServiceUpload, generateServiceImportTemplate } from "@/lib/bulkServiceImport";
 import { processBulkCategoryUpload, generateCategoryImportTemplate } from "@/lib/bulkCategoryImport";
 import path from "path";
@@ -506,23 +506,83 @@ export function registerRoutes(app: Express) {
     }
   });
 
-  // Profile Image Upload
-  app.post("/api/upload/profile-image", upload.single("image"), async (req, res) => {
+  // Profile Image Upload (Database Storage)
+  app.post("/api/upload/profile-image", async (req, res) => {
     try {
       const ctx = await requireAuth(req);
       await connectToDatabase();
 
-      if (!req.file) {
-        return res.status(400).json({ error: "No image provided" });
-      }
+      // Import multer for file processing
+      const multer = require('multer');
+      
+      // Configure multer to use memory storage (no file system)
+      const storage = multer.memoryStorage();
+      const upload = multer({
+        storage,
+        limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+        fileFilter: (req: any, file: Express.Multer.File, cb: any) => {
+          if (!file.mimetype.startsWith("image/")) {
+            return cb(new Error("Only image files are allowed"));
+          }
+          cb(null, true);
+        }
+      });
 
-      // Get the file URL
-      const imageUrl = getFileUrl(req.file.filename);
+      // Process the upload
+      upload.single("image")(req, res, async (err: any) => {
+        if (err) {
+          return res.status(400).json({ error: err.message });
+        }
 
-      // Update user's profileImage field
+        if (!req.file) {
+          return res.status(400).json({ error: "No image provided" });
+        }
+
+        try {
+          // Import image storage utilities
+          const { storeImageInDatabase } = await import("./lib/imageStorage");
+          
+          // Store image in database as base64
+          const imageDataUrl = await storeImageInDatabase(req.file.buffer, req.file.mimetype);
+
+          // Update user's profileImage field with base64 data
+          const user = await UserModel.findByIdAndUpdate(
+            ctx.userId,
+            { profileImage: imageDataUrl },
+            { new: true }
+          );
+
+          if (!user) {
+            return res.status(404).json({ error: "User not found" });
+          }
+
+          return res.json({ 
+            message: "Profile image uploaded successfully",
+            imageUrl: user.profileImage,
+            success: true
+          });
+        } catch (storageError: any) {
+          return res.status(400).json({ error: storageError.message });
+        }
+      });
+
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Bad request";
+      const status = msg === "Unauthorized" ? 401 : 400;
+      return res.status(status).json({ error: msg });
+    }
+  });
+
+  // Clear Profile Image (for fixing corrupted images)
+  app.post("/api/profile/clear-image", async (req, res) => {
+    try {
+      const ctx = await requireAuth(req);
+      await connectToDatabase();
+
+      // Clear the profile image
       const user = await UserModel.findByIdAndUpdate(
         ctx.userId,
-        { profileImage: imageUrl },
+        { $unset: { profileImage: "" } },
         { new: true }
       );
 
@@ -531,92 +591,12 @@ export function registerRoutes(app: Express) {
       }
 
       return res.json({ 
-        message: "Profile image uploaded successfully",
-        imageUrl: user.profileImage,
+        message: "Profile image cleared successfully",
         success: true
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Bad request";
       const status = msg === "Unauthorized" ? 401 : 400;
-      
-      // Ensure we always return JSON
-      return res.status(status).json({ error: msg, success: false });
-    }
-  });
-
-  // Update Profile Image (without upload)
-  app.put("/api/profile/update-profile-image", async (req, res) => {
-    try {
-      const ctx = await requireAuth(req);
-      await connectToDatabase();
-
-      const { profileImage } = req.body;
-
-      if (!profileImage) {
-        return res.status(400).json({ error: "Profile image URL is required" });
-      }
-
-      // Update user's profileImage field
-      const user = await UserModel.findByIdAndUpdate(
-        ctx.userId,
-        { profileImage },
-        { new: true }
-      );
-
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      return res.json({ 
-        message: "Profile image updated successfully",
-        profileImage: user.profileImage,
-        success: true
-      });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Unauthorized" ? 401 : 400;
-      
-      return res.status(status).json({ error: msg, success: false });
-    }
-  });
-
-  // Get Previously Uploaded Profile Images
-  app.get("/api/uploads/profile-images", async (req, res) => {
-    try {
-      const ctx = await requireAuth(req);
-      await connectToDatabase();
-
-      // Get the uploads directory path
-      const fs = require('fs');
-      const path = require('path');
-      const uploadsDir = path.join(process.cwd(), 'uploads', 'profile-images');
-
-      // Check if directory exists
-      if (!fs.existsSync(uploadsDir)) {
-        return res.json({ images: [] });
-      }
-
-      // Read all files in the profile-images directory
-      const files = fs.readdirSync(uploadsDir);
-      
-      // Filter for image files and create URLs
-      const imageFiles = files
-        .filter((file: string) => {
-          const ext = path.extname(file).toLowerCase();
-          return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
-        })
-        .map((file: string) => `/uploads/profile-images/${file}`)
-        .sort((a: string, b: string) => {
-          // Sort by modification time (newest first)
-          const statA = fs.statSync(path.join(uploadsDir, path.basename(a)));
-          const statB = fs.statSync(path.join(uploadsDir, path.basename(b)));
-          return statB.mtime.getTime() - statA.mtime.getTime();
-        });
-
-      return res.json({ images: imageFiles });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Internal server error";
-      const status = msg === "Unauthorized" ? 401 : 500;
       return res.status(status).json({ error: msg });
     }
   });
