@@ -13,6 +13,7 @@ import { distributeBusinessVolumeWithSession } from "@/lib/bvDistribution";
 import { buildReferralTree } from "@/lib/referralTree";
 import { getBusinessOpportunityEmailContent } from "@/lib/businessOpportunity";
 import { sendEmail } from "@/lib/email";
+import { authValidation, sendValidationError, sendSuccessResponse, VALIDATION_MESSAGES, formatZodError } from "@/lib/validation";
 import { importUpload } from "@/lib/upload";
 import { processBulkServiceUpload, generateServiceImportTemplate } from "@/lib/bulkServiceImport";
 import { processBulkCategoryUpload, generateCategoryImportTemplate } from "@/lib/bulkCategoryImport";
@@ -121,33 +122,18 @@ export function registerRoutes(app: Express) {
 
   // Auth
   app.post("/api/auth/register", async (req, res) => {
-    const schema = z.object({
-      mobile: z.string().min(10).max(15),
-      countryCode: z.string().default("+91"),
-      name: z.string().min(1),
-      email: z.string().email().optional(),
-      password: z.string().min(8),
-      acceptedTerms: z.literal(true),
-      referralCode: z
-        .string()
-        .optional()
-        .transform((v) => (typeof v === "string" ? v.trim() : v))
-        .transform((v) => (v ? v : undefined)),
-      fullName: z.string().min(1),
-    });
-
     try {
-      const body = schema.parse(req.body);
+      const body = authValidation.register.parse(req.body);
       await connectToDatabase();
 
       // Check if mobile already exists
       const existingMobile = await UserModel.findOne({ mobile: body.mobile }).select("_id");
-      if (existingMobile) return res.status(409).json({ error: "Mobile number already in use" });
+      if (existingMobile) return sendValidationError(res, VALIDATION_MESSAGES.MOBILE_EXISTS, 409);
 
       // Check if email already exists (if provided)
       if (body.email) {
         const existingEmail = await UserModel.findOne({ email: body.email.toLowerCase() }).select("_id");
-        if (existingEmail) return res.status(409).json({ error: "Email already in use" });
+        if (existingEmail) return sendValidationError(res, VALIDATION_MESSAGES.EMAIL_EXISTS, 409);
       }
 
       let parentId: mongoose.Types.ObjectId | null = null;
@@ -155,7 +141,7 @@ export function registerRoutes(app: Express) {
 
       if (body.referralCode) {
         const sponsor = await UserModel.findOne({ referralCode: body.referralCode }).select("_id");
-        if (!sponsor) return res.status(400).json({ error: "Invalid referral code" });
+        if (!sponsor) return sendValidationError(res, "Invalid referral code");
 
         const placement = await findBinaryPlacement({ sponsorId: sponsor._id });
         parentId = placement.parentId;
@@ -192,8 +178,7 @@ export function registerRoutes(app: Express) {
         }, 0);
       }
 
-      return res.status(201).json({ 
-        message: "Registration successful",
+      return sendSuccessResponse(res, {
         user: {
           _id: user._id,
           mobile: user.mobile,
@@ -203,66 +188,59 @@ export function registerRoutes(app: Express) {
           isVerified: user.isVerified,
           referralCode: user.referralCode,
         }
-      });
+      }, "Registration successful");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      return res.status(400).json({ error: msg });
+      if (err instanceof z.ZodError) {
+        return sendValidationError(res, formatZodError(err));
+      }
+      const msg = err instanceof Error ? err.message : VALIDATION_MESSAGES.SERVER_ERROR;
+      return sendValidationError(res, msg);
     }
   });
 
   // Login
-
   app.post("/api/auth/login", async (req, res) => {
-    const schema = z.object({ email: z.string().email(), password: z.string().min(1) });
-
     try {
-      const body = schema.parse(req.body);
+      const body = authValidation.login.parse(req.body);
       await connectToDatabase();
 
-      const user = await UserModel.findOne({ email: body.email.toLowerCase() });
+      const user = await UserModel.findOne({ mobile: body.mobile });
       if (!user) {
         await verifyPassword(body.password, DUMMY_PASSWORD_HASH);
-        return res.status(401).json({ error: "Invalid credentials" });
+        return sendValidationError(res, "Invalid mobile number or password", 401);
       }
 
-      // Check account status before verifying password
-      if (user.status === "deleted") {
-        return res.status(403).json({ error: "Account has been deleted" });
-      }
-      if (user.status === "suspended") {
-        return res.status(403).json({ error: "Account has been suspended by administrator" });
-      }
-      if (user.sessionExpiresAt && new Date(user.sessionExpiresAt) < new Date()) {
-        return res.status(403).json({ error: "Account session has expired" });
-      }
+      const isValidPassword = await verifyPassword(body.password, user.passwordHash);
+      if (!isValidPassword) return sendValidationError(res, "Invalid mobile number or password", 401);
 
-      const ok = await verifyPassword(body.password, user.passwordHash);
-      if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+      if (user.status === "deleted") return sendValidationError(res, VALIDATION_MESSAGES.ACCOUNT_DELETED, 403);
+      if (user.status === "suspended") return sendValidationError(res, VALIDATION_MESSAGES.ACCOUNT_SUSPENDED, 403);
 
-      // Update user activity status to active on successful login
-      await UserModel.findByIdAndUpdate(user._id, { 
-        activityStatus: "active",
-        lastLoginAt: new Date()
-      });
-
-      const token = await signAuthToken({ sub: user._id.toString(), role: user.role, ...(user.email && { email: user.email }) });
+      const token = await signAuthToken({ sub: user._id.toString(), role: user.role, email: user.email || undefined });
       setAuthCookie(res, token);
 
-      return res.json({
-        token,
+      await UserModel.findByIdAndUpdate(user._id, { 
+        lastLoginAt: new Date(),
+        activityStatus: "active"
+      });
+
+      return sendSuccessResponse(res, {
         user: {
-          id: user._id.toString(),
+          _id: user._id,
+          mobile: user.mobile,
           name: user.name,
-          fullName: user.fullName,
           email: user.email,
           role: user.role,
+          isVerified: user.isVerified,
           referralCode: user.referralCode,
-          parentUserId: user.parent?.toString() ?? null,
-        },
-      });
+        }
+      }, "Login successful");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      return res.status(400).json({ error: msg });
+      if (err instanceof z.ZodError) {
+        return sendValidationError(res, formatZodError(err));
+      }
+      const msg = err instanceof Error ? err.message : VALIDATION_MESSAGES.SERVER_ERROR;
+      return sendValidationError(res, msg);
     }
   });
 
@@ -373,15 +351,9 @@ export function registerRoutes(app: Express) {
 
   // Profile Management - Update Basic Info (Signup fields)
   app.put("/api/profile/basic", async (req, res) => {
-    const schema = z.object({
-      name: z.string().min(1).optional(),
-      email: z.string().email().optional(),
-      mobile: z.string().min(10).max(15).optional(),
-    }).refine((v) => Object.keys(v).length > 0, "No fields to update");
-
     try {
       const ctx = await requireAuth(req);
-      const body = schema.parse(req.body);
+      const body = authValidation.updateProfile.parse(req.body);
       await connectToDatabase();
 
       // Check if email already exists (if updating email)
@@ -390,44 +362,32 @@ export function registerRoutes(app: Express) {
           email: body.email.toLowerCase(),
           _id: { $ne: ctx.userId }
         }).select("_id");
-        if (existingEmail) return res.status(409).json({ error: "Email already in use" });
+        if (existingEmail) return sendValidationError(res, VALIDATION_MESSAGES.EMAIL_EXISTS, 409);
       }
-
-      // Check if mobile already exists (if updating mobile)
-      if (body.mobile) {
-        const existingMobile = await UserModel.findOne({ 
-          mobile: body.mobile,
-          _id: { $ne: ctx.userId }
-        }).select("_id");
-        if (existingMobile) return res.status(409).json({ error: "Mobile number already in use" });
-      }
-
-      const updateData: any = {};
-      if (body.name) updateData.name = body.name;
-      if (body.email) updateData.email = body.email.toLowerCase();
-      if (body.mobile) updateData.mobile = body.mobile;
 
       const user = await UserModel.findByIdAndUpdate(
         ctx.userId, 
-        updateData, 
+        body, 
         { new: true }
       );
 
-      if (!user) return res.status(404).json({ error: "User not found" });
+      if (!user) return sendValidationError(res, "User not found", 404);
 
-      return res.json({ 
-        message: "Basic profile updated successfully",
+      return sendSuccessResponse(res, {
         user: {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
           mobile: user.mobile,
         }
-      });
+      }, "Profile updated successfully");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Bad request";
-      const status = msg === "Unauthorized" ? 401 : 400;
-      return res.status(status).json({ error: msg });
+      if (err instanceof z.ZodError) {
+        return sendValidationError(res, formatZodError(err));
+      }
+      const msg = err instanceof Error ? err.message : VALIDATION_MESSAGES.SERVER_ERROR;
+      const status = msg === VALIDATION_MESSAGES.UNAUTHORIZED ? 401 : 400;
+      return sendValidationError(res, msg, status);
     }
   });
 
