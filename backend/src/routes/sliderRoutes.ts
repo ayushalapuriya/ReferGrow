@@ -14,7 +14,8 @@ router.get("/", async (req, res) => {
       .lean();
     return res.json({ sliders });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Server error";
+    console.error('Error fetching sliders:', err);
+    const msg = err instanceof Error ? err.message : "Unable to load slider images";
     return res.status(500).json({ error: msg });
   }
 });

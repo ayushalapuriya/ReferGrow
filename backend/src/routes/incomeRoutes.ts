@@ -19,8 +19,9 @@ router.get("/", async (req, res) => {
 
     return res.json({ incomes });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unauthorized";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error fetching income:', err);
+    const msg = err instanceof Error ? err.message : "Unable to load income information";
+    const status = msg.includes("permission") || msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });

@@ -10,7 +10,7 @@ const router = Router();
 router.post("/", async (req, res) => {
   const schema = z.object({
     name: z.string().min(1),
-    email: z.string().email(),
+    email: z.string().email({ message: "Invalid email format" }),
     subject: z.string().min(1),
     message: z.string().min(10),
   });
@@ -46,7 +46,7 @@ This message has been saved to the database with ID: ${contact._id}`,
         <p><strong>Email:</strong> ${body.email}</p>
         <p><strong>Subject:</strong> ${body.subject}</p>
         <p><strong>Message:</strong></p>
-        <p>${body.message.replaceAll(/\n/g, '<br>')}</p>
+        <p>${body.message.replaceAll('\n', '<br>')}</p>
         <p><strong>Submitted at:</strong> ${new Date().toLocaleString()}</p>
         <p><strong>Database ID:</strong> ${contact._id}</p>
       `

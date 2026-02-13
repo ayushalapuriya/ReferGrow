@@ -29,8 +29,8 @@ router.get("/me", async (req, res) => {
       },
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unauthorized";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    const msg = err instanceof Error ? err.message : "Unable to retrieve user information";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -86,8 +86,8 @@ router.get("/profile", async (req, res) => {
       },
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unauthorized";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    const msg = err instanceof Error ? err.message : "Unable to retrieve profile information";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -128,8 +128,9 @@ router.put("/profile/basic", async (req, res) => {
     if (err instanceof z.ZodError) {
       return sendValidationError(res, formatZodError(err));
     }
-    const msg = err instanceof Error ? err.message : VALIDATION_MESSAGES.SERVER_ERROR;
-    const status = msg === VALIDATION_MESSAGES.UNAUTHORIZED ? 401 : 400;
+    console.error('Error updating profile:', err);
+    const msg = err instanceof Error ? err.message : "Unable to update profile";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return sendValidationError(res, msg, status);
   }
 });
@@ -203,8 +204,9 @@ router.put("/profile/business", async (req, res) => {
       }
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error updating business settings:', err);
+    const msg = err instanceof Error ? err.message : "Unable to update business settings";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -270,8 +272,9 @@ router.post("/upload/profile-image", async (req, res) => {
     });
 
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error uploading profile image:', err);
+    const msg = err instanceof Error ? err.message : "Unable to upload profile image";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -297,8 +300,9 @@ router.post("/profile/clear-image", async (req, res) => {
       success: true
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error clearing profile image:', err);
+    const msg = err instanceof Error ? err.message : "Unable to clear profile image";
+    const status = msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -351,8 +355,9 @@ router.put("/kyc", async (req, res) => {
 
     return res.json({ message: "KYC submitted successfully", user });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
-    const status = msg === "Forbidden" ? 403 : 400;
+    console.error('Error submitting KYC:', err);
+    const msg = err instanceof Error ? err.message : "Unable to submit KYC information";
+    const status = msg.includes("permission") || msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });

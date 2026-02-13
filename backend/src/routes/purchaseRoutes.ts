@@ -17,8 +17,9 @@ router.get("/", async (req, res) => {
     const purchases = await PurchaseModel.find({ user: ctx.userId }).populate("service").sort({ createdAt: -1 }).limit(50);
     return res.json({ purchases });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unauthorized";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error fetching purchases:', err);
+    const msg = err instanceof Error ? err.message : "Unable to load purchase history";
+    const status = msg.includes("permission") || msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });
@@ -68,8 +69,9 @@ router.post("/", async (req, res) => {
       session.endSession();
     }
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
-    const status = msg === "Unauthorized" ? 401 : 400;
+    console.error('Error creating purchase:', err);
+    const msg = err instanceof Error ? err.message : "Unable to create purchase";
+    const status = msg.includes("permission") || msg.includes("log in") || msg.includes("Authentication") ? 401 : 400;
     return res.status(status).json({ error: msg });
   }
 });

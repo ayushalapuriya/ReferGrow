@@ -34,7 +34,8 @@ router.get("/", async (_req, res) => {
     
     res.json({ services: processedServices });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Server error";
+    console.error('Error fetching services:', err);
+    const msg = err instanceof Error ? err.message : "Unable to load services. Please try again.";
     res.status(500).json({ error: msg, services: [] });
   }
 });

@@ -37,6 +37,7 @@ router.post("/check-exists", async (req, res) => {
 
     return res.json({ exists: !!user });
   } catch (err: unknown) {
+    console.error('Error checking user existence:', err);
     const msg = err instanceof Error ? err.message : VALIDATION_MESSAGES.SERVER_ERROR;
     return res.status(500).json({ error: msg });
   }

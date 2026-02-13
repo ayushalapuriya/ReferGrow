@@ -108,7 +108,7 @@ export const authValidation = {
     referralCode: z.string()
       .optional()
       .transform((v) => (typeof v === "string" ? v.trim() : v))
-      .transform((v) => (v ? v : undefined)),
+      .transform((v) => v || undefined),
     fullName: z.string()
       .min(2, VALIDATION_MESSAGES.FULL_NAME_REQUIRED)
       .max(100, 'Full name cannot exceed 100 characters'),

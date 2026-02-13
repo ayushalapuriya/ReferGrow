@@ -7,7 +7,7 @@ const router = Router();
 
 // Request business opportunity information
 router.post("/request", async (req, res) => {
-  const schema = z.object({ email: z.string().email() });
+  const schema = z.object({ email: z.string().email({ message: "Invalid email format" }) });
 
   try {
     const body = schema.parse(req.body);
@@ -25,7 +25,8 @@ router.post("/request", async (req, res) => {
     
     return res.json({ ok: true, emailed: result.sent });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Bad request";
+    console.error('Error processing business opportunity request:', err);
+    const msg = err instanceof Error ? err.message : "Unable to process request. Please try again.";
     return res.status(400).json({ error: msg });
   }
 });

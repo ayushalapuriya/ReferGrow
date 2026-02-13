@@ -23,7 +23,8 @@ router.get("/", async (req, res) => {
 
     return res.json({ categories: formatted });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Server error";
+    console.error('Error fetching categories:', err);
+    const msg = err instanceof Error ? err.message : "Unable to load categories";
     return res.status(500).json({ error: msg });
   }
 });
