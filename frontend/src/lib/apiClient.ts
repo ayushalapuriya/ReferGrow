@@ -12,7 +12,6 @@ export function apiUrl(path: string) {
   // This makes auth cookies available on the Vercel domain (middleware + client).
   if (useProxy && normalizedPath.startsWith("/api")) return normalizedPath;
   if (useProxy && normalizedPath === "/health") return normalizedPath;
-  if (useProxy && normalizedPath.startsWith("/uploads")) return normalizedPath;
 
   const base = rawBase ? normalizeBase(rawBase) : "";
   if (!base) return normalizedPath;

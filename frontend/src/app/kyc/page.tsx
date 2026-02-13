@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/useAuth";
 import { useRouter } from "next/navigation";
 import { User, FileCheck, Upload, Plus, Trash2, Calendar, Briefcase, CreditCard, Users, MapPin } from "lucide-react";
-import { toast } from "react-toastify";
 
 interface KYCData {
   fullName: string;
@@ -141,11 +140,12 @@ export default function KYCPage() {
 
   const handleSubmit = async () => {
     if (!validateStep(currentStep)) {
-      toast.error("Please fill in all required fields");
+      setError("Please fill in all required fields");
       return;
     }
 
     setLoading(true);
+    setError(null);
 
     try {
       const response = await fetch("/api/user/kyc", {
@@ -161,12 +161,9 @@ export default function KYCPage() {
         throw new Error(errorData.error || "Failed to submit KYC");
       }
 
-      toast.success("KYC submitted successfully!");
       setSuccess(true);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An error occurred";
-      toast.error(errorMessage);
-      console.error("KYC submission error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
