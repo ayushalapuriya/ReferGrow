@@ -24,6 +24,12 @@ start-dev.ps1
 start-dev.sh
 
 # ===============================
+# Documentation (temporary/local)
+# ===============================
+TOAST_IMPLEMENTATION.md
+TOAST_QUICK_REFERENCE.md
+
+# ===============================
 # Logs
 # ===============================
 logs/

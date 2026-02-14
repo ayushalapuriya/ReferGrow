@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { apiFetch } from "@/lib/apiClient";
+import { showSuccessToast, showErrorToast } from "@/lib/toast";
 
 interface UserProfile {
   id: string;
@@ -185,7 +186,7 @@ export default function ProfilePage() {
 
   const uploadProfileImage = async () => {
     if (!profileImage) {
-      alert("Please select an image first");
+      showErrorToast("Please select an image first");
       return;
     }
 
@@ -215,6 +216,7 @@ export default function ProfilePage() {
 
       setSuccessMessage("Profile image uploaded successfully!");
       setProfileImage(null);
+      showSuccessToast("Profile image uploaded successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
 
       // Reload profile to get updated image
@@ -226,7 +228,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to upload image:", error);
-      alert(`Failed to upload profile image: ${error instanceof Error ? error.message : "Unknown error"}`);
+      showErrorToast(`Failed to upload profile image: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   };
 
@@ -242,6 +244,7 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setSuccessMessage(data.message);
+        showSuccessToast(data.message || "Basic information updated successfully");
         await loadProfile();
 
         // Trigger profile update event to refresh navbar
@@ -253,7 +256,7 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error("Failed to update basic info:", error);
-      alert("Failed to update basic information");
+      showErrorToast("Failed to update basic information");
     } finally {
       setSaving(false);
     }
@@ -271,13 +274,14 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setSuccessMessage(data.message);
+        showSuccessToast(data.message || "Company information updated successfully");
         await loadProfile();
       } else {
         throw new Error(data.error || "Update failed");
       }
     } catch (error) {
       console.error("Failed to update company info:", error);
-      alert("Failed to update company information");
+      showErrorToast("Failed to update company information");
     } finally {
       setSaving(false);
     }
@@ -295,13 +299,14 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setSuccessMessage(data.message);
+        showSuccessToast(data.message || "Address information updated successfully");
         await loadProfile();
       } else {
         throw new Error(data.error || "Update failed");
       }
     } catch (error) {
       console.error("Failed to update address info:", error);
-      alert("Failed to update address information");
+      showErrorToast("Failed to update address information");
     } finally {
       setSaving(false);
     }
@@ -319,13 +324,14 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setSuccessMessage(data.message);
+        showSuccessToast(data.message || "Business settings updated successfully");
         await loadProfile();
       } else {
         throw new Error(data.error || "Update failed");
       }
     } catch (error) {
       console.error("Failed to update business settings:", error);
-      alert("Failed to update business settings");
+      showErrorToast("Failed to update business settings");
     } finally {
       setSaving(false);
     }
@@ -343,13 +349,14 @@ export default function ProfilePage() {
 
       if (res.ok) {
         setSuccessMessage(data.message);
+        showSuccessToast(data.message || "Tax settings updated successfully");
         await loadProfile();
       } else {
         throw new Error(data.error || "Update failed");
       }
     } catch (error) {
       console.error("Failed to update tax settings:", error);
-      alert("Failed to update tax settings");
+      showErrorToast("Failed to update tax settings");
     } finally {
       setSaving(false);
     }

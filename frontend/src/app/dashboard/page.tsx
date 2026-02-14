@@ -18,6 +18,7 @@ import {
 import { formatINR } from "@/lib/format";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addItem } from "@/store/slices/cartSlice";
+import { showSuccessToast, showErrorToast } from "@/lib/toast";
 
 type MeResponse = {
   user: {
@@ -101,7 +102,10 @@ export default function DashboardPage() {
     setBusy(true);
     try {
       await apiFetch("/api/auth/logout", { method: "POST" });
+      showSuccessToast("Logged out successfully");
       window.location.href = "/login";
+    } catch (error) {
+      showErrorToast("Failed to logout. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -122,9 +126,12 @@ export default function DashboardPage() {
       const json = body.json as any;
       if (!res.ok) throw new Error(json?.error ?? body.text ?? "Purchase failed");
 
+      showSuccessToast("Service purchased successfully!");
       await loadAll();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setBusy(false);
     }

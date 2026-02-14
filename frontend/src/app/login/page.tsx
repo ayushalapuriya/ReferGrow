@@ -7,6 +7,7 @@ import { apiFetch, readApiBody } from "@/lib/apiClient";
 import { useAppDispatch } from "@/store/hooks";
 import { setUserProfile } from "@/store/slices/userSlice";
 import { ArrowLeft, LockKeyhole, Mail, Eye, EyeOff } from "lucide-react";
+import { showSuccessToast, showErrorToast } from "@/lib/toast";
 
 const brandGradient = "linear-gradient(90deg, #22C55E 0%, #0EA5E9 100%)";
 
@@ -28,10 +29,12 @@ export default function LoginPage() {
     try {
       // Validate input
       if (!emailOrPhone.trim()) {
-        throw new Error("Please enter your email address or phone number");
+        showErrorToast("Please enter your email address or phone number");
+        return;
       }
       if (!password) {
-        throw new Error("Please enter your password");
+        showErrorToast("Please enter your password");
+        return;
       }
 
       // First check if user exists
@@ -46,7 +49,8 @@ export default function LoginPage() {
 
       if (checkRes.ok && !checkData.exists) {
         const isEmail = emailOrPhone.includes('@');
-        throw new Error(`No account found with this ${isEmail ? 'email address' : 'phone number'}. Please check your details or register for a new account.`);
+        showErrorToast(`No account found with this ${isEmail ? 'email address' : 'phone number'}. Please check your details or register for a new account.`);
+        return;
       }
 
       // Proceed with login
@@ -62,8 +66,11 @@ export default function LoginPage() {
       if (!res.ok) {
         // Extract user-friendly error message
         const errorMsg = data?.error || data?.message || body.text || "Login failed. Please check your credentials and try again.";
-        throw new Error(errorMsg);
+        showErrorToast(errorMsg);
+        return;
       }
+
+      showSuccessToast("Login successful! Redirecting...");
 
       // Give browser a beat to persist the cookie
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -85,7 +92,9 @@ export default function LoginPage() {
       router.push(userRole === "admin" ? "/admin" : "/dashboard");
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err));
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setLoading(false);
     }

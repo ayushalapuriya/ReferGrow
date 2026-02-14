@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import ImageUpload from "@/app/_components/ImageUpload";
 import SliderInlineEdit from "@/app/_components/SliderInlineEdit";
+import { showSuccessToast, showErrorToast } from "@/lib/toast";
 
 type Slider = {
   _id: string;
@@ -72,6 +73,7 @@ export default function AdminSliderPage() {
     setSuccess(null);
     setError(null);
     await loadSliders();
+    showSuccessToast("Sliders refreshed successfully!");
     setSuccess("Sliders refreshed successfully!");
     setTimeout(() => setSuccess(null), 3000);
     setIsRefreshing(false);
@@ -99,6 +101,7 @@ export default function AdminSliderPage() {
       const body = await readApiBody(res);
       if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to create slider");
 
+      showSuccessToast("Slider created successfully!");
       setSuccess("Slider created successfully!");
       setFormData({ title: "", description: "", imageUrl: "", order: 0, isActive: true });
 
@@ -107,7 +110,9 @@ export default function AdminSliderPage() {
 
       await loadSliders();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create slider");
+      const errorMsg = err instanceof Error ? err.message : "Failed to create slider";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setBusy(false);
     }
@@ -127,11 +132,14 @@ export default function AdminSliderPage() {
       const body = await readApiBody(res);
       if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to update slider");
 
+      showSuccessToast("Slider updated successfully!");
       setSuccess("Slider updated successfully!");
       setEditingId(null);
       await loadSliders();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to update slider");
+      const errorMsg = err instanceof Error ? err.message : "Failed to update slider";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setBusy(false);
     }
@@ -149,10 +157,13 @@ export default function AdminSliderPage() {
       const body = await readApiBody(res);
       if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to delete slider");
 
+      showSuccessToast("Slider deleted successfully!");
       setSuccess("Slider deleted successfully!");
       await loadSliders();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to delete slider");
+      const errorMsg = err instanceof Error ? err.message : "Failed to delete slider";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setBusy(false);
     }
@@ -178,6 +189,7 @@ export default function AdminSliderPage() {
       console.log("Response:", res.status, body);
       if (!res.ok) throw new Error((body.json as any)?.error ?? "Failed to reorder sliders");
 
+      showSuccessToast("Sliders reordered successfully!");
       setSuccess("Sliders reordered successfully!");
       await loadSliders();
     } catch (err: unknown) {
